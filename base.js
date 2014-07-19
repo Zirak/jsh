@@ -163,7 +163,7 @@ var deps = [
         target,
         {
             url : 'sdk/RuntimeModel.js',
-            depends : [target]
+            depends : [target, 'sdk/RemoteObject.js']
         }
     ]
 }]

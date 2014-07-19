@@ -429,9 +429,9 @@ InspectorBackendClass.Connection.prototype = {
         if (InspectorBackendClass.Options.dumpInspectorProtocolMessages)
             this._dumpProtocolMessage("frontend: " + JSON.stringify(messageObject));
 
-        this.sendMessage(messageObject);
         ++this._pendingResponsesCount;
         this._callbacks[messageId] = wrappedCallback;
+        this.sendMessage(messageObject);
     },
 
     /**
@@ -700,9 +700,12 @@ InspectorBackendClass.StubConnection.prototype = {
 
             res = {
                 result : {
-                    value : evaled,
-                    description : String(evaled),
-                    type : typeof evaled
+                    result : {
+                        value : evaled,
+                        description : String(evaled),
+                        type : typeof evaled
+                    },
+                    wasThrown : false
                 },
                 id : messageObject.id
             }
@@ -935,7 +938,7 @@ InspectorBackendClass.DispatcherPrototype.prototype = {
 
 InspectorBackendClass.Options = {
     dumpInspectorTimeStats: false,
-    dumpInspectorProtocolMessages: false,
+    dumpInspectorProtocolMessages: true,
     suppressRequestErrors: false
 }
 
