@@ -49,9 +49,3 @@ WebInspector.queryParam = function(name)
 WebInspector.isWorkerFrontend = function() {
     return false;
 };
-
-// yeah... NOOOOOO
-setTimeout(function () {
-    self.fakeExecutionContext = new WebInspector.ExecutionContext(
-        WebInspector.targetManager.mainTarget(), 0, null, true, 0);
-}, 1000);

@@ -58,12 +58,15 @@ WebInspector.Drawer = function(splitView)
 
     this._toggleDrawerEditorButton = this._drawerEditorSplitView.createShowHideSidebarButton("editor in drawer", "drawer-editor-show-hide-button");
     this._tabbedPane.element.appendChild(this._toggleDrawerEditorButton.element);
-    if (!WebInspector.experimentsSettings.editorInDrawer.isEnabled())
-        this.setDrawerEditorAvailable(false);
+    if (!WebInspector.experimentsSettings.editorInDrawer.isEnabled()) {
+        // this.setDrawerEditorAvailable(false);
+    }
 
     splitView.installResizer(this._tabbedPane.headerElement());
     this._lastSelectedViewSetting = WebInspector.settings.createSetting("WebInspector.Drawer.lastSelectedView", "console");
     this._tabbedPane.show(this._drawerEditorSplitView.mainElement());
+
+    this.closeDrawer();
 }
 
 WebInspector.Drawer.prototype = {

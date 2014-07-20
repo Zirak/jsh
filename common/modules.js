@@ -119,6 +119,7 @@ var allDescriptors = [
                 }
             ]
         },
+        /*
         {
             "type": "drawer-view",
             "name": "emulation",
@@ -133,6 +134,7 @@ var allDescriptors = [
             "order": "11",
             "className": "WebInspector.RenderingOptions.View"
         },
+        */
         {
             "type": "@WebInspector.Revealer",
             "contextTypes": ["WebInspector.OverridesSupport"],
@@ -146,7 +148,7 @@ var allDescriptors = [
             "order": 0,
             "actionId": "main.toggle-element-search"
         },
-        */
+
         {
             "type": "@WebInspector.StatusBarButton.Provider",
             "className": "WebInspector.App.EmulationButtonProvider",
@@ -159,6 +161,7 @@ var allDescriptors = [
             "order": 1,
             "location": "toolbar-right"
         },
+        */
         /*
         {
             "type": "@WebInspector.StatusBarButton.Provider",
@@ -166,7 +169,6 @@ var allDescriptors = [
             "order": 2,
             "location": "toolbar-right"
         },
-        */
         {
             "type": "ui-setting",
             "title": "Disable cache (while DevTools is open)",
@@ -199,6 +201,7 @@ var allDescriptors = [
             "settingType": "custom",
             "className": "WebInspector.HandlerRegistry.OpenAnchorLocationSettingDelegate"
         }
+        */
     ]
 },
 {
