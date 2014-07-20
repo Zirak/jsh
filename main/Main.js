@@ -449,6 +449,7 @@ WebInspector.Main.prototype = {
 
         function followLink()
         {
+            /*
             if (WebInspector.isBeingEdited(event.target))
                 return;
             if (WebInspector.openAnchorLocationRegistry.dispatch({ url: anchor.href, lineNumber: anchor.lineNumber}))
@@ -471,6 +472,8 @@ WebInspector.Main.prototype = {
                 WebInspector.Revealer.reveal(request);
                 return;
             }
+            */
+
             InspectorFrontendHost.openInNewTab(anchor.href);
         }
 
