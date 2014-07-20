@@ -3,6 +3,7 @@
 <head>
     <title>jsh</title>
     <link href="css/inspector.css" rel="stylesheet" />
+    <link href="favicon.ico" rel="icon" type="image/x-icon" />
 
     <script src="common/utilities.js"></script>
     <script src="common/modules.js"></script>
@@ -16,6 +17,7 @@
     <script src="common/Geometry.js"></script>
     <script src="common/Settings.js"></script>
     <script src="ui/DOMExtension.js"></script>
+    <script src="ui/treeoutline.js"></script>
     <script src="main/Main.js"></script>
     <script src="sdk/InspectorBackend.js"></script>
     <script src="host/InspectorFrontendHost.js"></script>
@@ -35,7 +37,10 @@
     <script src="components/Panel.js"></script>
     <script src="components/InspectorView.js"></script>
     <script src="sdk/ResourceUtils.js"></script>
+    <script src="components/Section.js"></script>
+    <script src="components/PropertiesSection.js"></script>
     <script src="sdk/RemoteObject.js"></script>
+    <script src="components/ObjectPropertiesSection.js"></script>
     <script src="ui/StatusBarButton.js"></script>
     <script src="ui/DropDownMenu.js"></script>
     <script src="ui/SplitView.js"></script>
@@ -47,13 +52,6 @@
     <script src="main/SimpleApp.js"></script>
     <script src="ui/ZoomManager.js"></script>
     <script src="ui/ResizerWidget.js"></script>
-    <script>
-        // yeah... NOOOOOO
-        setTimeout(function () {
-            self.fakeExecutionContext = new WebInspector.ExecutionContext(
-                WebInspector.targetManager.mainTarget(), 0, null, true, 0);
-        }, 200);
-    </script>
 </head>
 <body class="undocked" id="-blink-dev-tools">
 </body>

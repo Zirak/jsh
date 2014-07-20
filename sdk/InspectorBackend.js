@@ -693,20 +693,11 @@ InspectorBackendClass.StubConnection.prototype = {
     sendMessage: function(messageObject)
     {
         console.warn(messageObject);
-        var res, evaled;
+        var res;
 
         if (messageObject.method === 'Runtime.evaluate') {
-            evaled = eval(messageObject.params.expression);
-
             res = {
-                result : {
-                    result : {
-                        value : evaled,
-                        description : String(evaled),
-                        type : typeof evaled
-                    },
-                    wasThrown : false
-                },
+                result : WebInspector.evaluateLikeABoss(messageObject.params),
                 id : messageObject.id
             }
         }

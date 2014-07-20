@@ -49,3 +49,30 @@ WebInspector.queryParam = function(name)
 WebInspector.isWorkerFrontend = function() {
     return false;
 };
+
+WebInspector.evaluateLikeABoss = function (params) {
+    console.log(params);
+    var result,
+        wasThrown = false;
+
+    // TODO: consider sandboxing, maybe to an iframe so you could still mess
+    //around with the DOM and BOM.
+    try {
+        result = (function () {
+            return eval(params.expression);
+        })();
+    }
+    catch (e) {
+        result = e;
+        wasThrown = true;
+    }
+
+    return {
+        result : {
+            value : result,
+            description : String(result),
+            type : typeof result
+        },
+        wasThrown : wasThrown
+    }
+};
