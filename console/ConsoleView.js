@@ -839,8 +839,7 @@ WebInspector.ConsoleView.prototype = {
     {
         this._prompt.text = "";
 
-        //var currentExecutionContext = WebInspector.context.flavor(WebInspector.ExecutionContext);
-        var currentExecutionContext = fakeExecutionContext;
+        var currentExecutionContext = WebInspector.context.flavor(WebInspector.ExecutionContext);
         if (currentExecutionContext)
             WebInspector.ConsoleModel.evaluateCommandInConsole(currentExecutionContext, text, useCommandLineAPI);
     },

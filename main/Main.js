@@ -323,6 +323,13 @@ WebInspector.Main.prototype = {
     {
         console.timeStamp("Main._mainTargetCreated");
 
+        // zirak
+        console.log(mainTarget);
+        var fakeExecutionContext = new WebInspector.ExecutionContext(
+                mainTarget, 0, null, true, 0);
+        WebInspector.context.setFlavor(WebInspector.ExecutionContext, fakeExecutionContext);
+        // /zirak
+
         this._registerShortcuts();
 
         if (WebInspector.experimentsSettings.workersInMainWindow.isEnabled())
