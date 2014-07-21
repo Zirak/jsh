@@ -50,16 +50,25 @@ WebInspector.isWorkerFrontend = function() {
     return false;
 };
 
+// when there's a body to speak of, create an empty iframe.
+// We'll use its eval function so we can provide scoping without messing up
+//with the console itself.
+// Of course, you could trivially escape, but you'd need to try in order to do
+//that, so it's Good Enough.
+window.addEventListener('DOMContentLoaded', function () {
+    WebInspector.evalFrame = document.createElement('iframe');
+    WebInspector.evalFrame.hidden = true;
+    document.body.appendChild(WebInspector.evalFrame);
+});
+
 WebInspector.evaluateLikeABoss = function (params) {
     console.log(params);
     var result,
         wasThrown = false;
 
-    // TODO: consider sandboxing, maybe to an iframe so you could still mess
-    //around with the DOM and BOM.
     try {
         result = (function () {
-            return eval(params.expression);
+            return WebInspector.evalFrame.contentWindow.eval(params.expression);
         })();
     }
     catch (e) {
