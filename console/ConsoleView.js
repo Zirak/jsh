@@ -1142,8 +1142,6 @@ WebInspector.ConsoleCommandResult = function(message, linkifier, nestingLevel)
 }
 
 WebInspector.ConsoleCommandResult.prototype = {
-    // zirak: FUCK YOU
-    // HOW DOES ANYTHING WORK?
     /**
      * @override
      * @param {!WebInspector.RemoteObject} array

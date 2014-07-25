@@ -395,7 +395,6 @@ InjectedScript.prototype = {
      */
     getProperties: function(objectId, ownProperties, accessorPropertiesOnly)
     {
-        console.warn(arguments);
         var parsedObjectId = this._parseObjectId(objectId);
         var object = this._objectForId(parsedObjectId);
         var objectGroupName = this._idToObjectGroupName[parsedObjectId.id];
@@ -570,7 +569,6 @@ InjectedScript.prototype = {
             }
         }
 
-        // console.warn(descriptors);
         return descriptors;
     },
 

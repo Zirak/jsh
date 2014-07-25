@@ -96,7 +96,7 @@ WebInspector.RuntimeModel.prototype = {
      */
     createRemoteObject: function(payload)
     {
-        console.warn(payload);
+        console.info(payload);
         console.assert(typeof payload === "object", "Remote object payload should only be an object");
         return new WebInspector.RemoteObjectImpl(this.target(), payload.objectId, payload.type, payload.subtype, payload.value, payload.description, payload.preview);
     },

@@ -85,12 +85,16 @@ jsh.parseLogStackTrace = function (stack) {
     }
 };
 
+jsh.eval = function (code) {
+    return jsh.evalFrame.contentWindow.eval(code)
+};
+
 jsh.evaluateLikeABoss = function (params) {
     console.log(params);
     var ret, result;
 
     try {
-        result = jsh.evalFrame.contentWindow.eval(params.expression);
+        result = jsh.eval(params.expression);
 
         ret = {
             result    : jsh.wrapObject(result, params.objectGroup, true, params.generatePreview),
@@ -106,6 +110,15 @@ jsh.evaluateLikeABoss = function (params) {
     return ret;
 };
 
+jsh.callFunctionOn = function (params) {
+    var objectId = params.objectId,
+        func     = params.functionDeclaration,
+        args     = params.arguments,
+        byVal    = !!params.returnByValue;
+
+    return this.injectedScript.callFunctionOn(objectId, func, args, byVal)
+};
+
 // injectedScript indirections
 
 jsh.wrapObject = function (obj, group, generatePreview) {
@@ -117,13 +130,19 @@ jsh.wrapObject = function (obj, group, generatePreview) {
     return this.injectedScript.wrapObject(obj, group, true, generatePreview);
 };
 
-jsh.getProperties = function (id, ownProps, accessorsOnly) {
+jsh.getProperties = function (params) {
+    var id            = params.objectId,
+        ownProps      = params.ownProperties,
+        accessorsOnly = params.accessorPropertiesOnly;
+
     return {
         result : this.injectedScript.getProperties(id, ownProps, accessorsOnly)
     }
 };
 
 jsh.InjectedScriptHost = {
+    eval : jsh.eval,
+
     isHTMLAllCollection : function (suspect) {
         return suspect === document.all ||
             suspect === jsh.evalFrame.contentDocument.all;
