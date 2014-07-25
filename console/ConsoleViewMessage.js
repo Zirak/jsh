@@ -457,6 +457,7 @@ WebInspector.ConsoleViewMessage.prototype = {
      */
     _appendObjectPreview: function(obj, description, titleElement)
     {
+        console.trace();
         var preview = obj.preview;
         var isArray = obj.subtype === "array";
 
@@ -577,6 +578,7 @@ WebInspector.ConsoleViewMessage.prototype = {
      */
     _formatParameterAsArray: function(array, elem)
     {
+        console.log(this, this.useArrayPreviewInFormatter);
         if (this.useArrayPreviewInFormatter(array)) {
             this._formatParameterAsArrayOrObject(array, "", elem, true);
             return;
@@ -678,6 +680,8 @@ WebInspector.ConsoleViewMessage.prototype = {
      */
     _printArray: function(array, elem, properties)
     {
+        console.trace();
+
         if (!properties)
             return;
 

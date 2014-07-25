@@ -96,6 +96,7 @@ WebInspector.RuntimeModel.prototype = {
      */
     createRemoteObject: function(payload)
     {
+        console.warn(payload);
         console.assert(typeof payload === "object", "Remote object payload should only be an object");
         return new WebInspector.RemoteObjectImpl(this.target(), payload.objectId, payload.type, payload.subtype, payload.value, payload.description, payload.preview);
     },
@@ -234,10 +235,12 @@ WebInspector.ExecutionContext.prototype = {
             }
             console.info.apply(console, arguments);
 
-            if (returnByValue)
+            if (returnByValue) {
                 callback(null, !!wasThrown, wasThrown ? null : result);
-            else
+            }
+            else {
                 callback(this.target().runtimeModel.createRemoteObject(result), !!wasThrown);
+            }
         }
         this.target().runtimeAgent().evaluate(expression, objectGroup, includeCommandLineAPI, doNotPauseOnExceptionsAndMuteConsole, this.id, returnByValue, generatePreview, evalCallback.bind(this));
     },

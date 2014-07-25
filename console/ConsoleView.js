@@ -1031,8 +1031,10 @@ WebInspector.ConsoleViewFilter.prototype = {
         if (message.url && this._messageURLFilters[message.url])
             return false;
 
+        /*
         if (message.level && !this._levelFilterUI.accept(message.level))
             return false;
+        */
 
         if (this._filterRegex) {
             this._filterRegex.lastIndex = 0;
@@ -1140,6 +1142,8 @@ WebInspector.ConsoleCommandResult = function(message, linkifier, nestingLevel)
 }
 
 WebInspector.ConsoleCommandResult.prototype = {
+    // zirak: FUCK YOU
+    // HOW DOES ANYTHING WORK?
     /**
      * @override
      * @param {!WebInspector.RemoteObject} array

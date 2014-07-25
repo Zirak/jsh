@@ -46,8 +46,8 @@ Probably *the* most important piece of half-ass-not-really implemented
 functionality is the `Runtime.Evaluate` message, the core we're trying to wrap,
 how the console works. There are lots of nooks and crannies.
 
-All `Runtime.evaluate` calls funnel down to `WebInspector.evaluateLikeABoss`,
-which is declared in `common/WebInspector.js`. So far it's pathetic, I know.
+All `Runtime.evaluate` calls funnel down to `jsh.evaluateLikeABoss`,
+which is declared in `jsh.js`. So far it's pathetic, I know.
 Don't look at me.
 
 ## License
