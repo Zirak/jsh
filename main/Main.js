@@ -540,7 +540,7 @@ WebInspector.Main.prototype = {
         if (event.handled)
             return;
 
-        if (/*!WebInspector.Dialog.currentInstance() &&*/ WebInspector.inspectorView.currentPanel()) {
+        if (!WebInspector.Dialog.currentInstance() && WebInspector.inspectorView.currentPanel()) {
             WebInspector.inspectorView.currentPanel().handleShortcut(event);
             if (event.handled) {
                 event.consume(true);

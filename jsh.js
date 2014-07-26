@@ -110,17 +110,86 @@ jsh.evaluateLikeABoss = function (params) {
     return ret;
 };
 
+// injectedScript indirections
+
+/**
+    Calls a function on an object (shocking?). Returns the function's return.
+    Sometimes, I like to dress up like a strawberry.
+
+    params = {
+        functionDeclaration : function code to call
+        objectId      : internal object id to call the function on
+        arguments     : arguments to pass the function
+        returnByValue : yeah...
+    }
+*/
 jsh.callFunctionOn = function (params) {
     var objectId = params.objectId,
         func     = params.functionDeclaration,
         args     = params.arguments,
         byVal    = !!params.returnByValue;
 
-    return this.injectedScript.callFunctionOn(objectId, func, args, byVal)
+    return this.injectedScript.callFunctionOn(objectId, func, args, byVal);
 };
 
-// injectedScript indirections
+/**
+    Wraps an object so it'll be deemed worthy for the console.
 
+    It's simple when the argument is simple...
+
+    > wrapObject(4)
+    {
+        "type": "number",
+        "value": 4,
+        "description": "4"
+    }
+
+    ...but gets more complex as the arguments get complex...
+
+    > wrapObject({})
+    {
+        "type": "object",
+        "objectId": "{\"injectedScriptId\":1,\"id\":4}",
+        "className": "Object",
+        "description": "Object",
+        "preview": {
+            "lossless": false,
+            "overflow": false,
+            "properties": []
+        }
+    }
+
+    The objectId above is what'll be used to reference the object in later
+    times. Let's look at one with actual properties:
+
+    {
+        "type": "object",
+        "objectId": "{\"injectedScriptId\":1,\"id\":5}",
+        "className": "Object",
+        "description": "Object",
+        "preview": {
+            "lossless": false,
+            "overflow": false,
+            "properties": [
+                {
+                    "name": "a",
+                    "type": "number",
+                    "value": "4"
+                },
+                {
+                    "name": "b",
+                    "type": "object",
+                    "value": "Object"
+                }
+            ]
+        }
+    }
+
+    Parameters:
+        obj: Object to wrap.
+        group: ...I'm not sure. Default 'console'.
+        generatePreview: Whether to attach the preview property. Default true.
+*/
 jsh.wrapObject = function (obj, group, generatePreview) {
     if (arguments.length === 1) {
         group = 'console';
@@ -137,9 +206,10 @@ jsh.getProperties = function (params) {
 
     return {
         result : this.injectedScript.getProperties(id, ownProps, accessorsOnly)
-    }
+    };
 };
 
+// InjectedScript depends on some native methods. This is their simulation.
 jsh.InjectedScriptHost = {
     eval : jsh.eval,
 
@@ -210,3 +280,13 @@ jsh.InjectedScriptHost = {
         return method.apply(obj, args);
     },
 };
+
+/*
+                           _____ _            _____
+                          |_   _| |          |  __ \
+                            | | | |__   ___  | |  \/ __ _ _ __ ___   ___
+                            | | | '_ \ / _ \ | | __ / _` | '_ ` _ \ / _ \
+                            | | | | | |  __/ | |_\ \ (_| | | | | | |  __/
+                            \_/ |_| |_|\___|  \____/\__,_|_| |_| |_|\___|
+
+*/

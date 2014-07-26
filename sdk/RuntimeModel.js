@@ -272,10 +272,14 @@ WebInspector.ExecutionContext.prototype = {
             return;
         }
 
-        if (!expressionString && this._debuggerModel.selectedCallFrame())
+        /*
+        if (!expressionString && this._debuggerModel.selectedCallFrame()) {
             this._debuggerModel.getSelectedCallFrameVariables(receivedPropertyNames.bind(this));
-        else
+            console.error(arguments);
+        }
+        else*/ {
             this.evaluate(expressionString, "completion", true, true, false, false, evaluated.bind(this));
+        }
 
         /**
          * @this {WebInspector.ExecutionContext}
