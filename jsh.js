@@ -1,5 +1,19 @@
 var jsh = {};
 
+jsh.handleMessage = function (messageObject) {
+    var method = messageObject.method,
+        params = messageObject.params;
+
+    var func = method.split('.')[1];
+
+    if (jsh.hasOwnProperty(func)) {
+        console.info(messageObject);
+        return jsh[func].call(this, params);
+    }
+
+    console.warn(messageObject);
+}
+
 // when there's a body to speak of, create an empty iframe.
 // We'll use its eval function so we can provide scoping without messing up
 //with the console itself.
@@ -18,21 +32,24 @@ window.addEventListener('DOMContentLoaded', function () {
     jsh.injectedScript = createInjectedScript(jsh.InjectedScriptHost, jsh.evalFrame.contentWindow, 1);
 });
 
+// console object which'll be injected into the child window.
 jsh.console = {};
 ['log', 'info', 'warn', 'error'].forEach(function (level) {
     jsh.console[level] = function () {
+        var stackTrace = jsh.parseLogStackTrace((new Error()).stack);
+
         var consoleMessage = {
             level  : level,
-            type   : level, // TODO: look into what this is
+            type   : level,
 
-            source : 'console-api', // TODO and this
+            source : 'console-api',
 
-            stackTrace : jsh.parseLogStackTrace((new Error()).stack),
+            stackTrace : stackTrace,
             timestamp : Date.now() / 1000,
 
             // TODO: implement
-            line : 0,
-            column : 0
+            line : stackTrace[0].lineNumber,
+            column : stackTrace[0].columnNumber
         };
 
         consoleMessage.parameters = [].map.call(arguments, jsh.wrapObject, jsh);
@@ -47,49 +64,7 @@ jsh.console = {};
     };
 });
 
-// Takes a strung stack trace (err.stack) and makes sense out of it: Extracts
-//function names, line and column numbers.
-jsh.parseLogStackTrace = function (stack) {
-    /*
-    The stack trace in Chrome looks something like:
-    Error
-        at Object.jsh.console.(anonymous function) [as log] (http://url/jsh.js:line:col)
-        at foo (eval at <anonymous> (http://url/jsh.js:line:col), <anonymous>:line:col)
-        at eval (eval at <anonymous> (http://url/jsh.js:line:col), <anonymous>:line:col)
-        at eval (native)
-        at Object.jsh.evaluateLikeABoss (http://url/jsh.js:line:col)
-        at Object.<anonymous> (http://url/sdk/InspectorBackend.js:line:col)
-
-    We want to do away with the first two lines.
-    */
-    var stackLines = stack.split('\n').slice(2);
-
-    return stackLines.map(parseLine);
-
-    function parseLine (line) {
-        // at obj.funcName (crap)
-        var funcMatch = /\s*at (\S+)/.exec(line) || ['', ''];
-
-        // (crap:line:column)
-        var positionMatch = /:(\d+):(\d+)\)$/.exec(line) || ['', '', ''];
-
-        return {
-            functionName : funcMatch[1],
-            lineNumber   : Number(positionMatch[1]),
-            columnNumber : Number(positionMatch[2]),
-
-            // protocol stuff.
-            scriptId : 0,
-            url : ''
-        };
-    }
-};
-
-jsh.eval = function (code) {
-    return jsh.evalFrame.contentWindow.eval(code)
-};
-
-jsh.evaluateLikeABoss = function (params) {
+jsh.evaluate = function (params) {
     console.log(params);
     var ret, result;
 
@@ -130,6 +105,21 @@ jsh.callFunctionOn = function (params) {
         byVal    = !!params.returnByValue;
 
     return this.injectedScript.callFunctionOn(objectId, func, args, byVal);
+};
+
+jsh.getProperties = function (params) {
+    var id            = params.objectId,
+        ownProps      = params.ownProperties,
+        accessorsOnly = params.accessorPropertiesOnly;
+
+    return {
+        result : this.injectedScript.getProperties(id, ownProps, accessorsOnly)
+    };
+};
+
+jsh.releaseObjectGroup = function (params) {
+    this.injectedScript.releaseObjectGroup(params.objectGroup);
+    return {};
 };
 
 /**
@@ -199,14 +189,46 @@ jsh.wrapObject = function (obj, group, generatePreview) {
     return this.injectedScript.wrapObject(obj, group, true, generatePreview);
 };
 
-jsh.getProperties = function (params) {
-    var id            = params.objectId,
-        ownProps      = params.ownProperties,
-        accessorsOnly = params.accessorPropertiesOnly;
+jsh.eval = function (code) {
+    return jsh.evalFrame.contentWindow.eval(code)
+};
 
-    return {
-        result : this.injectedScript.getProperties(id, ownProps, accessorsOnly)
-    };
+// Takes a strung stack trace (err.stack) and makes sense out of it: Extracts
+//function names, line and column numbers.
+jsh.parseLogStackTrace = function (stack) {
+    /*
+    The stack trace in Chrome looks something like:
+    Error
+        at Object.jsh.console.(anonymous function) [as log] (http://url/jsh.js:line:col)
+        at foo (eval at <anonymous> (http://url/jsh.js:line:col), <anonymous>:line:col)
+        at eval (eval at <anonymous> (http://url/jsh.js:line:col), <anonymous>:line:col)
+        at eval (native)
+        at Object.jsh.evaluateLikeABoss (http://url/jsh.js:line:col)
+        at Object.<anonymous> (http://url/sdk/InspectorBackend.js:line:col)
+
+    We want to do away with the first two lines.
+    */
+    var stackLines = stack.split('\n').slice(2);
+
+    return stackLines.map(parseLine);
+
+    function parseLine (line) {
+        // at obj.funcName (crap)
+        var funcMatch = /\s*at (\S+)/.exec(line) || ['', ''];
+
+        // (crap:line:column)
+        var positionMatch = /:(\d+):(\d+)\)$/.exec(line) || ['', '', ''];
+
+        return {
+            functionName : funcMatch[1],
+            lineNumber   : Number(positionMatch[1]),
+            columnNumber : Number(positionMatch[2]),
+
+            // protocol stuff.
+            scriptId : 0,
+            url : ''
+        };
+    }
 };
 
 // InjectedScript depends on some native methods. This is their simulation.

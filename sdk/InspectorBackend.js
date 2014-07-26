@@ -692,27 +692,7 @@ InspectorBackendClass.StubConnection.prototype = {
      */
     sendMessage: function(messageObject)
     {
-        console.info(messageObject);
-        var method = messageObject.method,
-            params = messageObject.params,
-            res;
-
-        if (method === 'Runtime.evaluate') {
-            setTimeout(function () {
-                this.dispatch({
-                    result : jsh.evaluateLikeABoss(messageObject.params),
-                    id : messageObject.id
-                });
-            }.bind(this));
-
-            return;
-        }
-        else if (method === 'Runtime.getProperties') {
-            res = jsh.getProperties(params);
-        }
-        else if (method === 'Runtime.callFunctionOn') {
-            res = jsh.callFunctionOn(params);
-        }
+        var res = jsh.handleMessage(messageObject);
 
         if (res) {
             this.dispatch({
@@ -721,7 +701,9 @@ InspectorBackendClass.StubConnection.prototype = {
             });
             return;
         }
-        setTimeout(this._echoResponse.bind(this, messageObject), 0);
+        else {
+            setTimeout(this._echoResponse.bind(this, messageObject), 0);
+        }
     },
 
     /**
