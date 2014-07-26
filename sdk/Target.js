@@ -23,11 +23,15 @@ WebInspector.Target = function(name, connection, callback)
 
     /** @type {!Object.<string, boolean>} */
     this._capabilities = {};
+    /*
     this.pageAgent().canScreencast(this._initializeCapability.bind(this, WebInspector.Target.Capabilities.canScreencast, null));
     this.pageAgent().hasTouchInputs(this._initializeCapability.bind(this, WebInspector.Target.Capabilities.hasTouchInputs, null));
     if (WebInspector.experimentsSettings.timelinePowerProfiler.isEnabled())
         this.powerAgent().canProfilePower(this._initializeCapability.bind(this, WebInspector.Target.Capabilities.canProfilePower, null));
     this.workerAgent().canInspectWorkers(this._initializeCapability.bind(this, WebInspector.Target.Capabilities.canInspectWorkers, this._loadedWithCapabilities.bind(this, callback)));
+    */
+
+    this._loadedWithCapabilities(callback)
 
     /** @type {!WebInspector.Lock} */
     this.profilingLock = new WebInspector.Lock();

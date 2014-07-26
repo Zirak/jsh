@@ -332,12 +332,12 @@ WebInspector.Main.prototype = {
 
         this._registerShortcuts();
 
+        /*
         if (WebInspector.experimentsSettings.workersInMainWindow.isEnabled())
             WebInspector.workerTargetManager = new WebInspector.WorkerTargetManager(mainTarget, WebInspector.targetManager);
 
         InspectorBackend.registerInspectorDispatcher(this);
 
-        /*
         if (!WebInspector.isWorkerFrontend())
             WebInspector.workerFrontendManager = new WebInspector.WorkerFrontendManager();
         else
@@ -389,7 +389,8 @@ WebInspector.Main.prototype = {
 
         // WebInspector.extensionServerProxy.setFrontendReady();
 
-        InspectorAgent.enable(inspectorAgentEnableCallback);
+        //InspectorAgent.enable(inspectorAgentEnableCallback);
+        inspectorAgentEnableCallback();
 
         function inspectorAgentEnableCallback()
         {
