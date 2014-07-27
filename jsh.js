@@ -68,18 +68,23 @@ jsh.evaluate = function (params) {
     console.log(params);
     var ret, result;
 
+    var expression      = params.expression,
+        group           = params.objectGroup,
+        generatePreview = params.generatePreview,
+        returnByVal     = !!params.returnByValue;
+
     try {
-        result = jsh.eval(params.expression);
+        result = jsh.eval(expression);
 
         ret = {
-            result    : jsh.wrapObject(result, params.objectGroup, true, params.generatePreview),
+            result    : jsh.wrapObject(result, group, returnByVal, generatePreview),
             wasThrown : false,
             __proto__ : null
         };
     }
     catch (e) {
         console.error(e);
-        ret = this.injectedScript._createThrownValue(e, params.objectGroup);
+        ret = this.injectedScript._createThrownValue(e, group);
     }
 
     return ret;
@@ -113,13 +118,14 @@ jsh.getProperties = function (params) {
         accessorsOnly = params.accessorPropertiesOnly;
 
     return {
-        result : this.injectedScript.getProperties(id, ownProps, accessorsOnly)
+        result : this.injectedScript.getProperties(id, ownProps, accessorsOnly),
+        __proto__ : null
     };
 };
 
 jsh.releaseObjectGroup = function (params) {
     this.injectedScript.releaseObjectGroup(params.objectGroup);
-    return {};
+    return { __proto__ : null };
 };
 
 /**
@@ -178,15 +184,20 @@ jsh.releaseObjectGroup = function (params) {
     Parameters:
         obj: Object to wrap.
         group: ...I'm not sure. Default 'console'.
+        returnByValue: If the value is an object, whether to return it as it is,
+            or wrap it up and give it an objectId.
         generatePreview: Whether to attach the preview property. Default true.
 */
-jsh.wrapObject = function (obj, group, generatePreview) {
+jsh.wrapObject = function (obj, group, returnByValue, generatePreview) {
     if (arguments.length === 1) {
         group = 'console';
+        returnByValue = false;
         generatePreview = true;
     }
 
-    return this.injectedScript.wrapObject(obj, group, true, generatePreview);
+    // why _wrapObject and not wrapObject? Because calling the former works, and
+    //the latter has some weirdo logic.
+    return this.injectedScript._wrapObject(obj, group, returnByValue, generatePreview);
 };
 
 jsh.eval = function (code) {
@@ -264,7 +275,7 @@ jsh.InjectedScriptHost = {
         // The only thing left is checking for Node.
         // Since the object came from another frame, we can't use instanceof.
         //This is "good enough".
-        if (obj.hasOwnProperty('nodeType') && obj.hasOwnProperty('ATTRIBUTE_NODE')) {
+        if ('nodeType' in obj && 'ATTRIBUTE_NODE' in obj) {
             return 'node';
         }
 
