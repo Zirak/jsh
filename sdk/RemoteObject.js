@@ -594,7 +594,8 @@ WebInspector.RemoteObjectImpl.prototype = {
      */
     functionDetails: function(callback)
     {
-        this._target.debuggerModel.functionDetails(this, callback)
+        // this._target.debuggerModel.functionDetails(this, callback)
+        callback();
     },
 
     __proto__: WebInspector.RemoteObject.prototype
