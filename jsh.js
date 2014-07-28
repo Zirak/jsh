@@ -36,33 +36,91 @@ window.addEventListener('DOMContentLoaded', function () {
 jsh.console = {};
 ['log', 'info', 'warn', 'error'].forEach(function (level) {
     jsh.console[level] = function () {
-        var stackTrace = jsh.parseLogStackTrace((new Error()).stack);
-
-        var consoleMessage = {
+        var message = {
             level  : level,
             type   : level,
 
-            source : 'console-api',
-
-            stackTrace : stackTrace,
-            timestamp : Date.now() / 1000,
-
-            // TODO: implement
-            line : stackTrace[0].lineNumber,
-            column : stackTrace[0].columnNumber
+            parameters : [].map.call(arguments, jsh.wrapObject, jsh),
+            text : [].join.call(arguments, ' ')
         };
 
-        consoleMessage.parameters = [].map.call(arguments, jsh.wrapObject, jsh);
-        consoleMessage.text = [].join.call(arguments, ' ');
-
-        var message = {
-            method : 'Console.messageAdded',
-            params : { message : consoleMessage }
-        };
-
-        window.top.InspectorBackend.connection().dispatch(message);
+        window.top.jsh.sendConsoleMessage(message);
     };
 });
+
+jsh.console.assert = function (condition) {
+    if (condition) {
+        return;
+    }
+
+    // TODO add Array.from to utilities.js
+    var args = [].slice.call(arguments, 1);
+
+    var message = {
+        level : 'error',
+        type : 'assert'
+    };
+
+    if (args.length) {
+        message.parameters = args.map(jsh.wrapObject, jsh);
+        message.text = String(args[0]);
+    }
+
+    window.top.jsh.sendConsoleMessage(message);
+};
+
+jsh.console.dir = function dir () {
+    if (!arguments.length) {
+        return;
+    }
+
+    var message = {
+        level : 'log',
+        type : 'dir',
+
+        parameters : [].map.call(arguments, jsh.wrapObject, jsh),
+        text : String(arguments[0])
+    };
+
+    window.top.jsh.sendConsoleMessage(message);
+};
+
+// TODO: what should this do? clear history? the user needs to be alerted if so.
+// do we even want this?
+jsh.console.clear = function clear () {
+    window.top.InspectorBackend.connection().dispatch({
+        method : 'Console.messagesCleared'
+    });
+
+    window.top.jsh.sendConsoleMessage({
+        level : 'log',
+        type : 'clear',
+        text : ''
+    });
+};
+
+jsh.sendConsoleMessage = function (consoleMessage) {
+    if (!consoleMessage.source) {
+        consoleMessage.source = 'console-api'
+    }
+
+    if (!consoleMessage.stackTrace) {
+        var stackTrace = jsh.parseLogStackTrace((new Error()).stack);
+        consoleMessage.line   = stackTrace[0].lineNumber;
+        consoleMessage.column = stackTrace[0].columnNumber;
+    }
+
+    consoleMessage.stackTrace = stackTrace;
+    consoleMessage.timestamp  = Date.now() / 1000;
+
+
+    var message = {
+        method : 'Console.messageAdded',
+        params : { message : consoleMessage }
+    };
+
+    InspectorBackend.connection().dispatch(message);
+};
 
 jsh.evaluate = function (params) {
     console.log(params);
@@ -76,8 +134,10 @@ jsh.evaluate = function (params) {
     try {
         result = jsh.eval(expression);
 
+        params.object = result;
+
         ret = {
-            result    : jsh.wrapObject(result, group, returnByVal, generatePreview),
+            result    : jsh.wrapObject(params),
             wasThrown : false,
             __proto__ : null
         };
@@ -182,22 +242,27 @@ jsh.releaseObjectGroup = function (params) {
     }
 
     Parameters:
-        obj: Object to wrap.
+        object: Object to wrap.
         group: ...I'm not sure. Default 'console'.
         returnByValue: If the value is an object, whether to return it as it is,
-            or wrap it up and give it an objectId.
+            or wrap it up and give it an objectId. Default false.
         generatePreview: Whether to attach the preview property. Default true.
 */
-jsh.wrapObject = function (obj, group, returnByValue, generatePreview) {
-    if (arguments.length === 1) {
-        group = 'console';
-        returnByValue = false;
-        generatePreview = true;
+jsh.wrapObject = function (params) {
+    if (!params.hasOwnProperty('object')) {
+        params = {
+            object : params
+        }
     }
+
+    var obj = params.object,
+        group = 'group' in params ? params.group : 'console',
+        retByVal = 'returnByValue' in params ? params.returnByValue : false,
+        preview = 'generatePreview' in params ? params.generatePreview : true;
 
     // why _wrapObject and not wrapObject? Because calling the former works, and
     //the latter has some weirdo logic.
-    return this.injectedScript._wrapObject(obj, group, returnByValue, generatePreview);
+    return this.injectedScript._wrapObject(obj, group, retByVal, preview);
 };
 
 jsh.eval = function (code) {
@@ -210,6 +275,7 @@ jsh.parseLogStackTrace = function (stack) {
     /*
     The stack trace in Chrome looks something like:
     Error
+        at (anonymous function)
         at Object.jsh.console.(anonymous function) [as log] (http://url/jsh.js:line:col)
         at foo (eval at <anonymous> (http://url/jsh.js:line:col), <anonymous>:line:col)
         at eval (eval at <anonymous> (http://url/jsh.js:line:col), <anonymous>:line:col)
@@ -217,18 +283,20 @@ jsh.parseLogStackTrace = function (stack) {
         at Object.jsh.evaluateLikeABoss (http://url/jsh.js:line:col)
         at Object.<anonymous> (http://url/sdk/InspectorBackend.js:line:col)
 
-    We want to do away with the first two lines.
+    We want to do away with the first and last three lines.
     */
-    var stackLines = stack.split('\n').slice(2);
+    var stackLines = stack.split('\n').slice(3, -3);
 
     return stackLines.map(parseLine);
 
     function parseLine (line) {
+        console.log(line);
         // at obj.funcName (crap)
-        var funcMatch = /\s*at (\S+)/.exec(line) || ['', ''];
+        // at obj.funcName.(anonymous function) (crap)
+        var funcMatch = /^\s*at ([^\(]*(?:\(anonymous function\))?)/.exec(line) || ['', ''];
 
         // (crap:line:column)
-        var positionMatch = /:(\d+):(\d+)\)$/.exec(line) || ['', '', ''];
+        var positionMatch = /:(\d+):(\d+)\)\s*$/.exec(line) || ['', '', ''];
 
         return {
             functionName : funcMatch[1],
