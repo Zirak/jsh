@@ -1,3 +1,4 @@
+/*jshint debug*/
 var jsh = {};
 
 jsh.handleMessage = function (messageObject) {
@@ -12,19 +13,17 @@ jsh.handleMessage = function (messageObject) {
     }
 
     console.warn(messageObject);
-}
+};
 
 // when there's a body to speak of, create an empty iframe.
 // We'll use its eval function so we can provide scoping without messing up
 //with the console itself.
 // Of course, you could trivially escape, but you'd need to try in order to do
 //that, so it's Good Enough.
+jsh.evalFrame = document.createElement('iframe');
+jsh.evalFrame.hidden = true;
+
 window.addEventListener('DOMContentLoaded', function () {
-    jsh.evalFrame = document.createElement('iframe');
-    jsh.evalFrame.hidden = true;
-
-    //jsh.src = 'evalFrame.html';
-
     document.body.appendChild(jsh.evalFrame);
 
     jsh.evalFrame.contentWindow.console = jsh.console;
@@ -32,104 +31,12 @@ window.addEventListener('DOMContentLoaded', function () {
     jsh.injectedScript = createInjectedScript(jsh.InjectedScriptHost, jsh.evalFrame.contentWindow, 1);
 });
 
-// console object which'll be injected into the child window.
-jsh.console = {};
-['log', 'info', 'warn', 'error'].forEach(function (level) {
-    jsh.console[level] = function () {
-        var message = {
-            level  : level,
-            type   : level,
-
-            parameters : [].map.call(arguments, jsh.wrapObject, jsh),
-            text : [].join.call(arguments, ' ')
-        };
-
-        window.top.jsh.sendConsoleMessage(message);
-    };
-});
-
-jsh.console.assert = function (condition) {
-    if (condition) {
-        return;
-    }
-
-    // TODO add Array.from to utilities.js
-    var args = [].slice.call(arguments, 1);
-
-    var message = {
-        level : 'error',
-        type : 'assert'
-    };
-
-    if (args.length) {
-        message.parameters = args.map(jsh.wrapObject, jsh);
-        message.text = String(args[0]);
-    }
-
-    window.top.jsh.sendConsoleMessage(message);
-};
-
-jsh.console.dir = function dir () {
-    if (!arguments.length) {
-        return;
-    }
-
-    var message = {
-        level : 'log',
-        type : 'dir',
-
-        parameters : [].map.call(arguments, jsh.wrapObject, jsh),
-        text : String(arguments[0])
-    };
-
-    window.top.jsh.sendConsoleMessage(message);
-};
-
-// TODO: what should this do? clear history? the user needs to be alerted if so.
-// do we even want this?
-jsh.console.clear = function clear () {
-    window.top.InspectorBackend.connection().dispatch({
-        method : 'Console.messagesCleared'
-    });
-
-    window.top.jsh.sendConsoleMessage({
-        level : 'log',
-        type : 'clear',
-        text : ''
-    });
-};
-
-jsh.sendConsoleMessage = function (consoleMessage) {
-    if (!consoleMessage.source) {
-        consoleMessage.source = 'console-api'
-    }
-
-    if (!consoleMessage.stackTrace) {
-        var stackTrace = jsh.parseLogStackTrace((new Error()).stack);
-        consoleMessage.line   = stackTrace[0].lineNumber;
-        consoleMessage.column = stackTrace[0].columnNumber;
-    }
-
-    consoleMessage.stackTrace = stackTrace;
-    consoleMessage.timestamp  = Date.now() / 1000;
-
-
-    var message = {
-        method : 'Console.messageAdded',
-        params : { message : consoleMessage }
-    };
-
-    InspectorBackend.connection().dispatch(message);
-};
-
 jsh.evaluate = function (params) {
     console.log(params);
     var ret, result;
 
     var expression      = params.expression,
-        group           = params.objectGroup,
-        generatePreview = params.generatePreview,
-        returnByVal     = !!params.returnByValue;
+        group           = params.objectGroup;
 
     try {
         result = jsh.eval(expression);
@@ -252,7 +159,7 @@ jsh.wrapObject = function (params) {
     if (!params.hasOwnProperty('object')) {
         params = {
             object : params
-        }
+        };
     }
 
     var obj = params.object,
@@ -266,7 +173,7 @@ jsh.wrapObject = function (params) {
 };
 
 jsh.eval = function (code) {
-    return jsh.evalFrame.contentWindow.eval(code)
+    return jsh.evalFrame.contentWindow.eval(code);
 };
 
 // Takes a strung stack trace (err.stack) and makes sense out of it: Extracts
