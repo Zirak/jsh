@@ -1,6 +1,5 @@
 /*
     TODO:
-    * group, groupEnd, groupCollapsed
     * time, timeEnd (is it possible?)
     * count
 */

@@ -1,26 +1,66 @@
-Embedded dev tools.
+## Hello.
+Have you ever wanted to show someone something really cool in javascript, maybe
+an extra sexy `reduce` or a cool syntactical trick? Of course you did. You wrote
+your code, and it turned out fucking rad. Now how do you send this that special
+somebody?
 
-It's coming.
+Sites like jsbin and codepen are cool for showing off full-blown demos. But you
+want to show off some juicy javascript. You probaly hacked it around in the dev
+tools of the browser of your choice, because they are a great environment for
+just playing around with javascript.
 
-Nothing works yet, just numbers and booleans and strings really.
+But what if you could have a javascript console...in your browser?
 
-I'm too tired to write something here.
+And then share that hacking around session with those you love (and hate (or
+feel no particular emotion for))?
 
-http://zirak.github.com/jsh . It'll take a while to load.
+http://zirak.github.com/jsh . It could take a bit to load.
 
-It's horrible and bloated, I know. It'll be better. Maybe. Yes. Definitely.
+## What is this?
+As the introduction above says, this is Chrome's dev tools javascript console in
+a regular web page. To see how it was done, see the [How stuff works](#How stuff works)
+section below.
 
-## Learning
+Write some javascript, invite your friends, write some javascript on your
+friends.
+
+It's at a very alpha stage, the client side is still being constructed. When it
+reaches the stage of usability (i.e. no errors during a routine session), the
+backend will be added, and fun will be had by all.
+
+## Features
+What you'd expect of Chrome dev tools' excellent console:
+
+* JavaScript REPL
+* Object inspection
+* Completion suggestions
+* Nice stack traces
+* History
+* Monkeys
+
+### TODOs
+
+* Implement ---all--- most console methods (dir, group, table, time, ...)
+* Make it work across modern-ish browsers
+* Actually save session history
+* Introduction message
+* Themes (?)
+* Settings (?)
+* Better editing (tab button support)
+
+## How stuff works
 The best way to learn how the dev tools works is by looking at the source and
 playing around with it. The sources here are taken freshly squeezed from
 chromium/chromium@66fbff9d3e1c441db581024895a959efc32deac2 . You can find it in
 `third_party/WebKit/devtools/front_end`. May God have mercy on your soul.
 
+(Yes, I'm planning on writing my findings down.)
+
 Poke around, understand that `InspectorFrontendHost` and some other objects are
 actually native bindings, be angry that that's the case. Raaaargh!!!!
 
 You can actually inspect the dev-tools using the dev-tools. Hit Ctrl-Shift-J and
-undock them if necesssary. Then, simply hit Ctrl-Shift-J again. Have fun.
+undock them if necessary. Then, simply hit Ctrl-Shift-J again. Have fun.
 
 To make things even more fun, in your inceptioned dev tools, run:
 
@@ -40,15 +80,30 @@ This means that while at its base the console "works", there are a lot of hidden
 booby-traps and unimplemented functionality. At the same time, there is a lot of
 code which just isn't useful (why do we need a VBox and the SplitView and the
 tabs pane and so forth?). The way forward is implementing more and more console
-related functionality, while trimming unnecessary portions.
+related functionality while trimming unnecessary portions.
 
-Probably *the* most important piece of half-ass-not-really implemented
-functionality is the `Runtime.Evaluate` message, the core we're trying to wrap,
-how the console works. There are lots of nooks and crannies.
+All messages to the native backend funnel down to `jsh.handleMessage`.
 
-All `Runtime.evaluate` calls funnel down to `jsh.evaluateLikeABoss`,
-which is declared in `jsh.js`. So far it's pathetic, I know.
-Don't look at me.
+### Structure
+The directory structure is also of course copied directly from the dev tools'
+source. I don't quite get it either. It's a mess.
+
+If you want a starting point to hack things around, the index file is a bad
+place to start. It's just a blob of scripts.
+
+`jsh.js` is one place, as it contains the code for dealing with
+messages ("evaluate this expression", "give me the properties of this object").
+
+`InjectedScript.js` contains most if not all of the interesting logic.
+
+`main/Main.js` is where most things happen: Settings up the UI, settings up the
+different objects the UI uses. It's mostly baloney, though.
+
+`sdk/ConsoleModel.js` is where the runtime/console API gets tied up to the UI,
+and the good friends in the `console/` folder are where all the console UI logic
+is done.
+
+It's a lot of being confusing and `grep`ing for things.
 
 ## License
 99% of the files here have a giant license block at the top. Basically, it's

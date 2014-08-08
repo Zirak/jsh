@@ -5,6 +5,11 @@ jsh.handleMessage = function (messageObject) {
     var method = messageObject.method,
         params = messageObject.params;
 
+    var ignore = ['Runtime.enable', 'Console.enable', 'Runtime.isRunRequired'];
+    if (ignore.indexOf(method) > -1) {
+        return false;
+    }
+
     var func = method.split('.')[1];
 
     if (jsh.hasOwnProperty(func)) {
