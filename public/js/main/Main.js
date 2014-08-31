@@ -242,7 +242,8 @@ WebInspector.Main.prototype = {
     _createConnection: function()
     {
         console.timeStamp("Main._createConnection");
-        InspectorBackend.loadFromJSONIfNeeded("protocol.json");
+        //InspectorBackend.loadFromJSONIfNeeded("protocol.json");
+        InspectorBackend.loadFromJSONIfNeeded(self._importScriptPathPrefix + "protocol.json");
 
         var workerId = WebInspector.queryParam("dedicatedWorkerId");
         if (workerId) {

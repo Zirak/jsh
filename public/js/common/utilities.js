@@ -1720,7 +1720,8 @@ function importScript(scriptName)
 
 (function() {
     var baseUrl = location.origin + location.pathname;
-    self._importScriptPathPrefix = baseUrl.substring(0, baseUrl.lastIndexOf("/") + 1);
+    //self._importScriptPathPrefix = baseUrl.substring(0, baseUrl.lastIndexOf("/") + 1);
+    self._importScriptPathPrefix = baseUrl.substring(0, baseUrl.lastIndexOf("/") + 1) + 'js/';
 })();
 
 var loadScript = importScript;

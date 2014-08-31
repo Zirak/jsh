@@ -13,7 +13,7 @@ jsh.console = {};
             level  : level,
             type   : level,
 
-            parameters : [].map.call(arguments, jsh.wrapObject, jsh),
+            parameters : [].map.call(arguments, jsh.bridge.wrapObject, jsh),
             text : [].join.call(arguments, ' ')
         };
 
@@ -37,7 +37,7 @@ jsh.console.assert = function (condition) {
     };
 
     if (args.length) {
-        message.parameters = args.map(jsh.wrapObject, jsh);
+        message.parameters = args.map(jsh.bridge.wrapObject, jsh);
         message.text = String(args[0]);
     }
 
@@ -53,7 +53,7 @@ jsh.console.dir = function dir () {
         level : 'log',
         type : 'dir',
 
-        parameters : [].map.call(arguments, jsh.wrapObject, jsh),
+        parameters : [].map.call(arguments, jsh.bridge.wrapObject, jsh),
         text : String(arguments[0])
     };
 
@@ -70,7 +70,7 @@ jsh.console.trace = function trace () {
     };
 
     if (arguments.length) {
-        message.parameters = [].map.call(arguments, jsh.wrapObject, jsh);
+        message.parameters = [].map.call(arguments, jsh.bridge.wrapObject, jsh);
         message.text = String(arguments[0]);
     }
 
@@ -87,7 +87,7 @@ jsh.console.group = function group () {
     };
 
     if (arguments.length) {
-        message.parameters = [].map.call(arguments, jsh.wrapObject, jsh);
+        message.parameters = [].map.call(arguments, jsh.bridge.wrapObject, jsh);
     }
 
     window.top.jsh.sendConsoleMessage(message);
@@ -109,7 +109,7 @@ jsh.console.groupCollapsed = function groupCollapsed () {
     };
 
     if (arguments.length) {
-        message.parameters = [].map.call(arguments, jsh.wrapObject, jsh);
+        message.parameters = [].map.call(arguments, jsh.bridge.wrapObject, jsh);
     }
 
     window.top.jsh.sendConsoleMessage(message);
