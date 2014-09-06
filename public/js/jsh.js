@@ -17,7 +17,8 @@ jsh.save = function () {
     xhr.onload = function () {
         // yeah...
         console.log(xhr);
-        // do crap with replaceState maybe, that's fancy
+
+        history.replaceState(null, '', '/' + xhr.response.id);
         WebInspector.console.log('Saved. ID: ' + xhr.response.id);
     };
 
