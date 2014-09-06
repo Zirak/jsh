@@ -29,12 +29,12 @@ jsh.loadFromText = function (text) {
         return;
     }
 
-    jsh.console.clear();
-
     var commands = JSON.parse(text);
-    if (!Array.isArray(commands)) {
+    if (!Array.isArray(commands) || !commands.length) {
         return;
     }
+
+    jsh.console.clear();
 
     commands.forEach(addCommand);
 
@@ -93,7 +93,7 @@ window.addEventListener('DOMContentLoaded', function () {
         createInjectedScript(jsh.InjectedScriptHost, jsh.evalFrame.contentWindow, 1);
 
     // load up the commands (if there are any)
-    jsh.loadFromText(document.getElementbyId('jsh-commands').textContent);
+    jsh.loadFromText(document.getElementById('jsh-commands').textContent);
 });
 
 // The WebInspector has the InspectorFrontendHost, which is responsible for
@@ -106,7 +106,7 @@ window.addEventListener('DOMContentLoaded', function () {
 jsh.bridge = {};
 
 jsh.bridge.evaluate = function (params) {
-    console.error(params);
+    console.info(params);
     var ret, result;
 
     var expression      = params.expression,

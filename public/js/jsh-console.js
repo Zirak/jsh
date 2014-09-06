@@ -1,8 +1,13 @@
+(function () {
 /*
     TODO:
     * time, timeEnd (is it possible?)
     * count
 */
+
+function wrapObjects (objs) {
+    return [].map.call(objs, jsh.bridge.wrapObject, jsh.bridge);
+}
 
 // console object which'll be injected into the child window.
 jsh.console = {};
@@ -13,7 +18,7 @@ jsh.console = {};
             level  : level,
             type   : level,
 
-            parameters : [].map.call(arguments, jsh.bridge.wrapObject, jsh),
+            parameters : wrapObjects(arguments),
             text : [].join.call(arguments, ' ')
         };
 
@@ -37,7 +42,7 @@ jsh.console.assert = function (condition) {
     };
 
     if (args.length) {
-        message.parameters = args.map(jsh.bridge.wrapObject, jsh);
+        message.parameters = wrapObjects(args),
         message.text = String(args[0]);
     }
 
@@ -53,7 +58,7 @@ jsh.console.dir = function dir () {
         level : 'log',
         type : 'dir',
 
-        parameters : [].map.call(arguments, jsh.bridge.wrapObject, jsh),
+        parameters : wrapObjects(arguments),
         text : String(arguments[0])
     };
 
@@ -70,7 +75,7 @@ jsh.console.trace = function trace () {
     };
 
     if (arguments.length) {
-        message.parameters = [].map.call(arguments, jsh.bridge.wrapObject, jsh);
+        message.parameters = wrapObjects(arguments);
         message.text = String(arguments[0]);
     }
 
@@ -87,7 +92,7 @@ jsh.console.group = function group () {
     };
 
     if (arguments.length) {
-        message.parameters = [].map.call(arguments, jsh.bridge.wrapObject, jsh);
+        message.parameters = wrapObjects(arguments);
     }
 
     window.top.jsh.sendConsoleMessage(message);
@@ -109,7 +114,7 @@ jsh.console.groupCollapsed = function groupCollapsed () {
     };
 
     if (arguments.length) {
-        message.parameters = [].map.call(arguments, jsh.bridge.wrapObject, jsh);
+        message.parameters = wrapObjects(arguments);
     }
 
     window.top.jsh.sendConsoleMessage(message);
@@ -151,3 +156,4 @@ jsh.sendConsoleMessage = function (consoleMessage) {
 
     InspectorBackend.connection().dispatch(message);
 };
+})();
