@@ -35,18 +35,17 @@ jsh.loadFromText = function (text) {
         return;
     }
 
-    jsh.console.clear();
-
     commands.forEach(addCommand);
 
     function addCommand (cmd) {
-        WebInspector.ConsolePanel._consoleView._appendCommand(cmd, true);
+        console.warn(cmd);
+        WebInspector.ConsolePanel._view()._appendCommand(cmd, true);
     }
 };
 
 jsh.getCommandsText = function () {
     // Fuck me...
-    var messages = WebInspector.ConsolePanel._consoleView._consoleMessages;
+    var messages = WebInspector.ConsolePanel._view()._consoleMessages;
 
     return messages.filter(filterCommands).map(getCommandText);
 
@@ -75,6 +74,7 @@ jsh.handleMessage = function (messageObject) {
     }
 
     console.warn(messageObject);
+    return false;
 };
 
 // when there's a body to speak of, create an empty iframe.
@@ -94,7 +94,10 @@ window.addEventListener('DOMContentLoaded', function () {
         createInjectedScript(jsh.InjectedScriptHost, jsh.evalFrame.contentWindow, 1);
 
     // load up the commands (if there are any)
-    jsh.loadFromText(document.getElementById('jsh-commands').textContent);
+    // yes, this is horrible. I will not apologise.
+    setTimeout(function () {
+        jsh.loadFromText(document.getElementById('jsh-commands').textContent);
+    }, 100);
 });
 
 // The WebInspector has the InspectorFrontendHost, which is responsible for
@@ -338,6 +341,9 @@ jsh.InjectedScriptHost = {
         if (arrayTypes.indexOf(obj) > -1) {
             return isFinite(obj.length);
         }
+
+        // fallback
+        return 'object';
     },
 
     internalConstructorName : function (subject) {
@@ -359,7 +365,7 @@ jsh.InjectedScriptHost = {
         // yeah, fuck actual implementation.
         var args = [].slice.call(arguments, 2);
         return method.apply(obj, args);
-    },
+    }
 };
 
 /*

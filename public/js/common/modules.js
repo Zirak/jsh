@@ -258,7 +258,7 @@ var allDescriptors = [
             "settingType": "checkbox"
         }
     ],
-    "scripts": [ "ConsolePanel.js" ]
+    //"scripts": [ "ConsolePanel.js" ]
 }
 
 ];

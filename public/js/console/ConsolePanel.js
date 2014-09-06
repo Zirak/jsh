@@ -26,8 +26,8 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-importScript("ConsoleViewMessage.js");
-importScript("ConsoleView.js");
+//importScript("ConsoleViewMessage.js");
+//importScript("ConsoleView.js");
 
 /**
  * @constructor

@@ -9,6 +9,9 @@ handlers:
     static_dir: public/css
   - url: /js
     static_dir: public/js
+  - url: /favicon.ico
+    static_files: public/favicon.ico
+    upload: public/favicon.ico
 
   - url: /.*
     script: jsh.application
