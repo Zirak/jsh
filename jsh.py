@@ -45,20 +45,6 @@ class SessionHandler(webapp2.RequestHandler):
 
 # Routes #
 
-class MainPage(SessionHandler):
-    def get(self):
-        count = self.session.get('counter')
-
-        if count:
-            count += 1
-        else:
-            self.response.write('welcome!')
-            count = 1
-
-        self.session['counter'] = count
-        self.response.headers['Content-Type'] = 'text/plain'
-        self.response.write('{"counter" : "%s"}' % count)
-
 class GetJession(SessionHandler):
     def get(self, jession_id=None):
         # import pdb; pdb.set_trace()
@@ -69,7 +55,7 @@ class GetJession(SessionHandler):
 
         template = JINJA.get_template('jession.jinja')
         self.response.write(template.render({
-            'commands' : self.escape_json(json.dumps(commands)),
+            'commands' : json.dumps(commands),
             'csrf' : csrf
         }))
 
@@ -83,19 +69,19 @@ class GetJession(SessionHandler):
         jession = Jession.get_by_id(db_id)
         return jession.commands if jession else []
 
-    def escape_json(self, json):
-        return json
-        # return json.replace(
-
 class SaveJession(SessionHandler):
     def post(self):
         # import pdb; pdb.set_trace()
         try:
             data = json.loads(self.request.body)
-            assert data['commands']
-            assert data['csrf']
-            assert data['csrf'] == self.session['csrf']
-        except (ValueError, AssertionError):
+            assert data['commands'], 'request has no commands'
+            assert data['csrf'], 'request has no csrf'
+            assert data['csrf'] == self.session['csrf'], \
+                   'csrf does not match (have %s, got %s)' % (self.session['csrf'], data['csrf'])
+        except (ValueError, AssertionError) as e:
+            print e
+            import traceback; traceback.format_exc()
+
             self.response.status = 400
             return
 
@@ -105,7 +91,6 @@ class SaveJession(SessionHandler):
         self.response.headers['Content-Type'] = 'application/json'
 
         # TODO Should we generate another csrf token?
-        import pdb; pdb.set_trace()
 
         self.response.write(json.dumps({
             'id' : int_to_base(jession.key.id(), 36)
@@ -148,6 +133,7 @@ app_config = {
 
 application = webapp2.WSGIApplication([
     (r'/', GetJession),
-    (r'/([\da-z]+)', GetJession),
-    (r'/save', SaveJession)
+    (r'/save', SaveJession),
+    # Always keep this last, as it's a catch-all
+    (r'/([\da-z]+)', GetJession)
 ], debug=True, config=app_config)

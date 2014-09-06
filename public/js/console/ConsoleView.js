@@ -53,7 +53,12 @@ WebInspector.ConsoleView = function(hideContextSelector)
     this._clearConsoleButton = new WebInspector.StatusBarButton(WebInspector.UIString("Clear console log."), "clear-status-bar-item");
     this._clearConsoleButton.addEventListener("click", this._requestClearMessages, this);
 
-    this._executionContextSelector = new WebInspector.StatusBarComboBox(this._executionContextChanged.bind(this), "console-context");
+    // zirak
+    this._saveButton = new WebInspector.StatusBarTextButton(WebInspector.UIString("Save"), "save-status-bar-item");
+    this._saveButton.addEventListener("click", jsh.save, jsh);
+    // /zirak
+
+    // this._executionContextSelector = new WebInspector.StatusBarComboBox(this._executionContextChanged.bind(this), "console-context");
 
     /**
      * @type {!Map.<!WebInspector.ExecutionContext, !Element>}
@@ -61,23 +66,25 @@ WebInspector.ConsoleView = function(hideContextSelector)
     this._optionByExecutionContext = new Map();
 
     this._filter = new WebInspector.ConsoleViewFilter(this);
+    /*
     this._filter.addEventListener(WebInspector.ConsoleViewFilter.Events.FilterChanged, this._updateMessageList.bind(this));
 
     if (hideContextSelector)
         this._executionContextSelector.element.classList.add("hidden");
 
-    // this._filterBar = new WebInspector.FilterBar();
+    this._filterBar = new WebInspector.FilterBar();
 
     this._preserveLogCheckbox = new WebInspector.StatusBarCheckbox(WebInspector.UIString("Preserve log"));
-    // WebInspector.SettingsUI.bindCheckbox(this._preserveLogCheckbox.inputElement, WebInspector.settings.preserveConsoleLog);
+    WebInspector.SettingsUI.bindCheckbox(this._preserveLogCheckbox.inputElement, WebInspector.settings.preserveConsoleLog);
     this._preserveLogCheckbox.element.title = WebInspector.UIString("Do not clear log on page reload / navigation.");
+    */
 
 
     var statusBarElement = this._contentsElement.createChild("div", "console-status-bar");
-    statusBarElement.appendChildren(this._clearConsoleButton.element, /*this._filterBar.filterButton().element,*/ this._executionContextSelector.element, this._preserveLogCheckbox.element);
+    statusBarElement.appendChildren(/*zirak*/this._saveButton.element, this._clearConsoleButton.element/*, this._filterBar.filterButton().element, this._executionContextSelector.element, this._preserveLogCheckbox.element*/);
 
-    this._filtersContainer = this._contentsElement.createChild("div", "console-filters-header hidden");
     /*
+    this._filtersContainer = this._contentsElement.createChild("div", "console-filters-header hidden");
     this._filtersContainer.appendChild(this._filterBar.filtersElement());
     this._filterBar.addEventListener(WebInspector.FilterBar.Events.FiltersToggled, this._onFiltersToggled, this);
     this._filterBar.setName("consoleView");
@@ -96,6 +103,7 @@ WebInspector.ConsoleView = function(hideContextSelector)
 
     this._viewportThrottler = new WebInspector.Throttler(50);
 
+    /*
     this._filterStatusMessageElement = document.createElementWithClass("div", "console-message");
     this._messagesElement.insertBefore(this._filterStatusMessageElement, this._messagesElement.firstChild);
     this._filterStatusTextElement = this._filterStatusMessageElement.createChild("span", "console-info");
@@ -103,6 +111,7 @@ WebInspector.ConsoleView = function(hideContextSelector)
     var resetFiltersLink = this._filterStatusMessageElement.createChild("span", "console-info node-link");
     resetFiltersLink.textContent = WebInspector.UIString("Show all messages.");
     resetFiltersLink.addEventListener("click", this._filter.reset.bind(this._filter), true);
+    */
 
     this._topGroup = WebInspector.ConsoleGroup.createTopGroup();
     this._currentGroup = this._topGroup;
@@ -461,6 +470,8 @@ WebInspector.ConsoleView.prototype = {
 
     _updateFilterStatus: function()
     {
+        // zirak
+        return;
         this._filterStatusTextElement.textContent = WebInspector.UIString(this._hiddenByFilterCount === 1 ? "%d message is hidden by filters." : "%d messages are hidden by filters.", this._hiddenByFilterCount);
         this._filterStatusMessageElement.style.display = this._hiddenByFilterCount ? "" : "none";
     },

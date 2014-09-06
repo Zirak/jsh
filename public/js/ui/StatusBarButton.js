@@ -437,6 +437,30 @@ WebInspector.StatusBarButton.Provider.prototype = {
     button: function() {}
 }
 
+// zirak
+// We want to create a StatusBarButton, only with text.
+
+WebInspector.StatusBarTextButton = function(text, className)
+{
+    WebInspector.StatusBarItem.call(this, "button");
+    this.element.className = className;
+    this.element.addEventListener("click", this._clicked.bind(this), false);
+    this.element.textContent = text;
+
+    this.className = className;
+}
+
+WebInspector.StatusBarTextButton.prototype = {
+    _clicked: function()
+    {
+        this.dispatchEventToListeners("click");
+    },
+
+    __proto__: WebInspector.StatusBarItem.prototype
+}
+
+// /zirak
+
 /**
  * @constructor
  * @extends {WebInspector.StatusBarItem}

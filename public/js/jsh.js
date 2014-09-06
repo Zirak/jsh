@@ -11,13 +11,14 @@ jsh.save = function () {
     var xhr = new XMLHttpRequest();
     xhr.open('POST', 'save');
 
+    xhr.setRequestHeader('Content-Type', 'application/json');
     xhr.responseType = 'json';
 
     xhr.onload = function () {
         // yeah...
         console.log(xhr);
         // do crap with replaceState maybe, that's fancy
-        jsh.console.info('Saved. ID:', xhr.response.id);
+        WebInspector.console.log('Saved. ID: ' + xhr.response.id);
     };
 
     xhr.send(JSON.stringify(data));
