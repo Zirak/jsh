@@ -3,8 +3,7 @@ var jsh = {};
 
 jsh.save = function () {
     var data = {
-        commands : this.getCommandsText(),
-        csrf : document.getElementsByName('csrf')[0].value
+        commands : this.getCommandsText()
     };
 
     // TODO add some XHR abstraction
