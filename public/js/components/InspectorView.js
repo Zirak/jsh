@@ -48,7 +48,7 @@ WebInspector.InspectorView = function()
     this._tabbedPane = new WebInspector.TabbedPane();
     this._tabbedPane.setRetainTabOrder(true, WebInspector.moduleManager.orderComparator(WebInspector.Panel, "name", "order"));
     this._tabbedPane.show(this._drawerSplitView.mainElement());
-    this._drawer = new WebInspector.Drawer(this._drawerSplitView);
+    // this._drawer = new WebInspector.Drawer(this._drawerSplitView);
 
     // Patch tabbed pane header with toolbar actions.
     this._toolbarElement = document.createElement("div");
@@ -77,7 +77,7 @@ WebInspector.InspectorView = function()
     closeButtonElement.addEventListener("click", InspectorFrontendHost.closeWindow.bind(InspectorFrontendHost), true);
     this._rightToolbarElement.appendChild(this._closeButtonToolbarItem);
 
-    this.appendToRightToolbar(this._drawer.toggleButton());
+    // this.appendToRightToolbar(this._drawer.toggleButton());
 
     this._panels = {};
     // Used by tests.
@@ -212,7 +212,7 @@ WebInspector.InspectorView.prototype = {
     {
         this._tabbedPane.addEventListener(WebInspector.TabbedPane.EventTypes.TabSelected, this._tabSelected, this);
         this._tabSelected();
-        this._drawer.initialPanelShown();
+        // this._drawer.initialPanelShown();
     },
 
     showDrawerEditor: function()

@@ -39,7 +39,7 @@ WebInspector.Drawer = function(splitView)
 
     this._splitView = splitView;
     splitView.hideDefaultResizer();
-    this.show(splitView.sidebarElement());
+    // this.show(splitView.sidebarElement());
 
     this._drawerEditorSplitView = new WebInspector.SplitView(true, true, "editorInDrawerSplitViewState", 0.5, 0.5);
     this._drawerEditorSplitView.hideSidebar();
@@ -62,7 +62,7 @@ WebInspector.Drawer = function(splitView)
         // this.setDrawerEditorAvailable(false);
     }
 
-    splitView.installResizer(this._tabbedPane.headerElement());
+    // splitView.installResizer(this._tabbedPane.headerElement());
     this._lastSelectedViewSetting = WebInspector.settings.createSetting("WebInspector.Drawer.lastSelectedView", "console");
     this._tabbedPane.show(this._drawerEditorSplitView.mainElement());
 

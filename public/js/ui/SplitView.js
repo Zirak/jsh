@@ -74,7 +74,8 @@ WebInspector.SplitView = function(isVertical, secondIsSidebar, settingName, defa
     this.setSecondIsSidebar(secondIsSidebar);
 
     this._innerSetVertical(isVertical);
-    this._showMode = WebInspector.SplitView.ShowMode.Both;
+    // this._showMode = WebInspector.SplitView.ShowMode.Both;
+    this._showMode = WebInspector.SplitView.ShowMode.OnlyMain;
 
     // Should be called after isVertical has the right value.
     this.installResizer(this._resizerElement);
