@@ -53,11 +53,6 @@ WebInspector.ConsoleView = function(hideContextSelector)
     this._clearConsoleButton = new WebInspector.StatusBarButton(WebInspector.UIString("Clear console log."), "clear-status-bar-item");
     this._clearConsoleButton.addEventListener("click", this._requestClearMessages, this);
 
-    // zirak
-    this._saveButton = new WebInspector.StatusBarTextButton(WebInspector.UIString("Save"), "save-status-bar-item");
-    this._saveButton.addEventListener("click", jsh.save, jsh);
-    // /zirak
-
     // this._executionContextSelector = new WebInspector.StatusBarComboBox(this._executionContextChanged.bind(this), "console-context");
 
     /**
@@ -77,13 +72,11 @@ WebInspector.ConsoleView = function(hideContextSelector)
     this._preserveLogCheckbox = new WebInspector.StatusBarCheckbox(WebInspector.UIString("Preserve log"));
     WebInspector.SettingsUI.bindCheckbox(this._preserveLogCheckbox.inputElement, WebInspector.settings.preserveConsoleLog);
     this._preserveLogCheckbox.element.title = WebInspector.UIString("Do not clear log on page reload / navigation.");
-    */
 
 
     var statusBarElement = this._contentsElement.createChild("div", "console-status-bar");
-    statusBarElement.appendChildren(/*zirak*/this._saveButton.element/*, this._clearConsoleButton.element, this._filterBar.filterButton().element, this._executionContextSelector.element, this._preserveLogCheckbox.element*/);
+    statusBarElement.appendChildren(this._clearConsoleButton.element, this._filterBar.filterButton().element, this._executionContextSelector.element, this._preserveLogCheckbox.element);
 
-    /*
     this._filtersContainer = this._contentsElement.createChild("div", "console-filters-header hidden");
     this._filtersContainer.appendChild(this._filterBar.filtersElement());
     this._filterBar.addEventListener(WebInspector.FilterBar.Events.FiltersToggled, this._onFiltersToggled, this);
@@ -127,7 +120,7 @@ WebInspector.ConsoleView = function(hideContextSelector)
     if (!WebInspector.experimentsSettings.workersInMainWindow.isEnabled())
         this._showAllMessagesCheckbox.element.classList.add("hidden");
 
-    statusBarElement.appendChild(this._showAllMessagesCheckbox.element);
+    // statusBarElement.appendChild(this._showAllMessagesCheckbox.element);
 
     this._registerShortcuts();
 

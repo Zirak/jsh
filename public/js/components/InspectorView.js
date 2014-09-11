@@ -40,15 +40,21 @@ WebInspector.InspectorView = function()
     this.setMinimumSize(180, 72);
 
     // DevTools sidebar is a vertical split of panels tabbed pane and a drawer.
+    /*
     this._drawerSplitView = new WebInspector.SplitView(false, true, "Inspector.drawerSplitViewState", 200, 200);
     this._drawerSplitView.hideSidebar();
     this._drawerSplitView.enableShowModeSaving();
     this._drawerSplitView.show(this.element);
+    */
 
     this._tabbedPane = new WebInspector.TabbedPane();
+    this._tabbedPane.show(this.element); // zirak
+
+    /*
     this._tabbedPane.setRetainTabOrder(true, WebInspector.moduleManager.orderComparator(WebInspector.Panel, "name", "order"));
     this._tabbedPane.show(this._drawerSplitView.mainElement());
-    // this._drawer = new WebInspector.Drawer(this._drawerSplitView);
+    this._drawer = new WebInspector.Drawer(this._drawerSplitView);
+    */
 
     // Patch tabbed pane header with toolbar actions.
     this._toolbarElement = document.createElement("div");
@@ -78,6 +84,11 @@ WebInspector.InspectorView = function()
     this._rightToolbarElement.appendChild(this._closeButtonToolbarItem);
 
     // this.appendToRightToolbar(this._drawer.toggleButton());
+    // zirak
+    this._saveButton = new WebInspector.StatusBarTextButton(WebInspector.UIString("Save"), "save-status-bar-item");
+    this._saveButton.addEventListener("click", jsh.save, jsh);
+    this.appendToLeftToolbar(this._saveButton);
+    // /zirak
 
     this._panels = {};
     // Used by tests.
@@ -308,6 +319,7 @@ WebInspector.InspectorView.prototype = {
      */
     showViewInDrawer: function(id, immediate)
     {
+        return;
         this._drawer.showView(id, immediate);
     },
 
