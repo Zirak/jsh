@@ -81,7 +81,7 @@ WebInspector.ConsoleView = function(hideContextSelector)
 
 
     var statusBarElement = this._contentsElement.createChild("div", "console-status-bar");
-    statusBarElement.appendChildren(/*zirak*/this._saveButton.element, this._clearConsoleButton.element/*, this._filterBar.filterButton().element, this._executionContextSelector.element, this._preserveLogCheckbox.element*/);
+    statusBarElement.appendChildren(/*zirak*/this._saveButton.element/*, this._clearConsoleButton.element, this._filterBar.filterButton().element, this._executionContextSelector.element, this._preserveLogCheckbox.element*/);
 
     /*
     this._filtersContainer = this._contentsElement.createChild("div", "console-filters-header hidden");
@@ -709,6 +709,11 @@ WebInspector.ConsoleView.prototype = {
 
         var shortcut = WebInspector.KeyboardShortcut;
         // var section = WebInspector.shortcutsScreen.section(WebInspector.UIString("Console"));
+
+        // zirak
+        var saveShorctut = shortcut.makeDescriptor("s", WebInspector.KeyboardShortcut.Modifiers.Ctrl);
+        this._shortcuts[saveShorctut.key] = jsh.save.bind(jsh);
+        // /zirak
 
         var shortcutL = shortcut.makeDescriptor("l", WebInspector.KeyboardShortcut.Modifiers.Ctrl);
         this._shortcuts[shortcutL.key] = this._requestClearMessages.bind(this);
