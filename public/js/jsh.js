@@ -232,7 +232,7 @@ jsh.bridge.releaseObjectGroup = function (params) {
         generatePreview: Whether to attach the preview property. Default true.
 */
 jsh.bridge.wrapObject = function (params) {
-    if (!params.hasOwnProperty('object')) {
+    if (params == null || !params.hasOwnProperty('object')) {
         params = {
             object : params
         };
