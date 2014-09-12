@@ -353,8 +353,10 @@ WebInspector.TextPrompt.prototype = {
     autoCompleteSoon: function(force)
     {
         var immediately = this.isSuggestBoxVisible() || force;
-        if (!this._completeTimeout)
+        if (!this._completeTimeout) {
+            console.trace();
             this._completeTimeout = setTimeout(this.complete.bind(this, force), immediately ? 0 : 250);
+        }
     },
 
     /**
@@ -905,4 +907,3 @@ WebInspector.TextPromptWithHistory.prototype = {
 
     __proto__: WebInspector.TextPrompt.prototype
 }
-

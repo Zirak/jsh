@@ -747,15 +747,105 @@ Node.prototype.setTextContentTruncatedIfNeeded = function(text, placeholder)
     return false;
 }
 
+// zirak: scrollIntoViewIfNeeded is a neat webkit function.
+if (!Element.prototype.scrollIntoViewIfNeeded) {
+    // the devtools don't use centerIfNeeded, and implementing it will take more
+    //than 10 minutes of debugging, so I don't care I'm not implementing it no
+    //I'm naaawt.
+    Element.prototype.scrollIntoViewIfNeeded = function () {
+        var box = this.getBoundingClientRect(),
+            parent = this.parentNode.getBoundingClientRect();
+
+        var above   = box.top    < parent.top,
+            below   = box.bottom > parent.bottom,
+            toRight = box.right  > parent.right,
+            toLeft  = box.left   < parent.left;
+
+        // still in the box, no need to worry.
+        if (!(above || below || toRight || toLeft)) {
+            return;
+        }
+
+        // alignWithTop if we're above our parent.
+        return this.scrollIntoView(!below);
+    };
+}
+
+// zirak: IE11 is a bad browser.
+if (!Element.prototype.remove) {
+	Element.prototype.remove = function () {
+		return this.parentNode.removeChild(this);
+	};
+}
+
+// zirak: keyIdentifer is only present in webkit/blink, mudderfrakker
+(function () {
+if ('keyIdentifier' in document.createEvent('KeyboardEvent')) {
+    return;
+}
+console.log('shimming keyIdentifier');
+
+// shut up. And don't take use this as a reference. It's not complete.
+var map = {
+  "9": "U+0009",
+  "12": "Clear",
+  "13": "Enter",
+  // the key below is Shift. Wanna hear something funny? RShift also has a key
+  //code of 16, but its identifier is U+00A1. The only way to distinguish them
+  //is by checking event.location.
+  "16": "U+00A0",
+  // Same goes for Ctrl, 17 means A2 or A3 depending on location.
+  "17": "U+00A2",
+  // ...and Alt, A4 or A5.
+  "18": "U+00A4",
+  "19": "Pause", "20": "CapsLock", "27": "U+001B", "33": "PageUp",
+  "34": "PageDown", "35": "End", "36": "Home",
+  "37": "Left", "38": "Up", "39": "Right", "40": "Down",
+  "42": "U+002A", "45": "Insert", "46": "U+007F", "91": "Win",
+  "96": "U+0060", "144": "U+0090", "186": "U+00BA",
+  "187": "U+00BB", "188": "U+00BC", "189": "U+00BD", "190": "U+00BE",
+  "191": "U+00BF", "192": "U+00C0", "219": "U+00DB", "220": "U+00DC",
+  "221": "U+00DD", "222": "U+00DE"
+};
+
+// numbers range from 48 to 57.
+for (var code = 48; code <= 57; code += 1) {
+    map[code] = 'U+00' + code.toString(16).toUpperCase();
+}
+// characters range from 65 to 90.
+for (var code = 65; code <= 90; code += 1) {
+    map[code] = 'U+00' + code.toString(16).toUpperCase();
+}
+// function keys range from 112 to 123 wth literal identifiers.
+for (var fkey = 1, startCode = 111; fkey <= 12; fkey += 1) {
+    map[fkey + startCode] = 'F' + fkey;
+}
+
+KeyboardEvent.keyMap = map;
+
+Object.defineProperty(KeyboardEvent.prototype, 'keyIdentifier', {
+    get : function () {
+        // so I thought whether I should care about distinguishing between
+        //LShift and RShift and so forth. And then I thought...fuck that.
+        return this.which in KeyboardEvent.keyMap ?
+            KeyboardEvent.keyMap[this.which] :
+            'Unknown';
+    },
+    enumerable : true
+});
+})();
+// /zirak
+
 /**
  * @return {boolean}
  */
 function isEnterKey(event) {
     // Check if in IME.
-    return event.keyCode !== 229 && event.keyIdentifier === "Enter";
+    // zirak: this is horribly not cross-browser.
+    // return event.keyCode !== 229 && event.keyIdentifier === "Enter";
+    return event.keyCode === 13;
 }
 
-function consumeEvent(e)
-{
+function consumeEvent(e) {
     e.consume();
 }

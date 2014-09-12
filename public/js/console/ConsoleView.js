@@ -112,6 +112,8 @@ WebInspector.ConsoleView = function(hideContextSelector)
     this._promptElement = this._messagesElement.createChild("div", "source-code");
     this._promptElement.id = "console-prompt";
     this._promptElement.spellcheck = false;
+    // zirak: Because FF is a dork, -moz-user-modify doesn't quite work.
+    this._promptElement.contentEditable = true;
 
     this._showAllMessagesCheckbox = new WebInspector.StatusBarCheckbox(WebInspector.UIString("Show all messages"));
     this._showAllMessagesCheckbox.inputElement.checked = true;

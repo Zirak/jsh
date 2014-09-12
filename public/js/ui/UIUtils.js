@@ -605,7 +605,7 @@ WebInspector.setCurrentFocusElement = function(x)
         WebInspector._previousFocusElement = WebInspector._currentFocusElement;
     WebInspector._currentFocusElement = x;
 
-    if (WebInspector._currentFocusElement) {
+    if (WebInspector._currentFocusElement && WebInspector._currentFocusElement.focus) {
         WebInspector._currentFocusElement.focus();
 
         // Make a caret selection inside the new element if there isn't a range selection and there isn't already a caret selection inside.
@@ -620,7 +620,7 @@ WebInspector.setCurrentFocusElement = function(x)
             selection.removeAllRanges();
             selection.addRange(selectionRange);
         }
-    } else if (WebInspector._previousFocusElement)
+    } else if (WebInspector._previousFocusElement && WebInspector._previousFocusElement.focus)
         WebInspector._previousFocusElement.blur();
 }
 
