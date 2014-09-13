@@ -692,17 +692,20 @@ InspectorBackendClass.StubConnection.prototype = {
      */
     sendMessage: function(messageObject)
     {
-        var res = jsh.handleMessage(messageObject);
+        setTimeout(actualSendMessage.bind(this), 0);
 
-        if (res) {
-            this.dispatch({
-                result : res,
-                id : messageObject.id
-            });
-            return;
-        }
-        else {
-            setTimeout(this._echoResponse.bind(this, messageObject), 0);
+        function actualSendMessage () {
+            var res = jsh.handleMessage(messageObject);
+
+            if (res) {
+                this.dispatch({
+                    result : res,
+                    id : messageObject.id
+                });
+            }
+            else {
+                this._echoResponse.bind(this, messageObject);
+            }
         }
     },
 

@@ -96,7 +96,16 @@ window.addEventListener('DOMContentLoaded', function () {
     // load up the commands (if there are any)
     // yes, this is horrible. I will not apologise.
     setTimeout(function () {
-        jsh.loadFromText(document.getElementById('jsh-commands').textContent);
+        if (!localStorage.introduced) {
+            localStorage.introduced = true;
+            jsh.introduce();
+        }
+
+        var commands = document.getElementById('jsh-commands').textContent;
+
+        if (commands) {
+            jsh.loadFromText(commands);
+        }
     }, 100);
 });
 
@@ -263,21 +272,42 @@ jsh.parseLogStackTrace = function (stack) {
     /*
     The stack trace in Chrome looks something like:
     Error
-        at (anonymous function)
-        at Object.jsh.console.(anonymous function) [as log] (http://url/jsh.js:line:col)
-        at foo (eval at <anonymous> (http://url/jsh.js:line:col), <anonymous>:line:col)
-        at eval (eval at <anonymous> (http://url/jsh.js:line:col), <anonymous>:line:col)
+        at Object.jsh.sendConsoleMessage (http://localhost:8080/js/jsh-console.js:158:22)
+        at Object.jsh.console.(anonymous function) (http://localhost:8080/js/jsh-console.js:25:24)
+        at eval (eval at <anonymous> (http://localhost:8080/js/jsh.js:263:40), <anonymous>:1:9)
         at eval (native)
-        at Object.jsh.evaluateLikeABoss (http://url/jsh.js:line:col)
-        at Object.<anonymous> (http://url/sdk/InspectorBackend.js:line:col)
+        at Object.jsh.eval (http://localhost:8080/js/jsh.js:263:40)
+        at Object.jsh.bridge.evaluate (http://localhost:8080/js/jsh.js:126:22)
+        at Object.jsh.handleMessage (http://localhost:8080/js/jsh.js:73:32)
+        at Object.actualSendMessage (http://localhost:8080/js/sdk/InspectorBackend.js:698:27)
 
     We want to do away with the first and last three lines.
+
+    OTOH, in Firefox, they look like this:
+    jsh.sendConsoleMessage@http://localhost:8080/js/jsh-console.js:158:9
+    jsh.console[level]@http://localhost:8080/js/jsh-console.js:25:9
+    @http://localhost:8080/js/jsh.js line 263 > eval:1:1
+    jsh.eval@http://localhost:8080/js/jsh.js:263:5
+    jsh.bridge.evaluate@http://localhost:8080/js/jsh.js:126:9
+    jsh.handleMessage@http://localhost:8080/js/jsh.js:73:9
+    actualSendMessage@http://localhost:8080/js/sdk/InspectorBackend.js:698:17
+
+    Where we want to do away with the firt two and last three.
     */
-    var stackLines = stack.split('\n').slice(3, -3);
+    var stackLines = stack.split('\n'),
+        parser;
 
-    return stackLines.map(parseLine);
+    if (stackLines[0] === 'Error') {
+        stackLines.shift();
+        parser = chromeParseLine;
+    }
+    else {
+        parser = firefoxParseLine;
+    }
 
-    function parseLine (line) {
+    return stackLines.filter(Boolean).map(parser);
+
+    function chromeParseLine (line) {
         console.log(line);
         // at obj.funcName (crap)
         // at obj.funcName.(anonymous function) (crap)
@@ -292,6 +322,43 @@ jsh.parseLogStackTrace = function (stack) {
             columnNumber : Number(positionMatch[2]),
 
             // protocol stuff.
+            scriptId : 0,
+            url : ''
+        };
+    }
+    function firefoxParseLine (line) {
+        console.log(line);
+        // jsh.handleMessage@http://localhost:8080/js/jsh.js:123231273:12312319
+        // ^---------------^ ^-----------------------------^ ^-------^ ^------^
+        //    (.+)          @   (.+)                        :  (\d+)  :  (\d+)
+        var match = (/^(.+)?@(.+):(\d+):(\d+)$/).exec(line);
+        var func, file, line, col;
+
+        if (match) {
+            func = match[1];
+            file = match[2];
+            line = match[3];
+            col  = match[4];
+        }
+        else {
+            // @http://localhost:8080/js/jsh.js line 263 > eval:1:1
+            match = (/^@(.+) line (\d+) > eval:\d+:\d+$/).exec(line);
+
+            if (!match) {
+                console.error('wat', line);
+            }
+
+            func = 'eval';
+            file = match[1];
+            line = match[2];
+            col  = 0; // we receive no indication
+        }
+
+        return {
+            functionName : func,
+            lineNumber   : file,
+            columnNumber : col,
+
             scriptId : 0,
             url : ''
         };
@@ -371,6 +438,31 @@ jsh.InjectedScriptHost = {
         var args = [].slice.call(arguments, 2);
         return method.apply(obj, args);
     }
+};
+
+// at the end because blobs of text.
+jsh.introduce = function () {
+    var header = (function () {/*
+     _     _
+    (_)   | |       Welcome to jsh, an embedded Chrome dev-tools console!
+     _ ___| |__
+    | / __| '_ \
+    | \__ \ | | |   Play around with javascript, hit save (Ctrl+S), share with
+    | |___/_| |_|   friends and strangers!
+   _/ |
+  |__/
+
+        * Source code on https://github.com/Zirak/jsh.
+        * Bug reports more than welcome: https://github.com/Zirak/jsh/issues
+        * Hit me on twitter: @zirakertan
+
+        Hit Ctrl+L to clear this message.
+    */}).toString().split('\n').slice(1, -1).join('\n');
+
+    var msgs = [
+        header
+    ];
+    msgs.forEach(function (msg) { jsh.console.log(msg) });
 };
 
 /*
