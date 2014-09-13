@@ -230,6 +230,8 @@ jsh.bridge.releaseObjectGroup = function (params) {
         returnByValue: If the value is an object, whether to return it as it is,
             or wrap it up and give it an objectId. Default false.
         generatePreview: Whether to attach the preview property. Default true.
+        columnNames: column names. I dunno...just pass in `null` or something.
+        isTable: Whether it should be formatted as a table.
 */
 jsh.bridge.wrapObject = function (params) {
     if (params == null || !params.hasOwnProperty('object')) {
@@ -242,10 +244,13 @@ jsh.bridge.wrapObject = function (params) {
         group = 'group' in params ? params.group : 'console',
         retByVal = 'returnByValue' in params ? params.returnByValue : false,
         preview = 'generatePreview' in params ? params.generatePreview : true;
+    // columnNames and isTable can be passed as undefined without worry.
 
     // why _wrapObject and not wrapObject? Because calling the former works, and
     //the latter has some weirdo logic.
-    return this.injectedScript._wrapObject(obj, group, retByVal, preview);
+    return this.injectedScript._wrapObject(
+        obj, group, retByVal,
+        preview, params.columnNames, params.isTable);
 };
 
 jsh.eval = function (code) {

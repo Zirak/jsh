@@ -457,7 +457,6 @@ WebInspector.ConsoleViewMessage.prototype = {
      */
     _appendObjectPreview: function(obj, description, titleElement)
     {
-        console.trace();
         var preview = obj.preview;
         var isArray = obj.subtype === "array";
 
@@ -680,8 +679,6 @@ WebInspector.ConsoleViewMessage.prototype = {
      */
     _printArray: function(array, elem, properties)
     {
-        console.trace();
-
         if (!properties)
             return;
 

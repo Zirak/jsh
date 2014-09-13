@@ -65,6 +65,21 @@ jsh.console.dir = function dir () {
     window.top.jsh.sendConsoleMessage(message);
 };
 
+jsh.console.table = function table (parameter) {
+        var message = {
+            level : 'log',
+            type : 'table',
+            parameters : [jsh.bridge.wrapObject({
+                object : parameter,
+                columnNames : null,
+                isTable : true
+            })],
+            text : String([].map.call(arguments, String))
+        };
+
+        window.top.jsh.sendConsoleMessage(message);
+};
+
 // FIXME: there's a weird bug where console.trace calls are "taller" than other
 //lines.
 jsh.console.trace = function trace () {

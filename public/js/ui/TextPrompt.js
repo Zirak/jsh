@@ -354,7 +354,6 @@ WebInspector.TextPrompt.prototype = {
     {
         var immediately = this.isSuggestBoxVisible() || force;
         if (!this._completeTimeout) {
-            console.trace();
             this._completeTimeout = setTimeout(this.complete.bind(this, force), immediately ? 0 : 250);
         }
     },
