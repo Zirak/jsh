@@ -311,7 +311,6 @@ InjectedScript.prototype = {
      */
     _wrapObject: function(object, objectGroupName, forceValueType, generatePreview, columnNames, isTable)
     {
-        console.warn(arguments);
         try {
             return new InjectedScript.RemoteObject(object, objectGroupName, forceValueType, generatePreview, columnNames, isTable);
         } catch (e) {

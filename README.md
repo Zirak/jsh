@@ -11,10 +11,11 @@ just playing around with javascript.
 
 But what if you could have a javascript console...in your browser?
 
-And then share that hacking around session with those you love (and hate (or
+And then share that hacking around session with those you love (or hate (or
 feel no particular emotion for))?
 
-http://zirak.github.com/jsh . It could take a bit to load.
+http://apt-reference-695.appspot.com . It could take a bit to load. Yes, I know
+the url sucks.
 
 ## What is this?
 As the introduction above says, this is Chrome's dev tools javascript console in
@@ -22,11 +23,10 @@ a regular web page. To see how it was done, see the [How stuff works](#How stuff
 section below.
 
 Write some javascript, invite your friends, write some javascript on your
-friends.
+friends. You'll be the life of the party.
 
-It's at a very alpha stage, the client side is still being constructed. When it
-reaches the stage of usability (i.e. no errors during a routine session), the
-backend will be added, and fun will be had by all.
+It's quite alphab but usable. Things work generally pretty well on Chrome,
+Firefox has some jitters, IE will likely stay a mess for some time.
 
 ## Features
 What you'd expect of Chrome dev tools' excellent console:
@@ -42,7 +42,6 @@ What you'd expect of Chrome dev tools' excellent console:
 
 * Implement ---all--- most console methods (dir, group, table, time, ...)
 * Make it work across modern-ish browsers
-* Actually save session history
 * Introduction message
 * Themes (?)
 * Settings (?)
@@ -85,6 +84,9 @@ related functionality while trimming unnecessary portions.
 All messages to the native backend funnel down to `jsh.handleMessage`.
 
 ### Structure
+Frontend is in the `public/` directory; `/templates` and the rest are Google
+App Engine boilerplate.
+
 The directory structure is also of course copied directly from the dev tools'
 source. I don't quite get it either. It's a mess.
 
