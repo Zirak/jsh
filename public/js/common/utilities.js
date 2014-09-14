@@ -1803,4 +1803,3 @@ WeakReference.prototype = {
         this._targetObject = null;
     }
 };
-

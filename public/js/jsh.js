@@ -35,10 +35,27 @@ jsh.loadFromText = function (text) {
         return;
     }
 
-    commands.forEach(addCommand);
+    // we can't just add the commands one after the other, since running a
+    //command is an async operation.
+    // what we should do is wait for a command to be evaluated before moving on
+    //to the next.
+    // what really *should* be done (TODO) is only run a command once the one
+    //before has been printed.
+    var consoleModel = WebInspector.targetManager.targets()[0].consoleModel,
+        commandEvaluated = WebInspector.ConsoleModel.Events.CommandEvaluated;
 
-    function addCommand (cmd) {
+    consoleModel.addEventListener(commandEvaluated, addNextCommand);
+
+    addNextCommand();
+
+    function addNextCommand () {
+        var cmd = commands.shift();
         console.warn(cmd);
+        if (!cmd) {
+            consoleModel.removeEventListener(commandEvaluated, addNextCommand);
+            return;
+        }
+
         WebInspector.ConsolePanel._view()._appendCommand(cmd, true);
     }
 };
