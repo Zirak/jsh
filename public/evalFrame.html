@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+</head>
+<body>
+
+<script src="js/InjectedScriptHost.js"></script>
+<script src="js/InjectedScript.js"></script>
+<script src="js/jsh-console.js"></script>
+
+<script>
+console.log('blah');
+(function () {
+// So. Communication. We're the sub-frame and we want to talk to the parent
+//frame. Before running any user code, the parent sends us a secret key via
+//postMessage.
+var secret = '';
+var realConsole = console;
+
+function sendToParent (data) {
+    data.secret = secret;
+    top.postMessage(data, '*');
+}
+
+var injectedScript = createInjectedScript(InjectedScriptHost, window, 1);
+
+// infamous dispatch table.
+var actions = {
+    bridge : function (data) {
+        var func = data.method.split('.').pop();
+
+        if (!bridge.hasOwnProperty(func)) {
+            realConsole.log('loopback');
+            return sendToParent({
+                id : data.id,
+                method : data.method
+            });
+        }
+
+        var res = bridge[func](data.params);
+        sendToParent({
+            id : data.id,
+            result : res
+        });
+    },
+
+    // change the secret. no effect if one's already set.
+    secret : function (data) {
+        if (secret) {
+            return;
+        }
+
+        realConsole.log('changing secret:', secret, data.newSecret);
+        secret = data.newSecret;
+    },
+};
+
+// The WebInspector has the InspectorFrontendHost, which is responsible for
+//communicating with the native part of the browser (which in turn injects more
+//javascript. this makes a lot of sense, I know)
+// In case you haven't noticed, this is not native code. So here are a bunch of
+//functions to communicate with the javascript that would've been injected.
+
+var bridge = {};
+
+bridge.evaluate = function (params) {
+    realConsole.info(params);
+    var ret, result;
+
+    var expression      = params.expression,
+        group           = params.objectGroup;
+
+    try {
+        // The culmination of everything.
+        result = (':(', eval)(expression);
+
+        params.object = result;
+
+        ret = {
+            result    : bridge.wrapObject(params),
+            wasThrown : false,
+            __proto__ : null
+        };
+    }
+    catch (e) {
+        realConsole.error(this, e);
+        ret = injectedScript._createThrownValue(e, group);
+    }
+
+    return ret;
+};
+
+/**
+    Calls a function on an object (shocking?). Returns the function's return.
+    Sometimes, I like to dress up like a strawberry.
+
+    params = {
+        functionDeclaration : function code to call
+        objectId      : internal object id to call the function on
+        arguments     : arguments to pass the function
+        returnByValue : yeah...
+    }
+*/
+bridge.callFunctionOn = function (params) {
+    var objectId = params.objectId,
+        func     = params.functionDeclaration,
+        args     = params.arguments,
+        byVal    = !!params.returnByValue;
+
+    return injectedScript.callFunctionOn(objectId, func, args, byVal);
+};
+
+bridge.getProperties = function (params) {
+    var id            = params.objectId,
+        ownProps      = params.ownProperties,
+        accessorsOnly = params.accessorPropertiesOnly;
+
+    return {
+        result : injectedScript.getProperties(id, ownProps, accessorsOnly),
+        __proto__ : null
+    };
+};
+
+bridge.releaseObjectGroup = function (params) {
+    injectedScript.releaseObjectGroup(params.objectGroup);
+    return { __proto__ : null };
+};
+
+/**
+    Wraps an object so it'll be deemed worthy for the console.
+
+    It's simple when the argument is simple...
+
+    > wrapObject(4)
+    {
+        "type": "number",
+        "value": 4,
+        "description": "4"
+    }
+
+    ...but gets more complex as the arguments get complex...
+
+    > wrapObject({})
+    {
+        "type": "object",
+        "objectId": "{\"injectedScriptId\":1,\"id\":4}",
+        "className": "Object",
+        "description": "Object",
+        "preview": {
+            "lossless": false,
+            "overflow": false,
+            "properties": []
+        }
+    }
+
+    The objectId above is what'll be used to reference the object in later
+    times. Let's look at one with actual properties:
+
+    {
+        "type": "object",
+        "objectId": "{\"injectedScriptId\":1,\"id\":5}",
+        "className": "Object",
+        "description": "Object",
+        "preview": {
+            "lossless": false,
+            "overflow": false,
+            "properties": [
+                {
+                    "name": "a",
+                    "type": "number",
+                    "value": "4"
+                },
+                {
+                    "name": "b",
+                    "type": "object",
+                    "value": "Object"
+                }
+            ]
+        }
+    }
+
+    Parameters:
+        object: Object to wrap.
+        group: ...I'm not sure. Default 'console'.
+        returnByValue: If the value is an object, whether to return it as it is,
+            or wrap it up and give it an objectId. Default false.
+        generatePreview: Whether to attach the preview property. Default true.
+        columnNames: column names. I dunno...just pass in `null` or something.
+        isTable: Whether it should be formatted as a table.
+*/
+bridge.wrapObject = function (params) {
+    if (params == null || !params.hasOwnProperty('object')) {
+        params = {
+            object : params
+        };
+    }
+
+    var obj = params.object,
+        group = 'group' in params ? params.group : 'console',
+        retByVal = 'returnByValue' in params ? params.returnByValue : false,
+        preview = 'generatePreview' in params ? params.generatePreview : true;
+    // columnNames and isTable can be passed as undefined without worry.
+
+    // why _wrapObject and not wrapObject? Because calling the former works, and
+    //the latter has some weirdo logic.
+    return injectedScript._wrapObject(
+        obj, group, retByVal,
+        preview, params.columnNames, params.isTable);
+};
+
+window.console = createConsole(bridge, realConsole, sendToParent);
+
+function messageListener (e) {
+    var data = e.data;
+
+    if (e.source !== top || data.secret !== secret) {
+        return;
+    }
+
+    if (actions.hasOwnProperty(data.action)) {
+        actions[data.action](data);
+    }
+}
+
+window.addEventListener('message', messageListener);
+})();
+</script>
+
+</body>
+</html>

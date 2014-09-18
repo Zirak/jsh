@@ -32,7 +32,7 @@
  * @param {Window} inspectedWindow
  * @param {number} injectedScriptId
  */
-var createInjectedScript = (function (InjectedScriptHost, inspectedWindow, injectedScriptId) {
+var createInjectedScript = function (InjectedScriptHost, inspectedWindow, injectedScriptId) {
 
 /**
  * Protect against Object overwritten by the user code.
@@ -354,7 +354,6 @@ InjectedScript.prototype = {
     {
         //zirak
         // return nullifyObjectProto(InjectedScriptHost.eval("(" + objectId + ")"));
-        console.log(objectId);
         return nullifyObjectProto(JSON.parse(objectId));
     },
 
@@ -1705,4 +1704,4 @@ CommandLineAPIImpl.prototype = {
 
 injectedScript._commandLineAPIImpl = new CommandLineAPIImpl();
 return injectedScript;
-});
+};

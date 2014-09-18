@@ -16,6 +16,10 @@ handlers:
     static_files: public/favicon.ico
     upload: public/favicon.ico
 
+  - url: /evalFrame.html
+    static_files: public/evalFrame.html
+    upload: public/evalFrame.html
+
   - url: /.*
     script: jsh.application
 
