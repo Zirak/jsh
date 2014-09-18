@@ -25,7 +25,7 @@ section below.
 Write some javascript, invite your friends, write some javascript on your
 friends. You'll be the life of the party.
 
-It's quite alphab but usable. Things work generally pretty well on Chrome,
+It's quite alpha but usable. Things work generally pretty well on Chrome,
 Firefox has some jitters, IE will likely stay a mess for some time.
 
 ## Features
@@ -38,14 +38,16 @@ What you'd expect of Chrome dev tools' excellent console:
 * History
 * Monkeys
 
-### TODOs
+### Roadmap
 
-* Implement ---all--- most console methods (dir, group, table, time, ...)
-* Make it work across modern-ish browsers
-* Introduction message
-* Themes (?)
-* Settings (?)
-* Better editing (tab button support)
+* [x] Saving and sharing
+* [x] Implement ---all--- most console methods (dir, group, table, time, ...)
+* [ ] Make it work across modern-ish browsers
+* [x] Introduction message
+* [ ] Stream a session (like [TogetherJS](https://togetherjs.com/))
+* [ ] Themes (?)
+* [ ] Settings (?)
+* [ ] Better editing (tab button support)
 
 ## How stuff works
 The best way to learn how the dev tools works is by looking at the source and
@@ -106,6 +108,66 @@ and the good friends in the `console/` folder are where all the console UI logic
 is done.
 
 It's a lot of being confusing and `grep`ing for things.
+
+### What happens when I press enter?
+
+That's a very good question. It all starts from `public/js/concole/ConsoleView.js`,
+in a nice little function called `_promptKeyDown`. Oh look, `_enterKeyPressed`,
+that looks simple!
+
+And then it's HELL. Let's go through a partial trace (which is of course broken
+at times because async, and partial because I'm not doing a full call graph):
+
+1. `ConsoleView.._promptKeyDown`
+2. `ConsoleView.._enterKeyPressed`
+3. `ConsoleView.._appendCommand`
+4. `ConsoleModel.evaluateCommandInConsole`
+5. `ExecutionContext..evaluate`
+
+    (lots of redirections between this and next)
+6. `InspectorBackendClass.AgentPrototype..registerCommand#sendMessage`
+7. `InspectorBackendClass.AgentPrototype.._sendMessageToBackend`
+8. `InspectorBackendClass.MainConnection.._wrapCallbackAndSendMessageObject`
+9. `InspectorBackendClass.StubConnection..sendMessage`
+
+    This is where we come in. We're a `StubConnection` because our backend isn't
+    the real native backend Chrome has. But we'll show it! Next part will
+    change as jsh changes.
+10. `jsh.handleMessage`
+11. `jsh#sendMessageToEvalFrame`
+
+    And from now on we've passed control to the eval frame. Until further notice
+    all functions are one there.
+12. `messageListener`
+13. `actions.bridge`
+14. `bridge.evaluate`
+15. `eval` (finally!)
+16. `sendToParent`
+
+    Aaannndd back to the jsh frame.
+17. `messageListener`
+
+    Aaannndd this is where jsh leaves off.
+18. `InspectorBackendClass.MainConnection..dispatch`
+
+    ...*lots* of indirections...
+19. `ExecutionContext..evaluate#evalCallback`
+20. `ConsoleModel.evaluateCommandInConsole#printResult`
+21. `ConsoleView.._commandEvaluated`
+22. `ConsoleView.._printResult`
+
+...and it just goes boring UI from here. Real nice, right?
+
+### wat
+
+To give you a hand, here are some useful variables to have.
+
+* You're going to see `target` this and `target` that a lot. You can get it like
+this: `WebInspector.targetManager.targets()[0]`
+* Same goes for `connection` or `_connection`: `InspectorBackend.connection()`
+* ConsoleView: `WebInspector.ConsolePanel._view()`
+
+And it's late now so I can't think of anything else.
 
 ## License
 99% of the files here have a giant license block at the top. Basically, it's

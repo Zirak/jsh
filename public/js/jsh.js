@@ -119,7 +119,7 @@ function sendMessageToEvalFrame (data) {
     jsh.evalWindow.postMessage(data, '*');
 }
 
-window.addEventListener('message', function (e) {
+window.addEventListener('message', function messageListener (e) {
     var data = e.data;
 
     if (e.source !== jsh.evalWindow || data.secret !== frameSecret) {
