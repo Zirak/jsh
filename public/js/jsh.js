@@ -89,6 +89,31 @@ jsh.handleMessage = function (messageObject) {
     sendMessageToEvalFrame(messageObject);
 };
 
+// This is butt ugly. Find out when everything we need has been loaded.
+var jshReady = {
+	evalFrame : false,
+	webinspector : false
+};
+
+jsh.maybeLoad = function () {
+	if (!jshReady.evalFrame || !jshReady.webinspector) {
+		return;
+	}
+
+	// Welcome, stranger!
+	if (!localStorage.introduced) {
+        localStorage.introduced = true;
+        jsh.introduce();
+    }
+
+	// Load up the commands (if there are any)
+	var commands = document.getElementById('jsh-commands').textContent;
+
+    if (commands) {
+        jsh.loadFromText(commands);
+    }
+};
+
 // Eval frame! What we do with it is laid out in detail in public/evalFrame.html
 
 jsh.evalFrame = document.createElement('iframe');
@@ -112,6 +137,9 @@ jsh.evalFrame.onload = function () {
         secret : '',
         newSecret : frameSecret
     }, '*');
+
+	jshReady.evalFrame = true;
+	jsh.maybeLoad();
 };
 
 function sendMessageToEvalFrame (data) {
@@ -131,20 +159,10 @@ window.addEventListener('message', function messageListener (e) {
 });
 
 window.addEventListener('DOMContentLoaded', function () {
-
-    // load up the commands (if there are any)
     // yes, this is horrible. I will not apologise.
     setTimeout(function () {
-        if (!localStorage.introduced) {
-            localStorage.introduced = true;
-            jsh.introduce();
-        }
-
-        var commands = document.getElementById('jsh-commands').textContent;
-
-        if (commands) {
-            jsh.loadFromText(commands);
-        }
+        jshReady.webinspector = true;
+		jsh.maybeLoad();
     }, 100);
 });
 
