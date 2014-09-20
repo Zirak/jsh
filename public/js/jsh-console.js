@@ -133,7 +133,7 @@ console.groupCollapsed = function groupCollapsed () {
 // TODO: what should this do? clear history? the user needs to be alerted if so.
 // do we even want this?
 console.clear = function clear () {
-    window.top.InspectorBackend.connection().dispatch({
+    sendMessage({
         method : 'Console.messagesCleared'
     });
 
