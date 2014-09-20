@@ -42,6 +42,7 @@ What you'd expect of Chrome dev tools' excellent console:
 
 * [x] Saving and sharing
 * [x] Implement ---all--- most console methods (dir, group, table, time, ...)
+* [ ] Inspect nodes.
 * [ ] Make it work across modern-ish browsers
 * [x] Introduction message
 * [ ] Stream a session (like [TogetherJS](https://togetherjs.com/))

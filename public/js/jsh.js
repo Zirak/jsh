@@ -185,10 +185,7 @@ jsh.introduce = function () {
         Hit Ctrl+L to clear this message.
     */}).toString().split('\n').slice(1, -1).join('\n');
 
-    var msgs = [
-        header
-    ];
-    msgs.forEach(function (msg) { jsh.console.log(msg); });
+    WebInspector.console.log(header);
 };
 
 /*

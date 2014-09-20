@@ -242,6 +242,8 @@ WebInspector.ConsoleView.prototype = {
      */
     _addSinkMessage: function(message)
     {
+		// zirak: ...what?
+		/*
         var level = WebInspector.ConsoleMessage.MessageLevel.Debug;
         switch (message.level) {
         case WebInspector.Console.MessageLevel.Error:
@@ -251,8 +253,9 @@ WebInspector.ConsoleView.prototype = {
             level = WebInspector.ConsoleMessage.MessageLevel.Warning;
             break;
         }
+		*/
 
-        var consoleMessage = new WebInspector.ConsoleMessage(null, WebInspector.ConsoleMessage.MessageSource.Other, level, message.text,
+        var consoleMessage = new WebInspector.ConsoleMessage(null, WebInspector.ConsoleMessage.MessageSource.Other, message.level, message.text,
                 undefined, undefined, undefined, undefined, undefined, undefined, undefined, message.timestamp);
         this._addConsoleMessage(consoleMessage);
     },
