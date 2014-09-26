@@ -5,12 +5,8 @@ api_version: 1
 threadsafe: true
 
 handlers:
-  - url: /css
-    static_dir: public/css
-  - url: /js
-    static_dir: public/js
-  - url: /Images
-    static_dir: public/css/Images
+  - url: /public
+    static_dir: public
 
   - url: /favicon.ico
     static_files: public/favicon.ico

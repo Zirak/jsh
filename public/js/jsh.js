@@ -163,12 +163,13 @@ window.addEventListener('DOMContentLoaded', function () {
     setTimeout(function () {
         jshReady.webinspector = true;
 		jsh.maybeLoad();
-    }, 100);
+    }, 50);
+	// ;-;
 });
 
 // at the end because blobs of text.
 jsh.introduce = function () {
-    var header = (function () {/*
+    var header = (function () {/** @preserve
      _     _
     (_)   | |       Welcome to jsh, an embedded Chrome dev-tools console!
      _ ___| |__
@@ -183,7 +184,9 @@ jsh.introduce = function () {
         * Hit me on twitter: @zirakertan
 
         Hit Ctrl+L to clear this message.
-    */}).toString().split('\n').slice(1, -1).join('\n');
+    */
+        console.lulz = 4; delete console.lulz;
+    }).toString().split('\n').slice(1, -2).join('\n');
 
     WebInspector.console.log(header);
 };

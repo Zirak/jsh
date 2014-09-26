@@ -22,7 +22,11 @@ class GetJession(webapp2.RequestHandler):
         else:
             commands = []
 
-        template = JINJA.get_template('jession.jinja')
+        # TODO actually select between min and full based on some environment
+        #variable - for some reason GAE is being weird about them.
+        template_path = 'jession.min.jinja'
+        template = JINJA.get_template(template_path)
+
         self.response.write(template.render({
             'commands' : json.dumps(commands)
         }))

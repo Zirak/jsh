@@ -14,8 +14,7 @@ But what if you could have a javascript console...in your browser?
 And then share that hacking around session with those you love (or hate (or
 feel no particular emotion for))?
 
-http://apt-reference-695.appspot.com . It could take a bit to load. Yes, I know
-the url sucks.
+http://jsh.zirak.me . It could take a bit to load.
 
 ## What is this?
 As the introduction above says, this is Chrome's dev tools javascript console in
@@ -40,11 +39,11 @@ What you'd expect of Chrome dev tools' excellent console:
 
 ### Roadmap
 
+* [x] Introduction message
 * [x] Saving and sharing
 * [x] Implement ---all--- most console methods (dir, group, table, time, ...)
-* [ ] Inspect nodes.
 * [ ] Make it work across modern-ish browsers
-* [x] Introduction message
+* [ ] Inspect nodes.
 * [ ] Stream a session (like [TogetherJS](https://togetherjs.com/))
 * [ ] Themes (?)
 * [ ] Settings (?)
