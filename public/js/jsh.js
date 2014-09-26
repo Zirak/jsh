@@ -131,6 +131,11 @@ var frameSecret = (function () {
     return fuckayou.map(String.fromCharCode).join('');
 })();
 
+// sometimes, I wonder if variables are aware of their names, and my variables
+//are constantly walking around with their heads to the ground, being made fun
+//of by other programs with their fancy variables.
+// sometimes.
+
 jsh.evalFrame.onload = function () {
     jsh.evalWindow.postMessage({
         action : 'secret',

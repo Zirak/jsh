@@ -7,11 +7,11 @@ var createConsole = function (bridge, realConsole, sendMessage) {
 
 var console = {};
 
-['log', 'info', 'warn', 'error'].forEach(function (level) {
+['log', 'info', 'error'].forEach(function (level) {
     console[level] = function () {
         var message = {
             level  : level,
-            type   : level,
+            type   : 'log',
 
             parameters : wrapObjects(arguments),
             text : [].join.call(arguments, ' ')
@@ -21,7 +21,19 @@ var console = {};
     };
 });
 
-console.debug = console.info = console.log;
+console.debug = console.log;
+
+console.warn = function () {
+    var message = {
+        level  : 'warning',
+        type   : 'log',
+
+        parameters : wrapObjects(arguments),
+        text : [].join.call(arguments, ' ')
+    };
+
+    sendConsoleMessage(message);
+};
 
 console.assert = function (condition) {
     if (condition) {
