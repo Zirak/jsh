@@ -1,6 +1,6 @@
 // everything is terrible.
 var Promise = require('bluebird'),
-	pathlib = require('path'),
+    pathlib = require('path'),
     fs = Promise.promisifyAll(require('fs'));
 
 var chunkString = function (str, re) {
@@ -26,8 +26,8 @@ var chunkString = function (str, re) {
 
 var processFile = exports.processFile = function (path) {
     return fs.readFileAsync(path).then(function (imported) {
-		return processString(imported, pathlib.dirname(path));
-	});
+        return processString(imported, pathlib.dirname(path));
+    });
 };
 
 var processString = exports.processString = function (data, path) {
@@ -35,20 +35,20 @@ var processString = exports.processString = function (data, path) {
     var importRegex = /^@import\s+url\(\s*"(.+)"\s*\);$/gm;
 
     return Promise.map(chunkString(data, importRegex), function (part) {
-		// part is either the match, or an array containing just a string.
-		if (!part[1]) {
+        // part is either the match, or an array containing just a string.
+        if (!part[1]) {
             return part[0];
         }
 
-		var importPath = part[1],
-			relativePath;
+        var importPath = part[1],
+            relativePath;
 
-		if (path) {
-			importPath = pathlib.resolve(path, importPath);
-		}
+        if (path) {
+            importPath = pathlib.resolve(path, importPath);
+        }
 
         return processFile(importPath);
     }).reduce(function (ret, val) {
-		return ret + val;
-	}, '');
+        return ret + val;
+    }, '');
 };
