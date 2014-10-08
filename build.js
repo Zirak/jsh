@@ -3,9 +3,12 @@
 
 'use strict';
 
-var fs = require('fs'),
-    path = require('path'),
-    uglify = require('uglify-js');
+var Promise = require('bluebird'),
+    fs = Promise.promisifyAll(require('fs')),
+
+    uglify = require('uglify-js'),
+    concatCSS = require('./concatCSS'),
+    CleanCSS = require('clean-css');
 
 // Helper crap, ignore if you want and move down.
 // Ignore them. Just like my 3rd wife.
@@ -30,7 +33,7 @@ var colours = {
     yellow  : '\u001b[0;33m',
     blue    : '\u001b[0;34m',
     purple  : '\u001b[0;35m',
-    cyan    : '\u001b[0;36m',
+    cyan    : '\u001b[0;36m'
 };
 
 // She said nothing. Closed the suitcase and left. Both the house, and me,
@@ -53,26 +56,28 @@ console.colour = function (str /*, ...args, colour */) {
 // You can stop ignoring now.
 
 var indexPath = 'templates/jession.jinja';
-console.colour('Reading %s', indexPath, colours.purple);
+console.colour('Reading %s', indexPath, colours.yellow);
 
-fs.readFile(indexPath, {encoding : 'utf8'}, replaceScripts);
+fs.readFileAsync(indexPath, {encoding : 'utf8'}).then(replaceScripts).catch(fuckingError);
 
-function replaceScripts (err, indexFile) {
-    if (err) {
-        fuckingError(err);
-        throw err;
-    }
-
-    writeIndexFile(indexFile);
-    writeEveryFuckingJavascript(indexFile, path.dirname(indexPath));
+function replaceScripts (indexFile) {
+    return Promise.all([
+        writeIndexFile(indexFile),
+        writeEveryFuckingJavascript(indexFile),
+        writeEveryFuckingCSS(indexFile)
+    ]);
 }
 
 function writeIndexFile (indexFile) {
     // lulz
-    // Remove all the scripts
     var minIndexFile = indexFile
+            // remove all stylesheets
+            .replace(/[ \t]*<link.*rel="stylesheet".*\/>\s*?[\r\n]{0,2}/g, '')
+            // remove all scripts
             .replace(/\s*<script.+<\/script>\s*[\r\n]{0,2}/g, '')
-            .replace(/<\/head>/, '\n$&')
+            // add the master stylesheet right before the end of the head
+            .replace(/<\/head>/, '\n    <link href="public/css/everything.min.css" rel="stylesheet" />\n$&')
+            // add the master script right at the beginning of the body
             .replace(/<body.+>/, '$&\n    <script src="public/js/everything.min.js"></script>');
 
     var minFilePath = (function () {
@@ -82,12 +87,8 @@ function writeIndexFile (indexFile) {
     })();
 
     console.colour('-> Writing %s', minFilePath, colours.yellow);
-    fs.writeFile(minFilePath, minIndexFile, function (err) {
-        if (err) {
-            fuckingError(err);
-            return;
-        }
 
+    return fs.writeFileAsync(minFilePath, minIndexFile).then(function () {
         console.colour('--> Wrote index crap.', colours.yellow);
     });
 }
@@ -117,11 +118,11 @@ function writeEveryFuckingJavascript (indexFile) {
     var result = uglify.minify(scripts, {
         outSourceMap : mapFileUrl,
         output : {
-			// keep @preserve comments.
+            // keep @preserve comments.
             comments : function(node, comment) {
                 var text = comment.value;
                 var type = comment.type;
-                if (type == "comment2") {
+                if (type === "comment2") {
                     return /@preserve/i.test(text);
                 }
             }
@@ -130,10 +131,8 @@ function writeEveryFuckingJavascript (indexFile) {
 
     console.colour('-> Done minifying.', colours.cyan);
 
-    debugger;
-
     console.colour('-> Writing %s.', minFilePath, colours.cyan);
-    fs.writeFile(minFilePath, result.code, function (err) {
+    var minPromise = fs.writeFile(minFilePath, result.code, function (err) {
         if (err) {
             fuckingError(err);
             return;
@@ -143,8 +142,8 @@ function writeEveryFuckingJavascript (indexFile) {
         // so far, "cyan" as been misspelled as "nyan" 6 times.
     });
 
-	// for some reason, the source map has double the public/js
-	// Fun!
+    // for some reason, the source map has double the public/js
+    // Fun!
     var sourceMap = JSON.parse(result.map);
     sourceMap.sources = sourceMap.sources.map(function (source) {
         return source.replace('public/js/', '');
@@ -152,13 +151,37 @@ function writeEveryFuckingJavascript (indexFile) {
     result.map = JSON.stringify(sourceMap);
 
     console.colour('-> Writing %s', mapFilePath, colours.cyan);
-    fs.writeFile(mapFilePath, result.map, function (err) {
-        if (err) {
-            fuckingError(err);
-            return;
-        }
-
+    var mapPromise = fs.writeFileAsync(mapFilePath, result.map).then(function () {
         console.colour('--> Wrote map.', colours.cyan);
+    });
+
+    return Promise.all([minPromise, mapPromise]);
+}
+
+function writeEveryFuckingCSS (indexFile) {
+    var matchStyleSources = /<link href="(.+)" rel="stylesheet" \/>/g,
+        minFilePath = 'public/css/everything.min.css';
+
+    var stylesheets = matchAll(indexFile, matchStyleSources).map(function (match) {
+        return '@import url("' + match[1] + '");';
+    });
+
+    console.colour('-> Found %d stylesheets', stylesheets.length, colours.purple);
+    console.colour('-> Concatenating...', colours.purple);
+
+    return concatCSS.processString(stylesheets.join('')).then(function (style) {
+        console.colour('--> Minifying...', colours.purple);
+
+        return new CleanCSS({
+            noRebase : true
+        }).minify(style);
+    }).then(function (result) {
+        console.colour('--> Done minifying css.', colours.purple);
+
+        return fs.writeFileAsync(minFilePath, result);
+    }).then(function () {
+        console.colour('---> Wrote css crap.', colours.purple);
+        return Promise.resolve();
     });
 }
 

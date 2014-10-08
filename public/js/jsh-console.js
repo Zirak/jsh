@@ -5,7 +5,7 @@ var createConsole = function (bridge, realConsole, sendMessage) {
 */
 
 var console = {},
-	times = {};
+    times = {};
 
 ['log', 'info', 'error'].forEach(function (level) {
     console[level] = function () {
@@ -159,38 +159,38 @@ console.clear = function clear () {
 // timing
 
 console.time = function (name) {
-	// Just following Firebug's convention...
-	if (!name) {
-		return;
-	}
+    // Just following Firebug's convention...
+    if (!name) {
+        return;
+    }
 
-	times[name] = performance.now();
+    times[name] = performance.now();
 };
 console.timeEnd = function (name) {
-	var end = performance.now();
+    var end = performance.now();
 
-	if (!name) {
-		return;
-	}
+    if (!name) {
+        return;
+    }
 
-	var begin = times[name];
-	if (!begin) {
-		return;
-	}
+    var begin = times[name];
+    if (!begin) {
+        return;
+    }
 
-	delete times[name];
+    delete times[name];
 
-	var elapsed = end - begin,
-		elapsedString = elapsed.toFixed(3) + 'ms';
+    var elapsed = end - begin,
+        elapsedString = elapsed.toFixed(3) + 'ms';
 
-	// TODO should output be smarter? Instead of just showing ms, also show
-	//seconds for larger inputs (e.g. 1355ms => 1s 355ms or 1.355s)
+    // TODO should output be smarter? Instead of just showing ms, also show
+    //seconds for larger inputs (e.g. 1355ms => 1s 355ms or 1.355s)
 
-	sendConsoleMessage({
-		level : 'debug',
-		type : 'log',
-		text : name + ': ' + elapsedString
-	});
+    sendConsoleMessage({
+        level : 'debug',
+        type : 'log',
+        text : name + ': ' + elapsedString
+    });
 };
 
 // utility crap from here
