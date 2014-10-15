@@ -16,6 +16,10 @@ feel no particular emotion for))?
 
 http://jsh.zirak.me . It could take a bit to load.
 
+<a href="http://jsh.zirak.me">
+![image](https://cloud.githubusercontent.com/assets/39191/4653651/9a263098-54af-11e4-855d-561ad91eacbc.png)
+</a>
+
 ## What is this?
 As the introduction above says, this is Chrome's dev tools javascript console in
 a regular web page. To see how it was done, see the [How stuff works](#How stuff works)
