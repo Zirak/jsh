@@ -88,6 +88,17 @@ WebInspector.InspectorView = function()
     this._saveButton = new WebInspector.StatusBarTextButton(WebInspector.UIString("Save"), "save-status-bar-item");
     this._saveButton.addEventListener("click", jsh.save, jsh);
     this.appendToLeftToolbar(this._saveButton);
+
+    this._darkThemeStylesheet = document.getElementById("dark-theme");
+
+    this._darkThemeCheckbox = new WebInspector.StatusBarCheckbox(WebInspector.UIString("Dark theme"), "");
+    // StatusBarCheckbox adds some classes which screw up the styling.
+    this._darkThemeCheckbox.element.className = "dark-theme-bar-item";
+    this._darkThemeCheckbox.inputElement.checked = WebInspector.settings.useDarkTheme.get();
+    this._darkThemeCheckbox.element.addEventListener("change", this._toggleDarkTheme.bind(this));
+    this.appendToLeftToolbar(this._darkThemeCheckbox);
+
+    this._toggleDarkTheme();
     // /zirak
 
     this._panels = {};
@@ -512,6 +523,20 @@ WebInspector.InspectorView.prototype = {
         this._createImagedCounterElementIfNeeded(this._remoteDeviceCountElement, count, "device-count", "device-icon-small");
         this._remoteDeviceCountElement.title = WebInspector.UIString(((count > 1) ? "%d devices found" : "%d device found"), count);
         this._tabbedPane.headerResized();
+    },
+
+    _toggleDarkTheme: function () {
+        console.log('boop');
+        var on = this._darkThemeCheckbox.checked();
+
+        if (on) {
+            this._darkThemeStylesheet.rel = 'stylesheet';
+        }
+        else {
+            this._darkThemeStylesheet.rel = 'alternate stylesheet';
+        }
+
+        WebInspector.settings.useDarkTheme.set(on);
     },
 
     __proto__: WebInspector.VBox.prototype

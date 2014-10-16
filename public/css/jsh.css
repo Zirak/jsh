@@ -1,0 +1,11 @@
+.dark-theme-bar-item {
+    margin : 4px;
+}
+.dark-theme-bar-item input[type="checkbox"] {
+    vertical-align : text-top;
+}
+
+/* for some reason this isn't in the regular stylesheet */
+.console-user-command {
+    width : 100%;
+}

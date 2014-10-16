@@ -94,6 +94,9 @@ WebInspector.Settings = function()
     this.showFPSCounter = this.createSetting("showFPSCounter", false);
     this.continuousPainting = this.createSetting("continuousPainting", false);
     this.showScrollBottleneckRects = this.createSetting("showScrollBottleneckRects", false);
+
+    // zirak
+    this.useDarkTheme = this.createSetting("useDarkTheme", false);
 }
 
 WebInspector.Settings.prototype = {
