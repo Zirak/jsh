@@ -65,27 +65,22 @@ var actions = {
 var bridge = {};
 
 bridge.evaluate = function (params) {
-    realConsole.info(params);
+    realConsole.info('evaluate', params);
     var ret, result;
 
-    var expression      = params.expression,
-        group           = params.objectGroup;
-
     try {
-        // The culmination of everything.
-        result = (':(', eval)(expression);
-
-        params.object = result;
-
-        ret = {
-            result    : bridge.wrapObject(params),
-            wasThrown : false,
-            __proto__ : null
-        };
+        ret = injectedScript.evaluate(
+            params.expression,
+            params.objectGroup,
+            params.includeCommandLineAPI,
+            params.returnByValue,
+            params.generatePreview
+        );
     }
     catch (e) {
         realConsole.error(this, e);
-        ret = injectedScript._createThrownValue(e, group);
+        realConsole.error(e.stack);
+        ret = injectedScript._createThrownValue(e, params.objectGroup);
     }
 
     return ret;

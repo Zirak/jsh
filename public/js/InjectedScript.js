@@ -1404,6 +1404,7 @@ function CommandLineAPI(commandLineAPIImpl, callFrame)
         this[member].toString = customToStringMethod(member);
     }
 
+    /*
     for (var i = 0; i < 5; ++i) {
         var member = "$" + i;
         if (member in inspectedWindow || inScopeVariables(member))
@@ -1411,6 +1412,7 @@ function CommandLineAPI(commandLineAPIImpl, callFrame)
 
         this.__defineGetter__("$" + i, bind(commandLineAPIImpl._inspectedObject, commandLineAPIImpl, i));
     }
+    */
 
     this.$_ = injectedScript._lastResult;
 
