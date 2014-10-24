@@ -56,9 +56,10 @@ WebInspector.ModuleManager = function(descriptors)
      * @type {!Object.<string, !WebInspector.ModuleManager.ModuleDescriptor>}
      */
     this._descriptorsMap = {};
-    for (var i = 0; i < descriptors.length; ++i)
-        this._descriptorsMap[descriptors[i]["name"]] = descriptors[i];
-}
+    for (var i = 0; i < descriptors.length; ++i) {
+        this._descriptorsMap[descriptors[i].name] = descriptors[i];
+    }
+};
 
 WebInspector.ModuleManager.prototype = {
     /**
@@ -66,8 +67,9 @@ WebInspector.ModuleManager.prototype = {
      */
     registerModules: function(configuration)
     {
-        for (var i = 0; i < configuration.length; ++i)
+        for (var i = 0; i < configuration.length; ++i) {
             this.registerModule(configuration[i]);
+        }
     },
 
     /**
@@ -76,15 +78,19 @@ WebInspector.ModuleManager.prototype = {
     registerModule: function(moduleName)
     {
         console.log(moduleName, this._descriptorsMap[moduleName]);
+        var module;
+
         if (!this._descriptorsMap[moduleName]) {
             var content = loadResource(moduleName + "/module.json");
-            if (!content)
+            if (!content) {
                 throw new Error("Module is not defined: " + moduleName + " " + new Error().stack);
-            var module = /** @type {!WebInspector.ModuleManager.ModuleDescriptor} */ (self.eval("(" + content + ")"));
-            module["name"] = moduleName;
+            }
+            module = /** @type {!WebInspector.ModuleManager.ModuleDescriptor} */ (self.eval("(" + content + ")"));
+            module.name = moduleName;
             this._descriptorsMap[moduleName] = module;
         }
-        var module = new WebInspector.ModuleManager.Module(this, this._descriptorsMap[moduleName]);
+
+        module = new WebInspector.ModuleManager.Module(this, this._descriptorsMap[moduleName]);
         this._modules.push(module);
         this._modulesMap[moduleName] = module;
     },
@@ -104,16 +110,19 @@ WebInspector.ModuleManager.prototype = {
      */
     _checkExtensionApplicability: function(extension, predicate)
     {
-        if (!predicate)
+        if (!predicate) {
             return false;
+        }
         var contextTypes = /** @type {!Array.<string>|undefined} */ (extension.descriptor().contextTypes);
-        if (!contextTypes)
+        if (!contextTypes) {
             return true;
+        }
         for (var i = 0; i < contextTypes.length; ++i) {
             var contextType = this._resolve(contextTypes[i]);
             var isMatching = !!contextType && predicate(contextType);
-            if (isMatching)
+            if (isMatching) {
                 return true;
+            }
         }
         return false;
     },
@@ -125,8 +134,9 @@ WebInspector.ModuleManager.prototype = {
      */
     isExtensionApplicableToContext: function(extension, context)
     {
-        if (!context)
+        if (!context) {
             return true;
+        }
         return this._checkExtensionApplicability(extension, isInstanceOf);
 
         /**
@@ -146,8 +156,9 @@ WebInspector.ModuleManager.prototype = {
      */
     isExtensionApplicableToContextTypes: function(extension, currentContextTypes)
     {
-        if (!extension.descriptor().contextTypes)
+        if (!extension.descriptor().contextTypes) {
             return true;
+        }
 
         return this._checkExtensionApplicability(extension, currentContextTypes ? isContextTypeKnown : null);
 
@@ -174,8 +185,9 @@ WebInspector.ModuleManager.prototype = {
          */
         function filter(extension)
         {
-            if (extension._type !== type && extension._typeClass() !== type)
+            if (extension._type !== type && extension._typeClass() !== type) {
                 return false;
+            }
             return !context || extension.isApplicable(context);
         }
         return this._extensions.filter(filter);
@@ -242,12 +254,15 @@ WebInspector.ModuleManager.prototype = {
          */
         function result(name1, name2)
         {
-            if (name1 in orderForName && name2 in orderForName)
+            if (name1 in orderForName && name2 in orderForName) {
                 return orderForName[name1] - orderForName[name2];
-            if (name1 in orderForName)
+            }
+            if (name1 in orderForName) {
                 return -1;
-            if (name2 in orderForName)
+            }
+            if (name2 in orderForName) {
                 return 1;
+            }
             return name1.compareTo(name2);
         }
         return result;
@@ -261,20 +276,24 @@ WebInspector.ModuleManager.prototype = {
         if (!this._cachedTypeClasses[typeName]) {
             var path = typeName.split(".");
             var object = window;
-            for (var i = 0; object && (i < path.length); ++i)
+            for (var i = 0; object && (i < path.length); ++i) {
                 object = object[path[i]];
-            if (object)
+            }
+            if (object) {
                 this._cachedTypeClasses[typeName] = /** @type function(new:Object) */(object);
+            }
         }
         return this._cachedTypeClasses[typeName];
     }
-}
+};
 
 /**
  * @constructor
  */
 WebInspector.ModuleManager.ModuleDescriptor = function()
 {
+    /*jshint -W030*/
+    // zirak: in related news...this is weird.
     /**
      * @type {string}
      */
@@ -294,13 +313,14 @@ WebInspector.ModuleManager.ModuleDescriptor = function()
      * @type {!Array.<string>}
      */
     this.scripts;
-}
+};
 
 /**
  * @constructor
  */
 WebInspector.ModuleManager.ExtensionDescriptor = function()
 {
+    /*jshint -W030*/
     /**
      * @type {string}
      */
@@ -315,7 +335,7 @@ WebInspector.ModuleManager.ExtensionDescriptor = function()
      * @type {!Array.<string>|undefined}
      */
     this.contextTypes;
-}
+};
 
 /**
  * @constructor
@@ -328,10 +348,11 @@ WebInspector.ModuleManager.Module = function(manager, descriptor)
     this._descriptor = descriptor;
     this._name = descriptor.name;
     var extensions = /** @type {?Array.<!WebInspector.ModuleManager.ExtensionDescriptor>}*/ (descriptor.extensions);
-    for (var i = 0; extensions && i < extensions.length; ++i)
+    for (var i = 0; extensions && i < extensions.length; ++i) {
         this._manager._extensions.push(new WebInspector.ModuleManager.Extension(this, extensions[i]));
+    }
     this._loaded = false;
-}
+};
 
 WebInspector.ModuleManager.Module.prototype = {
     /**
@@ -344,8 +365,9 @@ WebInspector.ModuleManager.Module.prototype = {
 
     _load: function()
     {
-        if (this._loaded)
+        if (this._loaded) {
             return;
+        }
 
         if (this._isLoading) {
             var oldStackTraceLimit = Error.stackTraceLimit;
@@ -357,15 +379,17 @@ WebInspector.ModuleManager.Module.prototype = {
 
         this._isLoading = true;
         var dependencies = this._descriptor.dependencies;
-        for (var i = 0; dependencies && i < dependencies.length; ++i)
+        for (var i = 0; dependencies && i < dependencies.length; ++i) {
             this._manager.loadModule(dependencies[i]);
+        }
         var scripts = this._descriptor.scripts;
-        for (var i = 0; scripts && i < scripts.length; ++i)
-            loadScript(this._name + "/" + scripts[i]);
+        for (var j = 0; scripts && j < scripts.length; ++i) {
+            loadScript(this._name + "/" + scripts[j]);
+        }
         this._isLoading = false;
         this._loaded = true;
     }
-}
+};
 
 /**
  * @constructor
@@ -384,7 +408,7 @@ WebInspector.ModuleManager.Extension = function(module, descriptor)
      * @type {?string}
      */
     this._className = descriptor.className || null;
-}
+};
 
 WebInspector.ModuleManager.Extension.prototype = {
     /**
@@ -408,8 +432,9 @@ WebInspector.ModuleManager.Extension.prototype = {
      */
     _typeClass: function()
     {
-        if (!this._hasTypeClass)
+        if (!this._hasTypeClass) {
             return null;
+        }
         return this._module._manager._resolve(this._type.substring(1));
     },
 
@@ -427,28 +452,30 @@ WebInspector.ModuleManager.Extension.prototype = {
      */
     instance: function()
     {
-        if (!this._className)
+        if (!this._className) {
             return null;
+        }
 
         if (!this._instance) {
             this._module._load();
 
             var constructorFunction = window.eval(this._className);
-            if (!(constructorFunction instanceof Function))
+            if (!(constructorFunction instanceof Function)) {
                 return null;
+            }
 
             this._instance = new constructorFunction();
         }
         return this._instance;
     }
-}
+};
 
 /**
  * @interface
  */
 WebInspector.Renderer = function()
 {
-}
+};
 
 WebInspector.Renderer.prototype = {
     /**
@@ -456,14 +483,14 @@ WebInspector.Renderer.prototype = {
      * @return {?Element}
      */
     render: function(object) {}
-}
+};
 
 /**
  * @interface
  */
 WebInspector.Revealer = function()
 {
-}
+};
 
 /**
  * @param {?Object} revealable
@@ -471,21 +498,23 @@ WebInspector.Revealer = function()
  */
 WebInspector.Revealer.reveal = function(revealable, lineNumber)
 {
-    if (!revealable)
+    if (!revealable) {
         return;
+    }
     var revealer = WebInspector.moduleManager.instance(WebInspector.Revealer, revealable);
-    if (revealer)
+    if (revealer) {
         revealer.reveal(revealable, lineNumber);
-}
+    }
+};
 
 WebInspector.Revealer.prototype = {
     /**
      * @param {!Object} object
      */
     reveal: function(object) {}
-}
+};
 
 /**
  * @type {!WebInspector.ModuleManager}
  */
-WebInspector.moduleManager;
+WebInspector.moduleManager = WebInspector.moduleManager;

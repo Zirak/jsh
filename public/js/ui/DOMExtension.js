@@ -43,22 +43,25 @@ Node.prototype.rangeOfWord = function(offset, stopCharacters, stayWithinNode, di
     var startOffset = 0;
     var endNode;
     var endOffset = 0;
+    var node, start, i;
 
-    if (!stayWithinNode)
+    if (!stayWithinNode) {
         stayWithinNode = this;
+    }
 
     if (!direction || direction === "backward" || direction === "both") {
-        var node = this;
+        node = this;
         while (node) {
             if (node === stayWithinNode) {
-                if (!startNode)
+                if (!startNode) {
                     startNode = stayWithinNode;
+                }
                 break;
             }
 
             if (node.nodeType === Node.TEXT_NODE) {
-                var start = (node === this ? (offset - 1) : (node.nodeValue.length - 1));
-                for (var i = start; i >= 0; --i) {
+                start = (node === this ? (offset - 1) : (node.nodeValue.length - 1));
+                for (i = start; i >= 0; --i) {
                     if (stopCharacters.indexOf(node.nodeValue[i]) !== -1) {
                         startNode = node;
                         startOffset = i + 1;
@@ -67,8 +70,9 @@ Node.prototype.rangeOfWord = function(offset, stopCharacters, stayWithinNode, di
                 }
             }
 
-            if (startNode)
+            if (startNode) {
                 break;
+            }
 
             node = node.traversePreviousNode(stayWithinNode);
         }
@@ -86,14 +90,15 @@ Node.prototype.rangeOfWord = function(offset, stopCharacters, stayWithinNode, di
         node = this;
         while (node) {
             if (node === stayWithinNode) {
-                if (!endNode)
+                if (!endNode) {
                     endNode = stayWithinNode;
+                }
                 break;
             }
 
             if (node.nodeType === Node.TEXT_NODE) {
-                var start = (node === this ? offset : 0);
-                for (var i = start; i < node.nodeValue.length; ++i) {
+                start = (node === this ? offset : 0);
+                for (i = start; i < node.nodeValue.length; ++i) {
                     if (stopCharacters.indexOf(node.nodeValue[i]) !== -1) {
                         endNode = node;
                         endOffset = i;
@@ -102,8 +107,9 @@ Node.prototype.rangeOfWord = function(offset, stopCharacters, stayWithinNode, di
                 }
             }
 
-            if (endNode)
+            if (endNode) {
                 break;
+            }
 
             node = node.traverseNextNode(stayWithinNode);
         }
@@ -122,7 +128,7 @@ Node.prototype.rangeOfWord = function(offset, stopCharacters, stayWithinNode, di
     result.setEnd(endNode, endOffset);
 
     return result;
-}
+};
 
 /**
  * @param {!Node=} stayWithin
@@ -131,14 +137,16 @@ Node.prototype.rangeOfWord = function(offset, stopCharacters, stayWithinNode, di
 Node.prototype.traverseNextTextNode = function(stayWithin)
 {
     var node = this.traverseNextNode(stayWithin);
-    if (!node)
+    if (!node) {
         return null;
+    }
 
-    while (node && node.nodeType !== Node.TEXT_NODE)
+    while (node && node.nodeType !== Node.TEXT_NODE) {
         node = node.traverseNextNode(stayWithin);
+    }
 
     return node;
-}
+};
 
 /**
  * @param {number} offset
@@ -151,17 +159,19 @@ Node.prototype.rangeBoundaryForOffset = function(offset)
         offset -= node.nodeValue.length;
         node = node.traverseNextTextNode(this);
     }
-    if (!node)
+    if (!node) {
         return { container: this, offset: 0 };
+    }
     return { container: node, offset: offset };
-}
+};
 
 Element.prototype.removeMatchingStyleClasses = function(classNameRegex)
 {
     var regex = new RegExp("(^|\\s+)" + classNameRegex + "($|\\s+)");
-    if (regex.test(this.className))
+    if (regex.test(this.className)) {
         this.className = this.className.replace(regex, " ");
-}
+    }
+};
 
 /**
  * @param {number|undefined} x
@@ -171,19 +181,24 @@ Element.prototype.removeMatchingStyleClasses = function(classNameRegex)
 Element.prototype.positionAt = function(x, y, relativeTo)
 {
     var shift = {x: 0, y: 0};
-    if (relativeTo)
+    if (relativeTo) {
        shift = relativeTo.boxInWindow(this.ownerDocument.defaultView);
+   }
 
-    if (typeof x === "number")
+    if (typeof x === "number") {
         this.style.setProperty("left", (shift.x + x) + "px");
-    else
+    }
+    else {
         this.style.removeProperty("left");
+    }
 
-    if (typeof y === "number")
+    if (typeof y === "number") {
         this.style.setProperty("top", (shift.y + y) + "px");
-    else
+    }
+    else {
         this.style.removeProperty("top");
-}
+    }
+};
 
 /**
  * @return {boolean}
@@ -194,7 +209,7 @@ Element.prototype.isScrolledToBottom = function()
     // Both clientHeight and scrollHeight are rounded to integer values, so we tolerate
     // one pixel error.
     return Math.abs(this.scrollTop + this.clientHeight - this.scrollHeight) <= 1;
-}
+};
 
 /**
  * @param {!Node} fromNode
@@ -226,8 +241,9 @@ function Constraints(minimum, preferred)
      */
     this.preferred = preferred || minimum;
 
-    if (this.minimum.width > this.preferred.width || this.minimum.height > this.preferred.height)
+    if (this.minimum.width > this.preferred.width || this.minimum.height > this.preferred.height) {
         throw new Error("Minimum size is greater than preferred.");
+    }
 }
 
 /**
@@ -237,7 +253,7 @@ function Constraints(minimum, preferred)
 Constraints.prototype.isEqual = function(constraints)
 {
     return !!constraints && this.minimum.isEqual(constraints.minimum) && this.preferred.isEqual(constraints.preferred);
-}
+};
 
 /**
  * @param {!Constraints|number} value
@@ -245,10 +261,11 @@ Constraints.prototype.isEqual = function(constraints)
  */
 Constraints.prototype.widthToMax = function(value)
 {
-    if (typeof value === "number")
+    if (typeof value === "number") {
         return new Constraints(this.minimum.widthToMax(value), this.preferred.widthToMax(value));
+    }
     return new Constraints(this.minimum.widthToMax(value.minimum), this.preferred.widthToMax(value.preferred));
-}
+};
 
 /**
  * @param {!Constraints|number} value
@@ -256,10 +273,11 @@ Constraints.prototype.widthToMax = function(value)
  */
 Constraints.prototype.addWidth = function(value)
 {
-    if (typeof value === "number")
+    if (typeof value === "number") {
         return new Constraints(this.minimum.addWidth(value), this.preferred.addWidth(value));
+    }
     return new Constraints(this.minimum.addWidth(value.minimum), this.preferred.addWidth(value.preferred));
-}
+};
 
 /**
  * @param {!Constraints|number} value
@@ -267,10 +285,11 @@ Constraints.prototype.addWidth = function(value)
  */
 Constraints.prototype.heightToMax = function(value)
 {
-    if (typeof value === "number")
+    if (typeof value === "number") {
         return new Constraints(this.minimum.heightToMax(value), this.preferred.heightToMax(value));
+    }
     return new Constraints(this.minimum.heightToMax(value.minimum), this.preferred.heightToMax(value.preferred));
-}
+};
 
 /**
  * @param {!Constraints|number} value
@@ -278,10 +297,11 @@ Constraints.prototype.heightToMax = function(value)
  */
 Constraints.prototype.addHeight = function(value)
 {
-    if (typeof value === "number")
+    if (typeof value === "number") {
         return new Constraints(this.minimum.addHeight(value), this.preferred.addHeight(value));
+    }
     return new Constraints(this.minimum.addHeight(value.minimum), this.preferred.addHeight(value.preferred));
-}
+};
 
 /**
  * @param {?Element=} containerElement
@@ -296,7 +316,7 @@ Element.prototype.measurePreferredSize = function(containerElement)
     this.positionAt(undefined, undefined);
     this.remove();
     return result;
-}
+};
 
 /**
  * @param {!Event} event
@@ -307,7 +327,7 @@ Element.prototype.containsEventPoint = function(event)
     var box = this.getBoundingClientRect();
     return box.left < event.x  && event.x < box.right &&
            box.top < event.y && event.y < box.bottom;
-}
+};
 
 /**
  * @param {!Array.<string>} nameArray
@@ -317,12 +337,13 @@ Node.prototype.enclosingNodeOrSelfWithNodeNameInArray = function(nameArray)
 {
     for (var node = this; node && node !== this.ownerDocument; node = node.parentNode) {
         for (var i = 0; i < nameArray.length; ++i) {
-            if (node.nodeName.toLowerCase() === nameArray[i].toLowerCase())
+            if (node.nodeName.toLowerCase() === nameArray[i].toLowerCase()) {
                 return node;
+            }
         }
     }
     return null;
-}
+};
 
 /**
  * @param {string} nodeName
@@ -331,7 +352,7 @@ Node.prototype.enclosingNodeOrSelfWithNodeNameInArray = function(nameArray)
 Node.prototype.enclosingNodeOrSelfWithNodeName = function(nodeName)
 {
     return this.enclosingNodeOrSelfWithNodeNameInArray([nodeName]);
-}
+};
 
 /**
  * @param {string} className
@@ -341,11 +362,12 @@ Node.prototype.enclosingNodeOrSelfWithNodeName = function(nodeName)
 Node.prototype.enclosingNodeOrSelfWithClass = function(className, stayWithin)
 {
     for (var node = this; node && node !== stayWithin && node !== this.ownerDocument; node = node.parentNode) {
-        if (node.nodeType === Node.ELEMENT_NODE && node.classList.contains(className))
+        if (node.nodeType === Node.ELEMENT_NODE && node.classList.contains(className)) {
             return /** @type {!Element} */ (node);
+        }
     }
     return null;
-}
+};
 
 /**
  * @param {string} query
@@ -354,13 +376,14 @@ Node.prototype.enclosingNodeOrSelfWithClass = function(className, stayWithin)
 Element.prototype.query = function(query)
 {
     return this.ownerDocument.evaluate(query, this, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
-}
+};
 
 Element.prototype.removeChildren = function()
 {
-    if (this.firstChild)
+    if (this.firstChild) {
         this.textContent = "";
-}
+    }
+};
 
 /**
  * @return {boolean}
@@ -368,11 +391,12 @@ Element.prototype.removeChildren = function()
 Element.prototype.isInsertionCaretInside = function()
 {
     var selection = window.getSelection();
-    if (!selection.rangeCount || !selection.isCollapsed)
+    if (!selection.rangeCount || !selection.isCollapsed) {
         return false;
+    }
     var selectionRange = selection.getRangeAt(0);
     return selectionRange.startContainer.isSelfOrDescendant(this);
-}
+};
 
 /**
  * @param {string} elementName
@@ -382,10 +406,11 @@ Element.prototype.isInsertionCaretInside = function()
 Document.prototype.createElementWithClass = function(elementName, className)
 {
     var element = this.createElement(elementName);
-    if (className)
+    if (className) {
         element.className = className;
+    }
     return element;
-}
+};
 
 /**
  * @param {string} elementName
@@ -397,7 +422,7 @@ Element.prototype.createChild = function(elementName, className)
     var element = this.ownerDocument.createElementWithClass(elementName, className);
     this.appendChild(element);
     return element;
-}
+};
 
 DocumentFragment.prototype.createChild = Element.prototype.createChild;
 
@@ -410,7 +435,7 @@ Element.prototype.createTextChild = function(text)
     var element = this.ownerDocument.createTextNode(text);
     this.appendChild(element);
     return element;
-}
+};
 
 DocumentFragment.prototype.createTextChild = Element.prototype.createTextChild;
 
@@ -419,9 +444,10 @@ DocumentFragment.prototype.createTextChild = Element.prototype.createTextChild;
  */
 Element.prototype.createTextChildren = function(var_args)
 {
-    for (var i = 0, n = arguments.length; i < n; ++i)
+    for (var i = 0, n = arguments.length; i < n; ++i) {
         this.createTextChild(arguments[i]);
-}
+    }
+};
 
 DocumentFragment.prototype.createTextChildren = Element.prototype.createTextChildren;
 
@@ -430,9 +456,10 @@ DocumentFragment.prototype.createTextChildren = Element.prototype.createTextChil
  */
 Element.prototype.appendChildren = function(var_args)
 {
-    for (var i = 0, n = arguments.length; i < n; ++i)
+    for (var i = 0, n = arguments.length; i < n; ++i) {
         this.appendChild(arguments[i]);
-}
+    }
+};
 
 /**
  * @return {number}
@@ -440,7 +467,7 @@ Element.prototype.appendChildren = function(var_args)
 Element.prototype.totalOffsetLeft = function()
 {
     return this.totalOffset().left;
-}
+};
 
 /**
  * @return {number}
@@ -448,7 +475,7 @@ Element.prototype.totalOffsetLeft = function()
 Element.prototype.totalOffsetTop = function()
 {
     return this.totalOffset().top;
-}
+};
 
 /**
  * @return {!{left: number, top: number}}
@@ -457,7 +484,7 @@ Element.prototype.totalOffset = function()
 {
     var rect = this.getBoundingClientRect();
     return { left: rect.left, top: rect.top };
-}
+};
 
 /**
  * @return {!{left: number, top: number}}
@@ -471,7 +498,7 @@ Element.prototype.scrollOffset = function()
         curTop += element.scrollTop;
     }
     return { left: curLeft, top: curTop };
-}
+};
 
 /**
  * @constructor
@@ -496,7 +523,7 @@ AnchorBox.prototype.relativeTo = function(box)
 {
     return new AnchorBox(
         this.x - box.x, this.y - box.y, this.width, this.height);
-}
+};
 
 /**
  * @param {!Element} element
@@ -505,7 +532,7 @@ AnchorBox.prototype.relativeTo = function(box)
 AnchorBox.prototype.relativeToElement = function(element)
 {
     return this.relativeTo(element.boxInWindow(element.ownerDocument.defaultView));
-}
+};
 
 /**
  * @param {?AnchorBox} anchorBox
@@ -514,7 +541,7 @@ AnchorBox.prototype.relativeToElement = function(element)
 AnchorBox.prototype.equals = function(anchorBox)
 {
     return !!anchorBox && this.x === anchorBox.x && this.y === anchorBox.y && this.width === anchorBox.width && this.height === anchorBox.height;
-}
+};
 
 /**
  * @param {!Window} targetWindow
@@ -528,15 +555,16 @@ Element.prototype.offsetRelativeToWindow = function(targetWindow)
     while (curWindow && curElement) {
         elementOffset.x += curElement.totalOffsetLeft();
         elementOffset.y += curElement.totalOffsetTop();
-        if (curWindow === targetWindow)
+        if (curWindow === targetWindow) {
             break;
+        }
 
         curElement = curWindow.frameElement;
         curWindow = curWindow.parent;
     }
 
     return elementOffset;
-}
+};
 
 /**
  * @param {!Window=} targetWindow
@@ -551,7 +579,7 @@ Element.prototype.boxInWindow = function(targetWindow)
     anchorBox.height = Math.min(this.offsetHeight, window.innerHeight - anchorBox.y);
 
     return anchorBox;
-}
+};
 
 /**
  * @param {string} text
@@ -560,24 +588,29 @@ Element.prototype.setTextAndTitle = function(text)
 {
     this.textContent = text;
     this.title = text;
-}
+};
 
 KeyboardEvent.prototype.__defineGetter__("data", function()
 {
+    /*jshint -W086*/
     // Emulate "data" attribute from DOM 3 TextInput event.
     // See http://www.w3.org/TR/DOM-Level-3-Events/#events-Events-TextEvent-data
     switch (this.type) {
         case "keypress":
-            if (!this.ctrlKey && !this.metaKey)
+            if (!this.ctrlKey && !this.metaKey) {
                 return String.fromCharCode(this.charCode);
-            else
+            }
+            else {
                 return "";
+            }
         case "keydown":
         case "keyup":
-            if (!this.ctrlKey && !this.metaKey && !this.altKey)
+            if (!this.ctrlKey && !this.metaKey && !this.altKey) {
                 return String.fromCharCode(this.which);
-            else
+            }
+            else {
                 return "";
+            }
     }
 });
 
@@ -587,10 +620,11 @@ KeyboardEvent.prototype.__defineGetter__("data", function()
 Event.prototype.consume = function(preventDefault)
 {
     this.stopImmediatePropagation();
-    if (preventDefault)
+    if (preventDefault) {
         this.preventDefault();
+    }
     this.handled = true;
-}
+};
 
 /**
  * @param {number=} start
@@ -602,8 +636,9 @@ Text.prototype.select = function(start, end)
     start = start || 0;
     end = end || this.textContent.length;
 
-    if (start < 0)
+    if (start < 0) {
         start = end + start;
+    }
 
     var selection = this.ownerDocument.defaultView.getSelection();
     selection.removeAllRanges();
@@ -612,7 +647,7 @@ Text.prototype.select = function(start, end)
     range.setEnd(this, end);
     selection.addRange(range);
     return this;
-}
+};
 
 /**
  * @return {?number}
@@ -622,8 +657,9 @@ Element.prototype.selectionLeftOffset = function()
     // Calculate selection offset relative to the current element.
 
     var selection = window.getSelection();
-    if (!selection.containsNode(this, true))
+    if (!selection.containsNode(this, true)) {
         return null;
+    }
 
     var leftOffset = selection.anchorOffset;
     var node = selection.anchorNode;
@@ -637,7 +673,7 @@ Element.prototype.selectionLeftOffset = function()
     }
 
     return leftOffset;
-}
+};
 
 /**
  * @param {?Node} node
@@ -645,17 +681,19 @@ Element.prototype.selectionLeftOffset = function()
  */
 Node.prototype.isAncestor = function(node)
 {
-    if (!node)
+    if (!node) {
         return false;
+    }
 
     var currentNode = node.parentNode;
     while (currentNode) {
-        if (this === currentNode)
+        if (this === currentNode) {
             return true;
+        }
         currentNode = currentNode.parentNode;
     }
     return false;
-}
+};
 
 /**
  * @param {?Node} descendant
@@ -664,7 +702,7 @@ Node.prototype.isAncestor = function(node)
 Node.prototype.isDescendant = function(descendant)
 {
     return !!descendant && descendant.isAncestor(this);
-}
+};
 
 /**
  * @param {?Node} node
@@ -673,7 +711,7 @@ Node.prototype.isDescendant = function(descendant)
 Node.prototype.isSelfOrAncestor = function(node)
 {
     return !!node && (node === this || this.isAncestor(node));
-}
+};
 
 /**
  * @param {?Node} node
@@ -682,7 +720,7 @@ Node.prototype.isSelfOrAncestor = function(node)
 Node.prototype.isSelfOrDescendant = function(node)
 {
     return !!node && (node === this || this.isDescendant(node));
-}
+};
 
 /**
  * @param {!Node=} stayWithin
@@ -691,24 +729,29 @@ Node.prototype.isSelfOrDescendant = function(node)
 Node.prototype.traverseNextNode = function(stayWithin)
 {
     var node = this.firstChild;
-    if (node)
+    if (node) {
         return node;
+    }
 
-    if (stayWithin && this === stayWithin)
+    if (stayWithin && this === stayWithin) {
         return null;
+    }
 
     node = this.nextSibling;
-    if (node)
+    if (node) {
         return node;
+    }
 
     node = this;
-    while (node && !node.nextSibling && (!stayWithin || !node.parentNode || node.parentNode !== stayWithin))
+    while (node && !node.nextSibling && (!stayWithin || !node.parentNode || node.parentNode !== stayWithin)) {
         node = node.parentNode;
-    if (!node)
+    }
+    if (!node) {
         return null;
+    }
 
     return node.nextSibling;
-}
+};
 
 /**
  * @param {!Node=} stayWithin
@@ -716,15 +759,18 @@ Node.prototype.traverseNextNode = function(stayWithin)
  */
 Node.prototype.traversePreviousNode = function(stayWithin)
 {
-    if (stayWithin && this === stayWithin)
+    if (stayWithin && this === stayWithin) {
         return null;
+    }
     var node = this.previousSibling;
-    while (node && node.lastChild)
+    while (node && node.lastChild) {
         node = node.lastChild;
-    if (node)
+    }
+    if (node) {
         return node;
+    }
     return this.parentNode;
-}
+};
 
 /**
  * @param {*} text
@@ -736,7 +782,7 @@ Node.prototype.setTextContentTruncatedIfNeeded = function(text, placeholder)
     // Huge texts in the UI reduce rendering performance drastically.
     // Moreover, Blink/WebKit uses <unsigned short> internally for storing text content
     // length, so texts longer than 65535 are inherently displayed incorrectly.
-    const maxTextContentLength = 65535;
+    var maxTextContentLength = 65535;
 
     if (typeof text === "string" && text.length > maxTextContentLength) {
         this.textContent = typeof placeholder === "string" ? placeholder : text.trimEnd(maxTextContentLength);
@@ -745,7 +791,7 @@ Node.prototype.setTextContentTruncatedIfNeeded = function(text, placeholder)
 
     this.textContent = text;
     return false;
-}
+};
 
 // zirak: scrollIntoViewIfNeeded is a neat webkit function.
 if (!Element.prototype.scrollIntoViewIfNeeded) {
@@ -807,13 +853,14 @@ var map = {
   "191": "U+00BF", "192": "U+00C0", "219": "U+00DB", "220": "U+00DC",
   "221": "U+00DD", "222": "U+00DE"
 };
+var code;
 
 // numbers range from 48 to 57.
-for (var code = 48; code <= 57; code += 1) {
+for (code = 48; code <= 57; code += 1) {
     map[code] = 'U+00' + code.toString(16).toUpperCase();
 }
 // characters range from 65 to 90.
-for (var code = 65; code <= 90; code += 1) {
+for (code = 65; code <= 90; code += 1) {
     map[code] = 'U+00' + code.toString(16).toUpperCase();
 }
 // function keys range from 112 to 123 wth literal identifiers.

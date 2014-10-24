@@ -29,14 +29,16 @@ WebInspector.App.prototype = {
     _emulationEnabledChanged: function()
     {
         this._toggleEmulationButton.toggled = WebInspector.overridesSupport.emulationEnabled();
-        if (!WebInspector.overridesSupport.responsiveDesignAvailable() && WebInspector.overridesSupport.emulationEnabled())
+        if (!WebInspector.overridesSupport.responsiveDesignAvailable() && WebInspector.overridesSupport.emulationEnabled()) {
             WebInspector.inspectorView.showViewInDrawer("emulation", true);
+        }
     },
 
     _overridesWarningUpdated: function()
     {
-        if (!this._toggleEmulationButton)
+        if (!this._toggleEmulationButton) {
             return;
+        }
         var message = WebInspector.overridesSupport.warningMessage();
         this._toggleEmulationButton.title = message || WebInspector.UIString("Toggle device mode.");
         this._toggleEmulationButton.element.classList.toggle("warning", !!message);
@@ -73,7 +75,7 @@ WebInspector.App.prototype = {
  */
 WebInspector.App.EmulationButtonProvider = function()
 {
-}
+};
 
 WebInspector.App.EmulationButtonProvider.prototype = {
     /**
@@ -81,13 +83,14 @@ WebInspector.App.EmulationButtonProvider.prototype = {
      */
     button: function()
     {
-        if (!(WebInspector.app instanceof WebInspector.App))
+        if (!(WebInspector.app instanceof WebInspector.App)) {
             return null;
+        }
         return WebInspector.app._toggleEmulationButton || null;
     }
-}
+};
 
 /**
  * @type {!WebInspector.App}
  */
-WebInspector.app;
+WebInspector.app = WebInspector.app;

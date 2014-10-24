@@ -39,11 +39,11 @@ WebInspector.TextPrompt = function(completions, stopCharacters)
     /**
      * @type {!Element|undefined}
      */
-    this._proxyElement;
+    this._proxyElement = this._proxyElement;
     this._proxyElementDisplay = "inline-block";
     this._loadCompletions = completions;
     this._completionStopCharacters = stopCharacters || " =:[({;,!+-*/&|^<>.";
-}
+};
 
 WebInspector.TextPrompt.Events = {
     ItemApplied: "text-prompt-item-applied",
@@ -104,8 +104,9 @@ WebInspector.TextPrompt.prototype = {
      */
     _attachInternal: function(element)
     {
-        if (this.proxyElement)
+        if (this.proxyElement) {
             throw "Cannot attach an attached TextPrompt";
+        }
         this._element = element;
 
         this._boundOnKeyDown = this.onKeyDown.bind(this);
@@ -124,8 +125,9 @@ WebInspector.TextPrompt.prototype = {
         this._element.addEventListener("selectstart", this._boundSelectStart, false);
         this._element.addEventListener("blur", this._boundRemoveSuggestionAids, false);
 
-        if (this._suggestBoxEnabled)
+        if (this._suggestBoxEnabled) {
             this._suggestBox = new WebInspector.SuggestBox(this);
+        }
 
         return this.proxyElement;
     },
@@ -173,10 +175,12 @@ WebInspector.TextPrompt.prototype = {
         this._element.removeEventListener("input", this._boundOnInput, false);
         this._element.removeEventListener("selectstart", this._boundSelectStart, false);
         this._element.removeEventListener("blur", this._boundRemoveSuggestionAids, false);
-        if (this._isEditing)
+        if (this._isEditing) {
             this._stopEditing();
-        if (this._suggestBox)
+        }
+        if (this._suggestBox) {
             this._suggestBox.removeFromElement();
+        }
     },
 
     /**
@@ -191,18 +195,21 @@ WebInspector.TextPrompt.prototype = {
             this._element.addEventListener("blur", this._blurListener, false);
         }
         this._oldTabIndex = this._element.tabIndex;
-        if (this._element.tabIndex < 0)
+        if (this._element.tabIndex < 0) {
             this._element.tabIndex = 0;
+        }
         WebInspector.setCurrentFocusElement(this._element);
-        if (!this.text)
+        if (!this.text) {
             this._updateAutoComplete();
+        }
     },
 
     _stopEditing: function()
     {
         this._element.tabIndex = this._oldTabIndex;
-        if (this._blurListener)
+        if (this._blurListener) {
             this._element.removeEventListener("blur", this._blurListener, false);
+        }
         this._element.classList.remove("editing");
         delete this._isEditing;
     },
@@ -215,8 +222,9 @@ WebInspector.TextPrompt.prototype = {
 
     _selectStart: function()
     {
-        if (this._selectionTimeout)
+        if (this._selectionTimeout) {
             clearTimeout(this._selectionTimeout);
+        }
 
         this._removeSuggestionAids();
 
@@ -270,10 +278,12 @@ WebInspector.TextPrompt.prototype = {
             break;
         case "Right":
         case "End":
-            if (this.isCaretAtEndOfPrompt())
+            if (this.isCaretAtEndOfPrompt()) {
                 handled = this.acceptAutoComplete();
-            else
+            }
+            else {
                 this._removeSuggestionAids();
+            }
             break;
         case "U+001B": // Esc
             if (this.isSuggestBoxVisible()) {
@@ -294,14 +304,17 @@ WebInspector.TextPrompt.prototype = {
             break;
         }
 
-        if (!handled && this.isSuggestBoxVisible())
+        if (!handled && this.isSuggestBoxVisible()) {
             handled = this._suggestBox.keyPressed(event);
+        }
 
-        if (!handled)
+        if (!handled) {
             this._needUpdateAutocomplete = true;
+        }
 
-        if (handled)
+        if (handled) {
             event.consume(true);
+        }
     },
 
     /**
@@ -309,8 +322,9 @@ WebInspector.TextPrompt.prototype = {
      */
     onInput: function(event)
     {
-        if (this._needUpdateAutocomplete)
+        if (this._needUpdateAutocomplete) {
             this._updateAutoComplete();
+        }
     },
 
     /**
@@ -319,10 +333,12 @@ WebInspector.TextPrompt.prototype = {
     acceptAutoComplete: function()
     {
         var result = false;
-        if (this.isSuggestBoxVisible())
+        if (this.isSuggestBoxVisible()) {
             result = this._suggestBox.acceptSuggestion();
-        if (!result)
+        }
+        if (!result) {
             result = this._acceptSuggestionInternal();
+        }
 
         return result;
     },
@@ -338,8 +354,9 @@ WebInspector.TextPrompt.prototype = {
         }
         delete this._waitingForCompletions;
 
-        if (!this.autoCompleteElement)
+        if (!this.autoCompleteElement) {
             return;
+        }
 
         this.autoCompleteElement.remove();
         delete this.autoCompleteElement;
@@ -366,21 +383,25 @@ WebInspector.TextPrompt.prototype = {
     {
         this.clearAutoComplete(true);
         var selection = window.getSelection();
-        if (!selection.rangeCount)
+        if (!selection.rangeCount) {
             return;
+        }
 
         var selectionRange = selection.getRangeAt(0);
         var shouldExit;
 
-        if (!force && !this.isCaretAtEndOfPrompt() && !this.isSuggestBoxVisible())
+        if (!force && !this.isCaretAtEndOfPrompt() && !this.isSuggestBoxVisible()) {
             shouldExit = true;
-        else if (!selection.isCollapsed)
+        }
+        else if (!selection.isCollapsed) {
             shouldExit = true;
+        }
         else if (!force) {
             // BUG72018: Do not show suggest box if caret is followed by a non-stop character.
             var wordSuffixRange = selectionRange.startContainer.rangeOfWord(selectionRange.endOffset, this._completionStopCharacters, this._element, "forward");
-            if (wordSuffixRange.toString().length)
+            if (wordSuffixRange.toString().length) {
                 shouldExit = true;
+            }
         }
         if (shouldExit) {
             this.hideSuggestBox();
@@ -455,19 +476,22 @@ WebInspector.TextPrompt.prototype = {
         fullWordRange.setStart(originalWordPrefixRange.startContainer, originalWordPrefixRange.startOffset);
         fullWordRange.setEnd(selectionRange.endContainer, selectionRange.endOffset);
 
-        if (originalWordPrefixRange.toString() + selectionRange.toString() !== fullWordRange.toString())
+        if (originalWordPrefixRange.toString() + selectionRange.toString() !== fullWordRange.toString()) {
             return;
+        }
 
         selectedIndex = (this._disableDefaultSuggestionForEmptyInput && !this.text) ? -1 : (selectedIndex || 0);
 
         this._userEnteredRange = fullWordRange;
         this._userEnteredText = fullWordRange.toString();
 
-        if (this._suggestBox)
+        if (this._suggestBox) {
             this._suggestBox.updateSuggestions(this._boxForAnchorAtStart(selection, fullWordRange), completions, selectedIndex, !this.isCaretAtEndOfPrompt(), this._userEnteredText);
+        }
 
-        if (selectedIndex === -1)
+        if (selectedIndex === -1) {
             return;
+        }
 
         var wordPrefixLength = originalWordPrefixRange.toString().length;
         this._commonPrefix = this._buildCommonPrefix(completions, wordPrefixLength);
@@ -498,8 +522,9 @@ WebInspector.TextPrompt.prototype = {
 
     _completeCommonPrefix: function()
     {
-        if (!this.autoCompleteElement || !this._commonPrefix || !this._userEnteredText || !this._commonPrefix.startsWith(this._userEnteredText))
+        if (!this.autoCompleteElement || !this._commonPrefix || !this._userEnteredText || !this._commonPrefix.startsWith(this._userEnteredText)) {
             return;
+        }
 
         if (!this.isSuggestBoxVisible()) {
             this.acceptAutoComplete();
@@ -527,10 +552,12 @@ WebInspector.TextPrompt.prototype = {
     _applySuggestion: function(completionText, isIntermediateSuggestion, originalPrefixRange)
     {
         var wordPrefixLength;
-        if (originalPrefixRange)
+        if (originalPrefixRange) {
             wordPrefixLength = originalPrefixRange.toString().length;
-        else
+        }
+        else {
             wordPrefixLength = this._userEnteredText ? this._userEnteredText.length : 0;
+        }
 
         this._userEnteredRange.deleteContents();
         this._element.normalize();
@@ -542,18 +569,21 @@ WebInspector.TextPrompt.prototype = {
             delete this.autoCompleteElement;
         }
 
-        if (isIntermediateSuggestion)
+        if (isIntermediateSuggestion) {
             finalSelectionRange.setStart(completionTextNode, wordPrefixLength);
-        else
+        }
+        else {
             finalSelectionRange.setStart(completionTextNode, completionText.length);
+        }
 
         finalSelectionRange.setEnd(completionTextNode, completionText.length);
 
         var selection = window.getSelection();
         selection.removeAllRanges();
         selection.addRange(finalSelectionRange);
-        if (isIntermediateSuggestion)
+        if (isIntermediateSuggestion) {
             this.dispatchEventToListeners(WebInspector.TextPrompt.Events.ItemApplied, { itemText: completionText });
+        }
     },
 
     /**
@@ -570,11 +600,13 @@ WebInspector.TextPrompt.prototype = {
      */
     _acceptSuggestionInternal: function(prefixAccepted)
     {
-        if (this._isAcceptingSuggestion)
+        if (this._isAcceptingSuggestion) {
             return false;
+        }
 
-        if (!this.autoCompleteElement || !this.autoCompleteElement.parentNode)
+        if (!this.autoCompleteElement || !this.autoCompleteElement.parentNode) {
             return false;
+        }
 
         var text = this.autoCompleteElement.textContent;
         var textNode = document.createTextNode(text);
@@ -592,16 +624,18 @@ WebInspector.TextPrompt.prototype = {
         if (!prefixAccepted) {
             this.hideSuggestBox();
             this.dispatchEventToListeners(WebInspector.TextPrompt.Events.ItemAccepted);
-        } else
+        } else {
             this.autoCompleteSoon(true);
+        }
 
         return true;
     },
 
     hideSuggestBox: function()
     {
-        if (this.isSuggestBoxVisible())
+        if (this.isSuggestBoxVisible()) {
             this._suggestBox.hide();
+        }
     },
 
     /**
@@ -626,22 +660,26 @@ WebInspector.TextPrompt.prototype = {
     isCaretAtEndOfPrompt: function()
     {
         var selection = window.getSelection();
-        if (!selection.rangeCount || !selection.isCollapsed)
+        if (!selection.rangeCount || !selection.isCollapsed) {
             return false;
+        }
 
         var selectionRange = selection.getRangeAt(0);
         var node = selectionRange.startContainer;
-        if (!node.isSelfOrDescendant(this._element))
+        if (!node.isSelfOrDescendant(this._element)) {
             return false;
+        }
 
-        if (node.nodeType === Node.TEXT_NODE && selectionRange.startOffset < node.nodeValue.length)
+        if (node.nodeType === Node.TEXT_NODE && selectionRange.startOffset < node.nodeValue.length) {
             return false;
+        }
 
         var foundNextText = false;
         while (node) {
             if (node.nodeType === Node.TEXT_NODE && node.nodeValue.length) {
-                if (foundNextText && (!this.autoCompleteElement || !this.autoCompleteElement.isAncestor(node)))
+                if (foundNextText && (!this.autoCompleteElement || !this.autoCompleteElement.isAncestor(node))) {
                     return false;
+                }
                 foundNextText = true;
             }
 
@@ -658,18 +696,22 @@ WebInspector.TextPrompt.prototype = {
     {
         var selection = window.getSelection();
         var focusNode = selection.focusNode;
-        if (!focusNode || focusNode.nodeType !== Node.TEXT_NODE || focusNode.parentNode !== this._element)
+        if (!focusNode || focusNode.nodeType !== Node.TEXT_NODE || focusNode.parentNode !== this._element) {
             return true;
+        }
 
-        if (focusNode.textContent.substring(0, selection.focusOffset).indexOf("\n") !== -1)
+        if (focusNode.textContent.substring(0, selection.focusOffset).indexOf("\n") !== -1) {
             return false;
+        }
         focusNode = focusNode.previousSibling;
 
         while (focusNode) {
-            if (focusNode.nodeType !== Node.TEXT_NODE)
+            if (focusNode.nodeType !== Node.TEXT_NODE) {
                 return true;
-            if (focusNode.textContent.indexOf("\n") !== -1)
+            }
+            if (focusNode.textContent.indexOf("\n") !== -1) {
                 return false;
+            }
             focusNode = focusNode.previousSibling;
         }
 
@@ -683,18 +725,22 @@ WebInspector.TextPrompt.prototype = {
     {
         var selection = window.getSelection();
         var focusNode = selection.focusNode;
-        if (!focusNode || focusNode.nodeType !== Node.TEXT_NODE || focusNode.parentNode !== this._element)
+        if (!focusNode || focusNode.nodeType !== Node.TEXT_NODE || focusNode.parentNode !== this._element) {
             return true;
+        }
 
-        if (focusNode.textContent.substring(selection.focusOffset).indexOf("\n") !== -1)
+        if (focusNode.textContent.substring(selection.focusOffset).indexOf("\n") !== -1) {
             return false;
+        }
         focusNode = focusNode.nextSibling;
 
         while (focusNode) {
-            if (focusNode.nodeType !== Node.TEXT_NODE)
+            if (focusNode.nodeType !== Node.TEXT_NODE) {
                 return true;
-            if (focusNode.textContent.indexOf("\n") !== -1)
+            }
+            if (focusNode.textContent.indexOf("\n") !== -1) {
                 return false;
+            }
             focusNode = focusNode.nextSibling;
         }
 
@@ -727,7 +773,7 @@ WebInspector.TextPrompt.prototype = {
     },
 
     __proto__: WebInspector.Object.prototype
-}
+};
 
 
 /**
@@ -756,7 +802,7 @@ WebInspector.TextPromptWithHistory = function(completions, stopCharacters)
      * @type {boolean}
      */
     this._coalesceHistoryDupes = true;
-}
+};
 
 WebInspector.TextPromptWithHistory.prototype = {
     /**
@@ -797,8 +843,9 @@ WebInspector.TextPromptWithHistory.prototype = {
         }
 
         this._historyOffset = 1;
-        if (this._coalesceHistoryDupes && text === this._currentHistoryItem())
+        if (this._coalesceHistoryDupes && text === this._currentHistoryItem()) {
             return;
+        }
         this._data.push(text);
     },
 
@@ -807,8 +854,9 @@ WebInspector.TextPromptWithHistory.prototype = {
      */
     _pushCurrentText: function()
     {
-        if (this._uncommittedIsTop)
+        if (this._uncommittedIsTop) {
             this._data.pop(); // Throw away obsolete uncommitted text.
+        }
         this._uncommittedIsTop = true;
         this.clearAutoComplete(true);
         this._data.push(this.text);
@@ -819,10 +867,12 @@ WebInspector.TextPromptWithHistory.prototype = {
      */
     _previous: function()
     {
-        if (this._historyOffset > this._data.length)
+        if (this._historyOffset > this._data.length) {
             return undefined;
-        if (this._historyOffset === 1)
+        }
+        if (this._historyOffset === 1) {
             this._pushCurrentText();
+        }
         ++this._historyOffset;
         return this._currentHistoryItem();
     },
@@ -832,8 +882,9 @@ WebInspector.TextPromptWithHistory.prototype = {
      */
     _next: function()
     {
-        if (this._historyOffset === 1)
+        if (this._historyOffset === 1) {
             return undefined;
+        }
         --this._historyOffset;
         return this._currentHistoryItem();
     },
@@ -856,14 +907,16 @@ WebInspector.TextPromptWithHistory.prototype = {
 
         switch (event.keyIdentifier) {
         case "Up":
-            if (!this.isCaretOnFirstLine() || this.isSuggestBoxVisible())
+            if (!this.isCaretOnFirstLine() || this.isSuggestBoxVisible()) {
                 break;
+            }
             newText = this._previous();
             isPrevious = true;
             break;
         case "Down":
-            if (!this.isCaretOnLastLine() || this.isSuggestBoxVisible())
+            if (!this.isCaretOnLastLine() || this.isSuggestBoxVisible()) {
                 break;
+            }
             newText = this._next();
             break;
         case "U+0050": // Ctrl+P = Previous
@@ -873,8 +926,9 @@ WebInspector.TextPromptWithHistory.prototype = {
             }
             break;
         case "U+004E": // Ctrl+N = Next
-            if (WebInspector.isMac() && event.ctrlKey && !event.metaKey && !event.altKey && !event.shiftKey)
+            if (WebInspector.isMac() && event.ctrlKey && !event.metaKey && !event.altKey && !event.shiftKey) {
                 newText = this._next();
+            }
             break;
         }
 
@@ -884,8 +938,9 @@ WebInspector.TextPromptWithHistory.prototype = {
 
             if (isPrevious) {
                 var firstNewlineIndex = this.text.indexOf("\n");
-                if (firstNewlineIndex === -1)
+                if (firstNewlineIndex === -1) {
                     this.moveCaretToEndOfPrompt();
+                }
                 else {
                     var selection = window.getSelection();
                     var selectionRange = document.createRange();
@@ -905,4 +960,4 @@ WebInspector.TextPromptWithHistory.prototype = {
     },
 
     __proto__: WebInspector.TextPrompt.prototype
-}
+};

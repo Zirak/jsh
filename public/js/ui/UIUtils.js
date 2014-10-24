@@ -40,9 +40,10 @@
 WebInspector.installDragHandle = function(element, elementDragStart, elementDrag, elementDragEnd, cursor, hoverCursor)
 {
     element.addEventListener("mousedown", WebInspector.elementDragStart.bind(WebInspector, elementDragStart, elementDrag, elementDragEnd, cursor), false);
-    if (hoverCursor !== null)
+    if (hoverCursor !== null) {
         element.style.cursor = hoverCursor || cursor;
-}
+    }
+};
 
 /**
  * @param {?function(!MouseEvent):boolean} elementDragStart
@@ -54,14 +55,17 @@ WebInspector.installDragHandle = function(element, elementDragStart, elementDrag
 WebInspector.elementDragStart = function(elementDragStart, elementDrag, elementDragEnd, cursor, event)
 {
     // Only drag upon left button. Right will likely cause a context menu. So will ctrl-click on mac.
-    if (event.button || (WebInspector.isMac() && event.ctrlKey))
+    if (event.button || (WebInspector.isMac() && event.ctrlKey)) {
         return;
+    }
 
-    if (WebInspector._elementDraggingEventListener)
+    if (WebInspector._elementDraggingEventListener) {
         return;
+    }
 
-    if (elementDragStart && !elementDragStart(/** @type {!MouseEvent} */ (event)))
+    if (elementDragStart && !elementDragStart(/** @type {!MouseEvent} */ (event))) {
         return;
+    }
 
     if (WebInspector._elementDraggingGlassPane) {
         WebInspector._elementDraggingGlassPane.dispose();
@@ -81,30 +85,32 @@ WebInspector.elementDragStart = function(elementDragStart, elementDrag, elementD
     targetDocument.body.style.cursor = cursor;
 
     event.preventDefault();
-}
+};
 
 WebInspector._mouseOutWhileDragging = function()
 {
     WebInspector._unregisterMouseOutWhileDragging();
     WebInspector._elementDraggingGlassPane = new WebInspector.GlassPane();
-}
+};
 
 WebInspector._unregisterMouseOutWhileDragging = function()
 {
-    if (!WebInspector._mouseOutWhileDraggingTargetDocument)
+    if (!WebInspector._mouseOutWhileDraggingTargetDocument) {
         return;
+    }
     WebInspector._mouseOutWhileDraggingTargetDocument.removeEventListener("mouseout", WebInspector._mouseOutWhileDragging, true);
     delete WebInspector._mouseOutWhileDraggingTargetDocument;
-}
+};
 
 /**
  * @param {!Event} event
  */
 WebInspector._elementDragMove = function(event)
 {
-    if (WebInspector._elementDraggingEventListener(/** @type {!MouseEvent} */ (event)))
+    if (WebInspector._elementDraggingEventListener(/** @type {!MouseEvent} */ (event))) {
         WebInspector._cancelDragEvents(event);
-}
+    }
+};
 
 /**
  * @param {!Event} event
@@ -118,13 +124,14 @@ WebInspector._cancelDragEvents = function(event)
 
     targetDocument.body.style.removeProperty("cursor");
 
-    if (WebInspector._elementDraggingGlassPane)
+    if (WebInspector._elementDraggingGlassPane) {
         WebInspector._elementDraggingGlassPane.dispose();
+    }
 
     delete WebInspector._elementDraggingGlassPane;
     delete WebInspector._elementDraggingEventListener;
     delete WebInspector._elementEndDraggingEventListener;
-}
+};
 
 /**
  * @param {!Event} event
@@ -136,9 +143,10 @@ WebInspector._elementDragEnd = function(event)
     WebInspector._cancelDragEvents(/** @type {!MouseEvent} */ (event));
 
     event.preventDefault();
-    if (elementDragEnd)
+    if (elementDragEnd) {
         elementDragEnd(/** @type {!MouseEvent} */ (event));
-}
+    }
+};
 
 /**
  * @constructor
@@ -150,17 +158,18 @@ WebInspector.GlassPane = function()
     this.element.id = "glass-pane";
     document.body.appendChild(this.element);
     WebInspector._glassPane = this;
-}
+};
 
 WebInspector.GlassPane.prototype = {
     dispose: function()
     {
         delete WebInspector._glassPane;
-        if (WebInspector.GlassPane.DefaultFocusedViewStack.length)
+        if (WebInspector.GlassPane.DefaultFocusedViewStack.length) {
             WebInspector.GlassPane.DefaultFocusedViewStack.peekLast().focus();
+        }
         this.element.remove();
     }
-}
+};
 
 /**
  * @type {!Array.<!WebInspector.View|!WebInspector.Dialog>}
@@ -173,22 +182,26 @@ WebInspector.GlassPane.DefaultFocusedViewStack = [];
  */
 WebInspector.isBeingEdited = function(node)
 {
-    if (!node || node.nodeType !== Node.ELEMENT_NODE)
+    if (!node || node.nodeType !== Node.ELEMENT_NODE) {
         return false;
+    }
     var element = /** {!Element} */ (node);
-    if (element.classList.contains("text-prompt") || element.nodeName === "INPUT" || element.nodeName === "TEXTAREA")
+    if (element.classList.contains("text-prompt") || element.nodeName === "INPUT" || element.nodeName === "TEXTAREA") {
         return true;
+    }
 
-    if (!WebInspector.__editingCount)
+    if (!WebInspector.__editingCount) {
         return false;
+    }
 
     while (element) {
-        if (element.__editing)
+        if (element.__editing) {
             return true;
+        }
         element = element.parentElement;
     }
     return false;
-}
+};
 
 /**
  * @param {!Element} element
@@ -198,20 +211,22 @@ WebInspector.isBeingEdited = function(node)
 WebInspector.markBeingEdited = function(element, value)
 {
     if (value) {
-        if (element.__editing)
+        if (element.__editing) {
             return false;
+        }
         element.classList.add("being-edited");
         element.__editing = true;
         WebInspector.__editingCount = (WebInspector.__editingCount || 0) + 1;
     } else {
-        if (!element.__editing)
+        if (!element.__editing) {
             return false;
+        }
         element.classList.remove("being-edited");
         delete element.__editing;
         --WebInspector.__editingCount;
     }
     return true;
-}
+};
 
 WebInspector.CSSNumberRegex = /^(-?(?:\d+(?:\.\d+)?|\.\d+))$/;
 
@@ -226,18 +241,22 @@ WebInspector._valueModificationDirection = function(event)
 {
     var direction = null;
     if (event.type === "mousewheel") {
-        if (event.wheelDeltaY > 0)
+        if (event.wheelDeltaY > 0) {
             direction = "Up";
-        else if (event.wheelDeltaY < 0)
+        }
+        else if (event.wheelDeltaY < 0) {
             direction = "Down";
+        }
     } else {
-        if (event.keyIdentifier === "Up" || event.keyIdentifier === "PageUp")
+        if (event.keyIdentifier === "Up" || event.keyIdentifier === "PageUp") {
             direction = "Up";
-        else if (event.keyIdentifier === "Down" || event.keyIdentifier === "PageDown")
+        }
+        else if (event.keyIdentifier === "Down" || event.keyIdentifier === "PageDown") {
             direction = "Down";
+        }
     }
     return direction;
-}
+};
 
 /**
  * @param {string} hexString
@@ -246,37 +265,45 @@ WebInspector._valueModificationDirection = function(event)
 WebInspector._modifiedHexValue = function(hexString, event)
 {
     var direction = WebInspector._valueModificationDirection(event);
-    if (!direction)
+    if (!direction) {
         return hexString;
+    }
 
     var number = parseInt(hexString, 16);
-    if (isNaN(number) || !isFinite(number))
+    if (isNaN(number) || !isFinite(number)) {
         return hexString;
+    }
 
     var maxValue = Math.pow(16, hexString.length) - 1;
     var arrowKeyOrMouseWheelEvent = (event.keyIdentifier === "Up" || event.keyIdentifier === "Down" || event.type === "mousewheel");
     var delta;
 
-    if (arrowKeyOrMouseWheelEvent)
+    if (arrowKeyOrMouseWheelEvent) {
         delta = (direction === "Up") ? 1 : -1;
-    else
+    }
+    else {
         delta = (event.keyIdentifier === "PageUp") ? 16 : -16;
+    }
 
-    if (event.shiftKey)
+    if (event.shiftKey) {
         delta *= 16;
+    }
 
     var result = number + delta;
-    if (result < 0)
+    if (result < 0) {
         result = 0; // Color hex values are never negative, so clamp to 0.
-    else if (result > maxValue)
+    }
+    else if (result > maxValue) {
         return hexString;
+    }
 
     // Ensure the result length is the same as the original hex value.
     var resultString = result.toString(16).toUpperCase();
-    for (var i = 0, lengthDelta = hexString.length - resultString.length; i < lengthDelta; ++i)
+    for (var i = 0, lengthDelta = hexString.length - resultString.length; i < lengthDelta; ++i) {
         resultString = "0" + resultString;
+    }
     return resultString;
-}
+};
 
 /**
  * @param {number} number
@@ -285,32 +312,38 @@ WebInspector._modifiedHexValue = function(hexString, event)
 WebInspector._modifiedFloatNumber = function(number, event)
 {
     var direction = WebInspector._valueModificationDirection(event);
-    if (!direction)
+    if (!direction) {
         return number;
+    }
 
     var arrowKeyOrMouseWheelEvent = (event.keyIdentifier === "Up" || event.keyIdentifier === "Down" || event.type === "mousewheel");
 
     // Jump by 10 when shift is down or jump by 0.1 when Alt/Option is down.
     // Also jump by 10 for page up and down, or by 100 if shift is held with a page key.
     var changeAmount = 1;
-    if (event.shiftKey && !arrowKeyOrMouseWheelEvent)
+    if (event.shiftKey && !arrowKeyOrMouseWheelEvent) {
         changeAmount = 100;
-    else if (event.shiftKey || !arrowKeyOrMouseWheelEvent)
+    }
+    else if (event.shiftKey || !arrowKeyOrMouseWheelEvent) {
         changeAmount = 10;
-    else if (event.altKey)
+    }
+    else if (event.altKey) {
         changeAmount = 0.1;
+    }
 
-    if (direction === "Down")
+    if (direction === "Down") {
         changeAmount *= -1;
+    }
 
     // Make the new number and constrain it to a precision of 6, this matches numbers the engine returns.
     // Use the Number constructor to forget the fixed precision, so 1.100000 will print as 1.1.
     var result = Number((number + changeAmount).toFixed(6));
-    if (!String(result).match(WebInspector.CSSNumberRegex))
+    if (!String(result).match(WebInspector.CSSNumberRegex)) {
         return null;
+    }
 
     return result;
-}
+};
 
 /**
   * @param {!Event} event
@@ -324,23 +357,27 @@ WebInspector.handleElementValueModifications = function(event, element, finishHa
 {
     var arrowKeyOrMouseWheelEvent = (event.keyIdentifier === "Up" || event.keyIdentifier === "Down" || event.type === "mousewheel");
     var pageKeyPressed = (event.keyIdentifier === "PageUp" || event.keyIdentifier === "PageDown");
-    if (!arrowKeyOrMouseWheelEvent && !pageKeyPressed)
+    if (!arrowKeyOrMouseWheelEvent && !pageKeyPressed) {
         return false;
+    }
 
     var selection = window.getSelection();
-    if (!selection.rangeCount)
+    if (!selection.rangeCount) {
         return false;
+    }
 
     var selectionRange = selection.getRangeAt(0);
-    if (!selectionRange.commonAncestorContainer.isSelfOrDescendant(element))
+    if (!selectionRange.commonAncestorContainer.isSelfOrDescendant(element)) {
         return false;
+    }
 
     var originalValue = element.textContent;
     var wordRange = selectionRange.startContainer.rangeOfWord(selectionRange.startOffset, WebInspector.StyleValueDelimiters, element);
     var wordString = wordRange.toString();
 
-    if (suggestionHandler && suggestionHandler(wordString))
+    if (suggestionHandler && suggestionHandler(wordString)) {
         return false;
+    }
 
     var replacementString;
     var prefix, suffix, number;
@@ -361,8 +398,9 @@ WebInspector.handleElementValueModifications = function(event, element, finishHa
             number = WebInspector._modifiedFloatNumber(parseFloat(matches[2]), event);
 
             // Need to check for null explicitly.
-            if (number === null)
+            if (number === null) {
                 return false;
+            }
 
             replacementString = customNumberHandler ? customNumberHandler(prefix, number, suffix) : prefix + number + suffix;
         }
@@ -384,13 +422,14 @@ WebInspector.handleElementValueModifications = function(event, element, finishHa
         event.handled = true;
         event.preventDefault();
 
-        if (finishHandler)
+        if (finishHandler) {
             finishHandler(originalValue, replacementString);
+        }
 
         return true;
     }
     return false;
-}
+};
 
 /**
  * @param {number} ms
@@ -402,7 +441,7 @@ Number.preciseMillisToString = function(ms, precision)
   precision = precision || 0;
   var format = "%." + precision + "f\u2009ms";
   return WebInspector.UIString(format, ms);
-}
+};
 
 /**
  * @param {number} ms
@@ -411,32 +450,39 @@ Number.preciseMillisToString = function(ms, precision)
  */
 Number.millisToString = function(ms, higherResolution)
 {
-    if (!isFinite(ms))
+    if (!isFinite(ms)) {
         return "-";
+    }
 
-    if (ms === 0)
+    if (ms === 0) {
         return "0";
+    }
 
-    if (higherResolution && ms < 1000)
+    if (higherResolution && ms < 1000) {
         return WebInspector.UIString("%.3f\u2009ms", ms);
-    else if (ms < 1000)
+    }
+    else if (ms < 1000) {
         return WebInspector.UIString("%.0f\u2009ms", ms);
+    }
 
     var seconds = ms / 1000;
-    if (seconds < 60)
+    if (seconds < 60) {
         return WebInspector.UIString("%.2f\u2009s", seconds);
+    }
 
     var minutes = seconds / 60;
-    if (minutes < 60)
+    if (minutes < 60) {
         return WebInspector.UIString("%.1f\u2009min", minutes);
+    }
 
     var hours = minutes / 60;
-    if (hours < 24)
+    if (hours < 24) {
         return WebInspector.UIString("%.1f\u2009hrs", hours);
+    }
 
     var days = hours / 24;
     return WebInspector.UIString("%.1f\u2009days", days);
-}
+};
 
 /**
  * @param {number} seconds
@@ -445,10 +491,11 @@ Number.millisToString = function(ms, higherResolution)
  */
 Number.secondsToString = function(seconds, higherResolution)
 {
-    if (!isFinite(seconds))
+    if (!isFinite(seconds)) {
         return "-";
+    }
     return Number.millisToString(seconds * 1000, higherResolution);
-}
+};
 
 /**
  * @param {number} bytes
@@ -456,21 +503,26 @@ Number.secondsToString = function(seconds, higherResolution)
  */
 Number.bytesToString = function(bytes)
 {
-    if (bytes < 1024)
+    if (bytes < 1024) {
         return WebInspector.UIString("%.0f\u2009B", bytes);
+    }
 
     var kilobytes = bytes / 1024;
-    if (kilobytes < 100)
+    if (kilobytes < 100) {
         return WebInspector.UIString("%.1f\u2009KB", kilobytes);
-    if (kilobytes < 1024)
+    }
+    if (kilobytes < 1024) {
         return WebInspector.UIString("%.0f\u2009KB", kilobytes);
+    }
 
     var megabytes = kilobytes / 1024;
-    if (megabytes < 100)
+    if (megabytes < 100) {
         return WebInspector.UIString("%.1f\u2009MB", megabytes);
-    else
+    }
+    else {
         return WebInspector.UIString("%.0f\u2009MB", megabytes);
-}
+    }
+};
 
 /**
  * @param {number} num
@@ -480,10 +532,11 @@ Number.withThousandsSeparator = function(num)
 {
     var str = num + "";
     var re = /(\d+)(\d{3})/;
-    while (str.match(re))
+    while (str.match(re)) {
         str = str.replace(re, "$1\u2009$2"); // \u2009 is a thin space.
+    }
     return str;
-}
+};
 
 /**
  * @return {boolean}
@@ -491,7 +544,7 @@ Number.withThousandsSeparator = function(num)
 WebInspector.useLowerCaseMenuTitles = function()
 {
     return WebInspector.platform() === "windows";
-}
+};
 
 /**
  * @param {string} format
@@ -504,7 +557,7 @@ WebInspector.useLowerCaseMenuTitles = function()
 WebInspector.formatLocalized = function(format, substitutions, formatters, initialValue, append)
 {
     return String.format(WebInspector.UIString(format), substitutions, formatters, initialValue, append);
-}
+};
 
 /**
  * @return {string}
@@ -512,7 +565,7 @@ WebInspector.formatLocalized = function(format, substitutions, formatters, initi
 WebInspector.openLinkExternallyLabel = function()
 {
     return WebInspector.UIString(WebInspector.useLowerCaseMenuTitles() ? "Open link in new tab" : "Open Link in New Tab");
-}
+};
 
 /**
  * @return {string}
@@ -520,7 +573,7 @@ WebInspector.openLinkExternallyLabel = function()
 WebInspector.copyLinkAddressLabel = function()
 {
     return WebInspector.UIString(WebInspector.useLowerCaseMenuTitles() ? "Copy link address" : "Copy Link Address");
-}
+};
 
 /**
  * @return {string}
@@ -528,32 +581,37 @@ WebInspector.copyLinkAddressLabel = function()
 WebInspector.anotherProfilerActiveLabel = function()
 {
     return WebInspector.UIString("Another profiler is already active");
-}
+};
 
 WebInspector.installPortStyles = function()
 {
-    return; //
+    // zirak
+    /*jshint -W027*/
+    return;
 
     var platform = WebInspector.platform();
     document.body.classList.add("platform-" + platform);
     var flavor = WebInspector.platformFlavor();
-    if (flavor)
+    if (flavor) {
         document.body.classList.add("platform-" + flavor);
+    }
     var port = WebInspector.port();
     document.body.classList.add("port-" + port);
-}
+};
 
 WebInspector._windowFocused = function(event)
 {
-    if (event.target.document.nodeType === Node.DOCUMENT_NODE)
+    if (event.target.document.nodeType === Node.DOCUMENT_NODE) {
         document.body.classList.remove("inactive");
-}
+    }
+};
 
 WebInspector._windowBlurred = function(event)
 {
-    if (event.target.document.nodeType === Node.DOCUMENT_NODE)
+    if (event.target.document.nodeType === Node.DOCUMENT_NODE) {
         document.body.classList.add("inactive");
-}
+    }
+};
 
 /**
  * @return {!Element}
@@ -561,7 +619,7 @@ WebInspector._windowBlurred = function(event)
 WebInspector.previousFocusElement = function()
 {
     return WebInspector._previousFocusElement;
-}
+};
 
 /**
  * @return {!Element}
@@ -569,40 +627,45 @@ WebInspector.previousFocusElement = function()
 WebInspector.currentFocusElement = function()
 {
     return WebInspector._currentFocusElement;
-}
+};
 
 WebInspector._focusChanged = function(event)
 {
     WebInspector.setCurrentFocusElement(event.target);
-}
+};
 
 WebInspector._documentBlurred = function(event)
 {
     // We want to know when currentFocusElement loses focus to nowhere.
     // This is the case when event.relatedTarget is null (no element is being focused)
     // and document.activeElement is reset to default (this is not a window blur).
-    if (!event.relatedTarget && document.activeElement === document.body)
+    if (!event.relatedTarget && document.activeElement === document.body) {
       WebInspector.setCurrentFocusElement(null);
-}
+  }
+};
 
 WebInspector._textInputTypes = ["text", "search", "tel", "url", "email", "password"].keySet();
 WebInspector._isTextEditingElement = function(element)
 {
-    if (element instanceof HTMLInputElement)
+    if (element instanceof HTMLInputElement) {
         return element.type in WebInspector._textInputTypes;
+    }
 
-    if (element instanceof HTMLTextAreaElement)
+    if (element instanceof HTMLTextAreaElement) {
         return true;
+    }
 
     return false;
-}
+};
 
 WebInspector.setCurrentFocusElement = function(x)
 {
-    if (WebInspector._glassPane && x && !WebInspector._glassPane.element.isAncestor(x))
+    if (WebInspector._glassPane && x && !WebInspector._glassPane.element.isAncestor(x)) {
         return;
-    if (WebInspector._currentFocusElement !== x)
+    }
+    if (WebInspector._currentFocusElement !== x) {
         WebInspector._previousFocusElement = WebInspector._currentFocusElement;
+    }
     WebInspector._currentFocusElement = x;
 
     if (WebInspector._currentFocusElement && WebInspector._currentFocusElement.focus) {
@@ -620,15 +683,17 @@ WebInspector.setCurrentFocusElement = function(x)
             selection.removeAllRanges();
             selection.addRange(selectionRange);
         }
-    } else if (WebInspector._previousFocusElement && WebInspector._previousFocusElement.focus)
+    } else if (WebInspector._previousFocusElement && WebInspector._previousFocusElement.focus) {
         WebInspector._previousFocusElement.blur();
-}
+    }
+};
 
 WebInspector.restoreFocusFromElement = function(element)
 {
-    if (element && element.isSelfOrAncestor(WebInspector.currentFocusElement()))
+    if (element && element.isSelfOrAncestor(WebInspector.currentFocusElement())) {
         WebInspector.setCurrentFocusElement(WebInspector.previousFocusElement());
-}
+    }
+};
 
 WebInspector.setToolbarColors = function(backgroundColor, color)
 {
@@ -654,13 +719,14 @@ WebInspector.setToolbarColors = function(backgroundColor, color)
              "%s .toolbar-colors button.status-bar-item .glyph.shadow, %s .toolbar-colors button.status-bar-item .long-click-glyph.shadow {\
                  background-color: %s;\
              }", prefix, prefix, shadowColor);
-}
+};
 
 WebInspector.resetToolbarColors = function()
 {
-    if (WebInspector._themeStyleElement)
+    if (WebInspector._themeStyleElement) {
         WebInspector._themeStyleElement.textContent = "";
-}
+    }
+};
 
 /**
  * @param {!Element} element
@@ -673,7 +739,7 @@ WebInspector.highlightSearchResult = function(element, offset, length, domChange
 {
     var result = WebInspector.highlightSearchResults(element, [new WebInspector.SourceRange(offset, length)], domChanges);
     return result.length ? result[0] : null;
-}
+};
 
 /**
  * @param {!Element} element
@@ -684,7 +750,7 @@ WebInspector.highlightSearchResult = function(element, offset, length, domChange
 WebInspector.highlightSearchResults = function(element, resultRanges, changes)
 {
     return WebInspector.highlightRangesWithStyleClass(element, resultRanges, "highlighted-search-result", changes);
-}
+};
 
 /**
  * @param {!Element} element
@@ -698,12 +764,13 @@ WebInspector.runCSSAnimationOnce = function(element, className)
         element.removeEventListener("animationend", animationEndCallback, false);
     }
 
-    if (element.classList.contains(className))
+    if (element.classList.contains(className)) {
         element.classList.remove(className);
+    }
 
     element.addEventListener("animationend", animationEndCallback, false);
     element.classList.add(className);
-}
+};
 
 /**
  * @param {!Element} element
@@ -721,12 +788,15 @@ WebInspector.highlightRangesWithStyleClass = function(element, resultRanges, sty
     var textNodeSnapshot = ownerDocument.evaluate(".//text()", element, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
 
     var snapshotLength = textNodeSnapshot.snapshotLength;
-    if (snapshotLength === 0)
+    if (snapshotLength === 0) {
         return highlightNodes;
+    }
 
     var nodeRanges = [];
     var rangeEndOffset = 0;
-    for (var i = 0; i < snapshotLength; ++i) {
+    var i;
+
+    for (i = 0; i < snapshotLength; ++i) {
         var range = {};
         range.offset = rangeEndOffset;
         range.length = textNodeSnapshot.snapshotItem(i).textContent.length;
@@ -735,17 +805,20 @@ WebInspector.highlightRangesWithStyleClass = function(element, resultRanges, sty
     }
 
     var startIndex = 0;
-    for (var i = 0; i < resultRanges.length; ++i) {
+    for (i = 0; i < resultRanges.length; ++i) {
         var startOffset = resultRanges[i].offset;
         var endOffset = startOffset + resultRanges[i].length;
 
-        while (startIndex < snapshotLength && nodeRanges[startIndex].offset + nodeRanges[startIndex].length <= startOffset)
+        while (startIndex < snapshotLength && nodeRanges[startIndex].offset + nodeRanges[startIndex].length <= startOffset) {
             startIndex++;
+        }
         var endIndex = startIndex;
-        while (endIndex < snapshotLength && nodeRanges[endIndex].offset + nodeRanges[endIndex].length < endOffset)
+        while (endIndex < snapshotLength && nodeRanges[endIndex].offset + nodeRanges[endIndex].length < endOffset) {
             endIndex++;
-        if (endIndex === snapshotLength)
+        }
+        if (endIndex === snapshotLength) {
             break;
+        }
 
         var highlightNode = ownerDocument.createElement("span");
         highlightNode.className = styleClass;
@@ -789,7 +862,7 @@ WebInspector.highlightRangesWithStyleClass = function(element, resultRanges, sty
 
     }
     return highlightNodes;
-}
+};
 
 WebInspector.applyDomChanges = function(domChanges)
 {
@@ -804,7 +877,7 @@ WebInspector.applyDomChanges = function(domChanges)
             break;
         }
     }
-}
+};
 
 WebInspector.revertDomChanges = function(domChanges)
 {
@@ -819,7 +892,7 @@ WebInspector.revertDomChanges = function(domChanges)
             break;
         }
     }
-}
+};
 
 /**
  * @constructor
@@ -829,7 +902,7 @@ WebInspector.InvokeOnceHandlers = function(autoInvoke)
 {
     this._handlers = null;
     this._autoInvoke = autoInvoke;
-}
+};
 
 WebInspector.InvokeOnceHandlers.prototype = {
     /**
@@ -840,8 +913,9 @@ WebInspector.InvokeOnceHandlers.prototype = {
     {
         if (!this._handlers) {
             this._handlers = new Map();
-            if (this._autoInvoke)
+            if (this._autoInvoke) {
                 this.scheduleInvoke();
+            }
         }
         var methods = this._handlers.get(object);
         if (!methods) {
@@ -853,8 +927,9 @@ WebInspector.InvokeOnceHandlers.prototype = {
 
     scheduleInvoke: function()
     {
-        if (this._handlers)
+        if (this._handlers) {
             requestAnimationFrame(this._invoke.bind(this));
+        }
     },
 
     _invoke: function()
@@ -865,28 +940,32 @@ WebInspector.InvokeOnceHandlers.prototype = {
         for (var i = 0; i < keys.length; ++i) {
             var object = keys[i];
             var methods = handlers.get(object).values();
-            for (var j = 0; j < methods.length; ++j)
+            for (var j = 0; j < methods.length; ++j) {
                 methods[j].call(object);
+            }
         }
     }
-}
+};
 
 WebInspector._coalescingLevel = 0;
 WebInspector._postUpdateHandlers = null;
 
 WebInspector.startBatchUpdate = function()
 {
-    if (!WebInspector._coalescingLevel++)
+    var level = WebInspector._coalescingLevel++;
+    if (!level) {
         WebInspector._postUpdateHandlers = new WebInspector.InvokeOnceHandlers(false);
-}
+    }
+};
 
 WebInspector.endBatchUpdate = function()
 {
-    if (--WebInspector._coalescingLevel)
+    if (--WebInspector._coalescingLevel) {
         return;
+    }
     WebInspector._postUpdateHandlers.scheduleInvoke();
     WebInspector._postUpdateHandlers = null;
-}
+};
 
 /**
  * @param {!Object} object
@@ -894,8 +973,9 @@ WebInspector.endBatchUpdate = function()
  */
 WebInspector.invokeOnceAfterBatchUpdate = function(object, method)
 {
-    if (!WebInspector._postUpdateHandlers)
+    if (!WebInspector._postUpdateHandlers) {
         WebInspector._postUpdateHandlers = new WebInspector.InvokeOnceHandlers(true);
+    }
     WebInspector._postUpdateHandlers.add(object, method);
 }
 

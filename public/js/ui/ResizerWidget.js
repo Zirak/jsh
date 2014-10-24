@@ -71,8 +71,9 @@ WebInspector.ResizerWidget.prototype = {
      */
     addElement: function(element)
     {
-        if (this._elements.indexOf(element) !== -1)
+        if (this._elements.indexOf(element) !== -1) {
             return;
+        }
 
         this._elements.push(element);
         element.addEventListener("mousedown", this._installDragOnMouseDownBound, false);
@@ -85,8 +86,9 @@ WebInspector.ResizerWidget.prototype = {
      */
     removeElement: function(element)
     {
-        if (this._elements.indexOf(element) === -1)
+        if (this._elements.indexOf(element) === -1) {
             return;
+        }
 
         this._elements.remove(element);
         element.removeEventListener("mousedown", this._installDragOnMouseDownBound, false);
@@ -108,8 +110,9 @@ WebInspector.ResizerWidget.prototype = {
     _installDragOnMouseDown: function(event)
     {
         // Only handle drags of the nodes specified.
-        if (this._elements.indexOf(event.target) === -1)
+        if (this._elements.indexOf(event.target) === -1) {
             return false;
+        }
         WebInspector.elementDragStart(this._dragStart.bind(this), this._drag.bind(this), this._dragEnd.bind(this), this._isVertical ? "ns-resize" : "ew-resize", event);
     },
 
@@ -119,8 +122,9 @@ WebInspector.ResizerWidget.prototype = {
      */
     _dragStart: function(event)
     {
-        if (!this._isEnabled)
+        if (!this._isEnabled) {
             return false;
+        }
         this._startPosition = this._isVertical ? event.pageY : event.pageX;
         this.dispatchEventToListeners(WebInspector.ResizerWidget.Events.ResizeStart, { startPosition: this._startPosition, currentPosition: this._startPosition });
         return true;

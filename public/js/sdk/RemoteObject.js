@@ -33,7 +33,7 @@
  *
  * @constructor
  */
-WebInspector.RemoteObject = function() { }
+WebInspector.RemoteObject = function() { };
 
 WebInspector.RemoteObject.prototype = {
     /** @return {string} */
@@ -137,7 +137,7 @@ WebInspector.RemoteObject.prototype = {
     {
         callback(null);
     }
-}
+};
 
 /**
  * @param {*} value
@@ -146,7 +146,7 @@ WebInspector.RemoteObject.prototype = {
 WebInspector.RemoteObject.fromLocalObject = function(value)
 {
     return new WebInspector.LocalJSONObject(value);
-}
+};
 
 /**
  * @param {!WebInspector.RemoteObject} remoteObject
@@ -154,15 +154,17 @@ WebInspector.RemoteObject.fromLocalObject = function(value)
  */
 WebInspector.RemoteObject.type = function(remoteObject)
 {
-    if (remoteObject === null)
+    if (remoteObject === null) {
         return "null";
+    }
 
     var type = typeof remoteObject;
-    if (type !== "object" && type !== "function")
+    if (type !== "object" && type !== "function") {
         return type;
+    }
 
     return remoteObject.type;
-}
+};
 
 /**
  * @param {!RuntimeAgent.RemoteObject|!WebInspector.RemoteObject|number|string|boolean|undefined|null} object
@@ -172,11 +174,12 @@ WebInspector.RemoteObject.toCallArgument = function(object)
 {
     var type = typeof object;
     var value = object;
-    var objectId = undefined;
+    var objectId;
     var description = String(object);
 
-    if (type === "number" && value === 0 && 1 / value < 0)
+    if (type === "number" && value === 0 && 1 / value < 0) {
         description = "-0";
+    }
 
     switch (type) {
     case "number":
@@ -211,7 +214,7 @@ WebInspector.RemoteObject.toCallArgument = function(object)
         objectId: objectId,
         type: /** @type {!RuntimeAgent.CallArgumentType.<string>} */ (type)
     };
-}
+};
 
 /**
  * @constructor
@@ -246,12 +249,14 @@ WebInspector.RemoteObjectImpl = function(target, objectId, type, subtype, value,
         this._description = description || (value + "");
         this._hasChildren = false;
         // Handle special numbers: NaN, Infinity, -Infinity, -0.
-        if (type === "number" && typeof value !== "number")
+        if (type === "number" && typeof value !== "number") {
             this.value = Number(value);
-        else
+        }
+        else {
             this.value = value;
+        }
     }
-}
+};
 
 WebInspector.RemoteObjectImpl.prototype = {
     /** @return {!RuntimeAgent.RemoteObjectId} */
@@ -322,8 +327,9 @@ WebInspector.RemoteObjectImpl.prototype = {
         {
             var result = this;
             var properties = JSON.parse(arrayStr);
-            for (var i = 0, n = properties.length; i < n; ++i)
+            for (var i = 0, n = properties.length; i < n; ++i) {
                 result = result[properties[i]];
+            }
             return result;
         }
 
@@ -356,18 +362,22 @@ WebInspector.RemoteObjectImpl.prototype = {
                 return;
             }
             var result = [];
-            for (var i = 0; properties && i < properties.length; ++i) {
-                var property = properties[i];
-                var propertyValue = property.value ? this._target.runtimeModel.createRemoteObject(property.value) : null;
+            var property, propertyValue, i;
+
+            for (i = 0; properties && i < properties.length; ++i) {
+                property = properties[i];
+                propertyValue = property.value ? this._target.runtimeModel.createRemoteObject(property.value) : null;
                 var propertySymbol = property.symbol ? this._target.runtimeModel.createRemoteObject(property.symbol) : null;
                 var remoteProperty = new WebInspector.RemoteObjectProperty(property.name, propertyValue,
                         !!property.enumerable, !!property.writable, !!property.isOwn, !!property.wasThrown, propertySymbol);
 
                 if (typeof property.value === "undefined") {
-                    if (property.get && property.get.type !== "undefined")
+                    if (property.get && property.get.type !== "undefined") {
                         remoteProperty.getter = this._target.runtimeModel.createRemoteObject(property.get);
-                    if (property.set && property.set.type !== "undefined")
+                    }
+                    if (property.set && property.set.type !== "undefined") {
                         remoteProperty.setter = this._target.runtimeModel.createRemoteObject(property.set);
+                    }
                 }
 
                 result.push(remoteProperty);
@@ -375,11 +385,12 @@ WebInspector.RemoteObjectImpl.prototype = {
             var internalPropertiesResult = null;
             if (internalProperties) {
                 internalPropertiesResult = [];
-                for (var i = 0; i < internalProperties.length; i++) {
-                    var property = internalProperties[i];
-                    if (!property.value)
+                for (i = 0; i < internalProperties.length; i++) {
+                    property = internalProperties[i];
+                    if (!property.value) {
                         continue;
-                    var propertyValue = this._target.runtimeModel.createRemoteObject(property.value);
+                    }
+                    propertyValue = this._target.runtimeModel.createRemoteObject(property.value);
                     internalPropertiesResult.push(new WebInspector.RemoteObjectProperty(property.name, propertyValue, true, false));
                 }
             }
@@ -417,8 +428,9 @@ WebInspector.RemoteObjectImpl.prototype = {
 
             this.doSetObjectPropertyValue(result, name, callback);
 
-            if (result.objectId)
+            if (result.objectId) {
                 this._runtimeAgent.releaseObject(result.objectId);
+            }
         }
     },
 
@@ -478,10 +490,12 @@ WebInspector.RemoteObjectImpl.prototype = {
                 callback(error || result.description);
                 return;
             }
-            if (!result.value)
+            if (!result.value) {
                 callback("Failed to delete property.");
-            else
+            }
+            else {
                 callback();
+            }
         }
     },
 
@@ -490,10 +504,12 @@ WebInspector.RemoteObjectImpl.prototype = {
      */
     pushNodeToFrontend: function(callback)
     {
-        if (this.isNode())
+        if (this.isNode()) {
             this._domModel.pushNodeToFrontend(this._objectId, callback);
-        else
+        }
+        else {
             callback(null);
+        }
     },
 
     highlightAsDOMNode: function()
@@ -521,12 +537,15 @@ WebInspector.RemoteObjectImpl.prototype = {
          */
         function mycallback(error, result, wasThrown)
         {
-            if (!callback)
+            if (!callback) {
                 return;
-            if (error)
+            }
+            if (error) {
                 callback(null, false);
-            else
+            }
+            else {
                 callback(this.target().runtimeModel.createRemoteObject(result), wasThrown);
+            }
         }
 
         this._runtimeAgent.callFunctionOn(this._objectId, functionDeclaration.toString(), args, true, undefined, undefined, mycallback.bind(this));
@@ -554,8 +573,9 @@ WebInspector.RemoteObjectImpl.prototype = {
 
     release: function()
     {
-        if (!this._objectId)
+        if (!this._objectId) {
             return;
+        }
         this._runtimeAgent.releaseObject(this._objectId);
     },
 
@@ -564,12 +584,14 @@ WebInspector.RemoteObjectImpl.prototype = {
      */
     arrayLength: function()
     {
-        if (this.subtype !== "array")
+        if (this.subtype !== "array") {
             return 0;
+        }
 
         var matches = this._description.match(/\[([0-9]+)\]/);
-        if (!matches)
+        if (!matches) {
             return 0;
+        }
         return parseInt(matches[1], 10);
     },
 
@@ -609,10 +631,12 @@ WebInspector.RemoteObjectImpl.prototype = {
  */
 WebInspector.RemoteObject.loadFromObject = function(object, flattenProtoChain, callback)
 {
-    if (flattenProtoChain)
+    if (flattenProtoChain) {
         object.getAllProperties(false, callback);
-    else
+    }
+    else {
         WebInspector.RemoteObject.loadFromObjectPerProto(object, callback);
+    }
 };
 
 /**
@@ -629,14 +653,16 @@ WebInspector.RemoteObject.loadFromObjectPerProto = function(object, callback)
 
     function processCallback()
     {
-        if (--resultCounter)
+        if (--resultCounter) {
             return;
+        }
         if (savedOwnProperties && savedAccessorProperties) {
             var combinedList = savedAccessorProperties.slice(0);
             for (var i = 0; i < savedOwnProperties.length; i++) {
                 var property = savedOwnProperties[i];
-                if (!property.isAccessorProperty())
+                if (!property.isAccessorProperty()) {
                     combinedList.push(property);
+                }
             }
             return callback(combinedList, savedInternalProperties ? savedInternalProperties : null);
         } else {
@@ -718,8 +744,9 @@ WebInspector.ScopeRemoteObject.prototype = {
          */
         function wrappedCallback(properties, internalProperties)
         {
-            if (this._scopeRef && properties instanceof Array)
+            if (this._scopeRef && properties instanceof Array) {
                 this._savedScopeProperties = properties.slice();
+            }
             callback(properties, internalProperties);
         }
 
@@ -748,8 +775,9 @@ WebInspector.ScopeRemoteObject.prototype = {
             }
             if (this._savedScopeProperties) {
                 for (var i = 0; i < this._savedScopeProperties.length; i++) {
-                    if (this._savedScopeProperties[i].name === name)
+                    if (this._savedScopeProperties[i].name === name) {
                         this._savedScopeProperties[i].value = this._target.runtimeModel.createRemoteObject(result);
+                    }
                 }
             }
             callback();
@@ -771,7 +799,7 @@ WebInspector.ScopeRef = function(number, callFrameId, functionId)
     this.number = number;
     this.callFrameId = callFrameId;
     this.functionId = functionId;
-}
+};
 
 /**
  * @constructor
@@ -786,15 +814,17 @@ WebInspector.ScopeRef = function(number, callFrameId, functionId)
 WebInspector.RemoteObjectProperty = function(name, value, enumerable, writable, isOwn, wasThrown, symbol)
 {
     this.name = name;
-    if (value !== null)
+    if (value !== null) {
         this.value = value;
+    }
     this.enumerable = typeof enumerable !== "undefined" ? enumerable : true;
     this.writable = typeof writable !== "undefined" ? writable : true;
     this.isOwn = !!isOwn;
     this.wasThrown = !!wasThrown;
-    if (symbol)
+    if (symbol) {
         this.symbol = symbol;
-}
+    }
+};
 
 WebInspector.RemoteObjectProperty.prototype = {
     /**
@@ -821,7 +851,7 @@ WebInspector.LocalJSONObject = function(value)
 {
     WebInspector.RemoteObject.call(this);
     this._value = value;
-}
+};
 
 WebInspector.LocalJSONObject.prototype = {
     /**
@@ -829,8 +859,9 @@ WebInspector.LocalJSONObject.prototype = {
      */
     get description()
     {
-        if (this._cachedDescription)
+        if (this._cachedDescription) {
             return this._cachedDescription;
+        }
 
         /**
          * @param {!WebInspector.RemoteObjectProperty} property
@@ -862,8 +893,9 @@ WebInspector.LocalJSONObject.prototype = {
             default:
                 this._cachedDescription = this._concatenate("{", "}", formatObjectItem);
             }
-        } else
+        } else {
             this._cachedDescription = String(this._value);
+        }
 
         return this._cachedDescription;
     },
@@ -876,7 +908,7 @@ WebInspector.LocalJSONObject.prototype = {
      */
     _concatenate: function(prefix, suffix, formatProperty)
     {
-        const previewChars = 100;
+        var previewChars = 100;
 
         var buffer = prefix;
         var children = this._children();
@@ -886,8 +918,9 @@ WebInspector.LocalJSONObject.prototype = {
                 buffer += ",\u2026";
                 break;
             }
-            if (i)
+            if (i) {
                 buffer += ", ";
+            }
             buffer += itemDescription;
         }
         buffer += suffix;
@@ -907,14 +940,17 @@ WebInspector.LocalJSONObject.prototype = {
      */
     get subtype()
     {
-        if (this._value === null)
+        if (this._value === null) {
             return "null";
+        }
 
-        if (this._value instanceof Array)
+        if (this._value instanceof Array) {
             return "array";
+        }
 
-        if (this._value instanceof Date)
+        if (this._value instanceof Date) {
             return "date";
+        }
 
         return undefined;
     },
@@ -924,8 +960,9 @@ WebInspector.LocalJSONObject.prototype = {
      */
     get hasChildren()
     {
-        if ((typeof this._value !== "object") || (this._value === null))
+        if ((typeof this._value !== "object") || (this._value === null)) {
             return false;
+        }
         return !!Object.keys(/** @type {!Object} */ (this._value)).length;
     },
 
@@ -943,10 +980,12 @@ WebInspector.LocalJSONObject.prototype = {
      */
     getAllProperties: function(accessorPropertiesOnly, callback)
     {
-        if (accessorPropertiesOnly)
+        if (accessorPropertiesOnly) {
             callback([], null);
-        else
+        }
+        else {
             callback(this._children(), null);
+        }
     },
 
     /**
@@ -954,8 +993,9 @@ WebInspector.LocalJSONObject.prototype = {
      */
     _children: function()
     {
-        if (!this.hasChildren)
+        if (!this.hasChildren) {
             return [];
+        }
         var value = /** @type {!Object} */ (this._value);
 
         /**
@@ -966,8 +1006,9 @@ WebInspector.LocalJSONObject.prototype = {
         {
             return new WebInspector.RemoteObjectProperty(propName, new WebInspector.LocalJSONObject(this._value[propName]));
         }
-        if (!this._cachedChildren)
+        if (!this._cachedChildren) {
             this._cachedChildren = Object.keys(value).map(buildProperty.bind(this));
+        }
         return this._cachedChildren;
     },
 
@@ -1005,8 +1046,9 @@ WebInspector.LocalJSONObject.prototype = {
             wasThrown = true;
         }
 
-        if (!callback)
+        if (!callback) {
             return;
+        }
         callback(WebInspector.RemoteObject.fromLocalObject(result), wasThrown);
     },
 
@@ -1031,4 +1073,4 @@ WebInspector.LocalJSONObject.prototype = {
     },
 
     __proto__: WebInspector.RemoteObject.prototype
-}
+};

@@ -31,11 +31,11 @@ WebInspector.Target = function(name, connection, callback)
     this.workerAgent().canInspectWorkers(this._initializeCapability.bind(this, WebInspector.Target.Capabilities.canInspectWorkers, this._loadedWithCapabilities.bind(this, callback)));
     */
 
-    this._loadedWithCapabilities(callback)
+    this._loadedWithCapabilities(callback);
 
     /** @type {!WebInspector.Lock} */
     this.profilingLock = new WebInspector.Lock();
-}
+};
 
 /**
  * @enum {string}
@@ -45,7 +45,7 @@ WebInspector.Target.Capabilities = {
     hasTouchInputs: "hasTouchInputs",
     canProfilePower: "canProfilePower",
     canInspectWorkers: "canInspectWorkers"
-}
+};
 
 WebInspector.Target._nextId = 1;
 
@@ -85,8 +85,9 @@ WebInspector.Target.prototype = {
     _initializeCapability: function(name, callback, error, result)
     {
         this._capabilities[name] = result;
-        if (callback)
+        if (callback) {
             callback();
+        }
     },
 
     /**
@@ -136,8 +137,9 @@ WebInspector.Target.prototype = {
 
         /** @type {!WebInspector.RuntimeModel} */
         this.runtimeModel = new WebInspector.RuntimeModel(this);
-        if (!WebInspector.runtimeModel)
+        if (!WebInspector.runtimeModel) {
             WebInspector.runtimeModel = this.runtimeModel;
+        }
 
         /** @type {!WebInspector.DOMModel} */
         // this.domModel = new WebInspector.DOMModel(this);
@@ -156,8 +158,9 @@ WebInspector.Target.prototype = {
             WebInspector.workerManager = this.workerManager;
         */
 
-        if (this.hasCapability(WebInspector.Target.Capabilities.canProfilePower))
+        if (this.hasCapability(WebInspector.Target.Capabilities.canProfilePower)) {
             WebInspector.powerProfiler = new WebInspector.PowerProfiler();
+        }
 
         /** @type {!WebInspector.TimelineManager} */
         /*
@@ -190,8 +193,9 @@ WebInspector.Target.prototype = {
         /** @type {!WebInspector.HeapProfilerModel} */
         // this.heapProfilerModel = new WebInspector.HeapProfilerModel(this);
 
-        if (callback)
+        if (callback) {
             callback(this);
+        }
     },
 
     /**
@@ -236,7 +240,7 @@ WebInspector.Target.prototype = {
     },
 
     __proto__: Protocol.Agents.prototype
-}
+};
 
 /**
  * @constructor
@@ -247,7 +251,7 @@ WebInspector.SDKObject = function(target)
 {
     WebInspector.Object.call(this);
     this._target = target;
-}
+};
 
 WebInspector.SDKObject.prototype = {
     /**
@@ -259,7 +263,7 @@ WebInspector.SDKObject.prototype = {
     },
 
     __proto__: WebInspector.Object.prototype
-}
+};
 
 /**
  * @constructor
@@ -270,7 +274,7 @@ WebInspector.TargetManager = function()
     this._targets = [];
     /** @type {!Array.<!WebInspector.TargetManager.Observer>} */
     this._observers = [];
-}
+};
 
 WebInspector.TargetManager.prototype = {
 
@@ -307,8 +311,9 @@ WebInspector.TargetManager.prototype = {
         function callbackWrapper(newTarget)
         {
             this.addTarget(newTarget);
-            if (callback)
+            if (callback) {
                 callback(newTarget);
+            }
         }
     },
 
@@ -319,8 +324,9 @@ WebInspector.TargetManager.prototype = {
     {
         this._targets.push(newTarget);
         var copy = this._observers;
-        for (var i = 0; i < copy.length; ++i)
+        for (var i = 0; i < copy.length; ++i) {
             copy[i].targetAdded(newTarget);
+        }
     },
 
     /**
@@ -330,8 +336,9 @@ WebInspector.TargetManager.prototype = {
     {
         this._targets.remove(target);
         var copy = this._observers.slice();
-        for (var i = 0; i < copy.length; ++i)
+        for (var i = 0; i < copy.length; ++i) {
             copy[i].targetRemoved(target);
+        }
     },
 
     /**
@@ -349,14 +356,14 @@ WebInspector.TargetManager.prototype = {
     {
         return this._targets[0];
     }
-}
+};
 
 /**
  * @interface
  */
 WebInspector.TargetManager.Observer = function()
 {
-}
+};
 
 WebInspector.TargetManager.Observer.prototype = {
     /**
@@ -368,7 +375,7 @@ WebInspector.TargetManager.Observer.prototype = {
      * @param {!WebInspector.Target} target
      */
     targetRemoved: function(target) { },
-}
+};
 
 /**
  * @type {!WebInspector.TargetManager}

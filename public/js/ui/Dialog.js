@@ -58,7 +58,7 @@ WebInspector.Dialog = function(relativeToElement, delegate)
 
     this._position();
     this._delegate.focus();
-}
+};
 
 /**
  * @return {?WebInspector.Dialog}
@@ -66,7 +66,7 @@ WebInspector.Dialog = function(relativeToElement, delegate)
 WebInspector.Dialog.currentInstance = function()
 {
     return WebInspector.Dialog._instance;
-}
+};
 
 /**
  * @param {!Element} relativeToElement
@@ -74,17 +74,19 @@ WebInspector.Dialog.currentInstance = function()
  */
 WebInspector.Dialog.show = function(relativeToElement, delegate)
 {
-    if (WebInspector.Dialog._instance)
+    if (WebInspector.Dialog._instance) {
         return;
+    }
     WebInspector.Dialog._instance = new WebInspector.Dialog(relativeToElement, delegate);
-}
+};
 
 WebInspector.Dialog.hide = function()
 {
-    if (!WebInspector.Dialog._instance)
+    if (!WebInspector.Dialog._instance) {
         return;
+    }
     WebInspector.Dialog._instance._hide();
-}
+};
 
 WebInspector.Dialog.prototype = {
     focus: function()
@@ -94,8 +96,9 @@ WebInspector.Dialog.prototype = {
 
     _hide: function()
     {
-        if (this._isHiding)
+        if (this._isHiding) {
             return;
+        }
         this._isHiding = true;
 
         this._delegate.willHide();
@@ -127,8 +130,9 @@ WebInspector.Dialog.prototype = {
             return;
         }
 
-        if (event.keyCode === WebInspector.KeyboardShortcut.Keys.Enter.code)
+        if (event.keyCode === WebInspector.KeyboardShortcut.Keys.Enter.code) {
             this._delegate.onEnter(event);
+        }
 
         if (!event.handled && this._closeKeys.indexOf(event.keyCode) >= 0) {
             this._hide();
@@ -144,8 +148,8 @@ WebInspector.Dialog.prototype = {
 WebInspector.DialogDelegate = function()
 {
     /** @type {!Element} */
-    this.element;
-}
+    this.element = this.element;
+};
 
 WebInspector.DialogDelegate.prototype = {
     /**
@@ -184,7 +188,7 @@ WebInspector.DialogDelegate.prototype = {
     willHide: function() { },
 
     __proto__: WebInspector.Object.prototype
-}
+};
 
 /** @type {?WebInspector.View} */
 WebInspector.Dialog._modalHostView = null;
@@ -209,7 +213,7 @@ WebInspector.Dialog.modalHostView = function()
 
 WebInspector.Dialog.modalHostRepositioned = function()
 {
-    if (WebInspector.Dialog._instance)
+    if (WebInspector.Dialog._instance) {
         WebInspector.Dialog._instance._position();
+    }
 };
-

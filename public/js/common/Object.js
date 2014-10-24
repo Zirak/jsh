@@ -28,7 +28,7 @@
  * @implements {WebInspector.EventTarget}
  */
 WebInspector.Object = function() {
-}
+};
 
 WebInspector.Object.prototype = {
     /**
@@ -38,13 +38,16 @@ WebInspector.Object.prototype = {
      */
     addEventListener: function(eventType, listener, thisObject)
     {
-        if (!listener)
+        if (!listener) {
             console.assert(false);
+        }
 
-        if (!this._listeners)
+        if (!this._listeners) {
             this._listeners = {};
-        if (!this._listeners[eventType])
+        }
+        if (!this._listeners[eventType]) {
             this._listeners[eventType] = [];
+        }
         this._listeners[eventType].push({ thisObject: thisObject, listener: listener });
     },
 
@@ -57,16 +60,19 @@ WebInspector.Object.prototype = {
     {
         console.assert(listener);
 
-        if (!this._listeners || !this._listeners[eventType])
+        if (!this._listeners || !this._listeners[eventType]) {
             return;
+        }
         var listeners = this._listeners[eventType];
         for (var i = 0; i < listeners.length; ++i) {
-            if (listeners[i].listener === listener && listeners[i].thisObject === thisObject)
+            if (listeners[i].listener === listener && listeners[i].thisObject === thisObject) {
                 listeners.splice(i--, 1);
+            }
         }
 
-        if (!listeners.length)
+        if (!listeners.length) {
             delete this._listeners[eventType];
+        }
     },
 
     removeAllListeners: function()
@@ -80,8 +86,9 @@ WebInspector.Object.prototype = {
      */
     hasEventListeners: function(eventType)
     {
-        if (!this._listeners || !this._listeners[eventType])
+        if (!this._listeners || !this._listeners[eventType]) {
             return false;
+        }
         return true;
     },
 
@@ -92,20 +99,22 @@ WebInspector.Object.prototype = {
      */
     dispatchEventToListeners: function(eventType, eventData)
     {
-        if (!this._listeners || !this._listeners[eventType])
+        if (!this._listeners || !this._listeners[eventType]) {
             return false;
+        }
 
         var event = new WebInspector.Event(this, eventType, eventData);
         var listeners = this._listeners[eventType].slice(0);
         for (var i = 0; i < listeners.length; ++i) {
             listeners[i].listener.call(listeners[i].thisObject, event);
-            if (event._stoppedPropagation)
+            if (event._stoppedPropagation) {
                 break;
+            }
         }
 
         return event.defaultPrevented;
     }
-}
+};
 
 /**
  * @constructor
@@ -120,7 +129,7 @@ WebInspector.Event = function(target, type, data)
     this.data = data;
     this.defaultPrevented = false;
     this._stoppedPropagation = false;
-}
+};
 
 WebInspector.Event.prototype = {
     stopPropagation: function()
@@ -139,10 +148,11 @@ WebInspector.Event.prototype = {
     consume: function(preventDefault)
     {
         this.stopPropagation();
-        if (preventDefault)
+        if (preventDefault) {
             this.preventDefault();
+        }
     }
-}
+};
 
 /**
  * @constructor
@@ -151,14 +161,14 @@ WebInspector.Event.prototype = {
 WebInspector.Lock = function()
 {
     this._count = 0; // Reentrant.
-}
+};
 
 /**
  * @enum {string}
  */
 WebInspector.Lock.Events = {
     StateChanged: "StateChanged"
-}
+};
 
 WebInspector.Lock.prototype = {
     /**
@@ -171,8 +181,9 @@ WebInspector.Lock.prototype = {
 
     acquire: function()
     {
-        if (++this._count === 1)
+        if (++this._count === 1) {
             this.dispatchEventToListeners(WebInspector.Lock.Events.StateChanged);
+        }
     },
 
     release: function()
@@ -182,19 +193,20 @@ WebInspector.Lock.prototype = {
             console.error("WebInspector.Lock acquire/release calls are unbalanced " + new Error().stack);
             return;
         }
-        if (!this._count)
+        if (!this._count) {
             this.dispatchEventToListeners(WebInspector.Lock.Events.StateChanged);
+        }
     },
 
     __proto__: WebInspector.Object.prototype
-}
+};
 
 /**
  * @interface
  */
 WebInspector.EventTarget = function()
 {
-}
+};
 
 WebInspector.EventTarget.prototype = {
     /**
@@ -225,4 +237,4 @@ WebInspector.EventTarget.prototype = {
      * @return {boolean}
      */
     dispatchEventToListeners: function(eventType, eventData) { },
-}
+};

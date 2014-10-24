@@ -46,7 +46,7 @@ WebInspector.Geometry.Vector = function(x, y, z)
     this.x = x;
     this.y = y;
     this.z = z;
-}
+};
 
 WebInspector.Geometry.Vector.prototype = {
     /**
@@ -60,14 +60,15 @@ WebInspector.Geometry.Vector.prototype = {
     normalize: function()
     {
         var length = this.length();
-        if (length <= WebInspector.Geometry._Eps)
+        if (length <= WebInspector.Geometry._Eps) {
             return;
+        }
 
         this.x /= length;
         this.y /= length;
         this.z /= length;
     }
-}
+};
 
 /**
  * @constructor
@@ -80,7 +81,7 @@ WebInspector.Geometry.EulerAngles = function(alpha, beta, gamma)
     this.alpha = alpha;
     this.beta = beta;
     this.gamma = gamma;
-}
+};
 
 /**
  * @param {!CSSMatrix} rotationMatrix
@@ -92,7 +93,7 @@ WebInspector.Geometry.EulerAngles.fromRotationMatrix = function(rotationMatrix)
     var gamma = Math.atan2(-rotationMatrix.m13, Math.sqrt(rotationMatrix.m11 * rotationMatrix.m11 + rotationMatrix.m12 * rotationMatrix.m12));
     var alpha = Math.atan2(rotationMatrix.m12, rotationMatrix.m11);
     return new WebInspector.Geometry.EulerAngles(WebInspector.Geometry.radToDeg(alpha), WebInspector.Geometry.radToDeg(beta), WebInspector.Geometry.radToDeg(gamma));
-}
+};
 
 /**
  * @param {!WebInspector.Geometry.Vector} u
@@ -102,7 +103,7 @@ WebInspector.Geometry.EulerAngles.fromRotationMatrix = function(rotationMatrix)
 WebInspector.Geometry.scalarProduct = function(u, v)
 {
     return u.x * v.x + u.y * v.y + u.z * v.z;
-}
+};
 
 /**
  * @param {!WebInspector.Geometry.Vector} u
@@ -115,7 +116,7 @@ WebInspector.Geometry.crossProduct = function(u, v)
     var y = u.z * v.x - u.x * v.z;
     var z = u.x * v.y - u.y * v.x;
     return new WebInspector.Geometry.Vector(x, y, z);
-}
+};
 
 /**
  * @param {!WebInspector.Geometry.Vector} u
@@ -128,7 +129,7 @@ WebInspector.Geometry.subtract = function(u, v)
     var y = u.y - v.y;
     var z = u.z - v.z;
     return new WebInspector.Geometry.Vector(x, y, z);
-}
+};
 
 /**
  * @param {!WebInspector.Geometry.Vector} v
@@ -142,7 +143,7 @@ WebInspector.Geometry.multiplyVectorByMatrixAndNormalize = function(v, m)
     var y = (v.x * m.m12 + v.y * m.m22 + v.z * m.m32 + m.m42) / t;
     var z = (v.x * m.m13 + v.y * m.m23 + v.z * m.m33 + m.m43) / t;
     return new WebInspector.Geometry.Vector(x, y, z);
-}
+};
 
 /**
  * @param {!WebInspector.Geometry.Vector} u
@@ -153,13 +154,15 @@ WebInspector.Geometry.calculateAngle = function(u, v)
 {
     var uLength = u.length();
     var vLength = v.length();
-    if (uLength <= WebInspector.Geometry._Eps || vLength <= WebInspector.Geometry._Eps)
+    if (uLength <= WebInspector.Geometry._Eps || vLength <= WebInspector.Geometry._Eps) {
         return 0;
+    }
     var cos = WebInspector.Geometry.scalarProduct(u, v) / uLength / vLength;
-    if (Math.abs(cos) > 1)
+    if (Math.abs(cos) > 1) {
         return 0;
+    }
     return WebInspector.Geometry.radToDeg(Math.acos(cos));
-}
+};
 
 /**
  * @param {number} rad
@@ -168,7 +171,7 @@ WebInspector.Geometry.calculateAngle = function(u, v)
 WebInspector.Geometry.radToDeg = function(rad)
 {
     return rad * 180 / Math.PI;
-}
+};
 
 
 /**

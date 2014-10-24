@@ -32,7 +32,7 @@
  */
 WebInspector.KeyboardShortcut = function()
 {
-}
+};
 
 /**
  * Constants for encoding modifier key set as a bit mask.
@@ -57,7 +57,7 @@ WebInspector.KeyboardShortcut.Modifiers = {
 };
 
 /** @typedef {!{code: number, name: (string|!Object.<string, string>)}} */
-WebInspector.KeyboardShortcut.Key;
+WebInspector.KeyboardShortcut.Key = WebInspector.KeyboardShortcut.Key;
 
 /** @type {!Object.<string, !WebInspector.KeyboardShortcut.Key>} */
 WebInspector.KeyboardShortcut.Keys = {
@@ -117,8 +117,8 @@ WebInspector.KeyboardShortcut.KeyBindings = {};
 (function() {
     for (var key in WebInspector.KeyboardShortcut.Keys) {
         var descriptor = WebInspector.KeyboardShortcut.Keys[key];
-        if (typeof descriptor === "object" && descriptor["code"]) {
-            var name = typeof descriptor["name"] === "string" ? descriptor["name"] : key;
+        if (typeof descriptor === "object" && descriptor.code) {
+            var name = typeof descriptor.name === "string" ? descriptor.name : key;
             WebInspector.KeyboardShortcut.KeyBindings[name] = descriptor;
         }
     }
@@ -134,11 +134,12 @@ WebInspector.KeyboardShortcut.KeyBindings = {};
  */
 WebInspector.KeyboardShortcut.makeKey = function(keyCode, modifiers)
 {
-    if (typeof keyCode === "string")
+    if (typeof keyCode === "string") {
         keyCode = keyCode.charCodeAt(0) - (/^[a-z]/.test(keyCode) ? 32 : 0);
+    }
     modifiers = modifiers || WebInspector.KeyboardShortcut.Modifiers.None;
     return WebInspector.KeyboardShortcut._makeKeyFromCodeAndModifiers(keyCode, modifiers);
-}
+};
 
 /**
  * @param {?KeyboardEvent} keyboardEvent
@@ -147,22 +148,26 @@ WebInspector.KeyboardShortcut.makeKey = function(keyCode, modifiers)
 WebInspector.KeyboardShortcut.makeKeyFromEvent = function(keyboardEvent)
 {
     var modifiers = WebInspector.KeyboardShortcut.Modifiers.None;
-    if (keyboardEvent.shiftKey)
+    if (keyboardEvent.shiftKey) {
         modifiers |= WebInspector.KeyboardShortcut.Modifiers.Shift;
-    if (keyboardEvent.ctrlKey)
+    }
+    if (keyboardEvent.ctrlKey) {
         modifiers |= WebInspector.KeyboardShortcut.Modifiers.Ctrl;
-    if (keyboardEvent.altKey)
+    }
+    if (keyboardEvent.altKey) {
         modifiers |= WebInspector.KeyboardShortcut.Modifiers.Alt;
-    if (keyboardEvent.metaKey)
+    }
+    if (keyboardEvent.metaKey) {
         modifiers |= WebInspector.KeyboardShortcut.Modifiers.Meta;
+    }
 
     function keyCodeForEvent(keyboardEvent)
     {
         // Use either a real or a synthetic keyCode (for events originating from extensions).
-        return keyboardEvent.keyCode || keyboardEvent["__keyCode"];
+        return keyboardEvent.keyCode || keyboardEvent.__keyCode;
     }
     return WebInspector.KeyboardShortcut._makeKeyFromCodeAndModifiers(keyCodeForEvent(keyboardEvent), modifiers);
-}
+};
 
 /**
  * @param {?KeyboardEvent} event
@@ -171,7 +176,7 @@ WebInspector.KeyboardShortcut.makeKeyFromEvent = function(keyboardEvent)
 WebInspector.KeyboardShortcut.eventHasCtrlOrMeta = function(event)
 {
     return WebInspector.isMac() ? event.metaKey && !event.ctrlKey : event.ctrlKey && !event.metaKey;
-}
+};
 
 /**
  * @param {!Event} event
@@ -180,10 +185,10 @@ WebInspector.KeyboardShortcut.eventHasCtrlOrMeta = function(event)
 WebInspector.KeyboardShortcut.hasNoModifiers = function(event)
 {
     return !event.ctrlKey && !event.shiftKey && !event.altKey && !event.metaKey;
-}
+};
 
 /** @typedef {!{key: number, name: string}} */
-WebInspector.KeyboardShortcut.Descriptor;
+WebInspector.KeyboardShortcut.Descriptor = WebInspector.KeyboardShortcut.Descriptor;
 
 /**
  * @param {string|!WebInspector.KeyboardShortcut.Key} key
@@ -196,7 +201,7 @@ WebInspector.KeyboardShortcut.makeDescriptor = function(key, modifiers)
         key: WebInspector.KeyboardShortcut.makeKey(typeof key === "string" ? key : key.code, modifiers),
         name: WebInspector.KeyboardShortcut.shortcutToString(key, modifiers)
     };
-}
+};
 
 /**
  * @param {string} shortcut
@@ -217,14 +222,16 @@ WebInspector.KeyboardShortcut.makeDescriptorFromBindingShortcut = function(short
         break;
     }
     console.assert(keyString, "Modifiers-only shortcuts are not allowed (encountered <" + shortcut + ">)");
-    if (!keyString)
+    if (!keyString) {
         return null;
+    }
 
     var key = WebInspector.KeyboardShortcut.Keys[keyString] || WebInspector.KeyboardShortcut.KeyBindings[keyString];
-    if (key && key.shiftKey)
+    if (key && key.shiftKey) {
         modifiers |= WebInspector.KeyboardShortcut.Modifiers.Shift;
+    }
     return WebInspector.KeyboardShortcut.makeDescriptor(key ? key : keyString, modifiers);
-}
+};
 
 /**
  * @param {string|!WebInspector.KeyboardShortcut.Key} key
@@ -234,7 +241,7 @@ WebInspector.KeyboardShortcut.makeDescriptorFromBindingShortcut = function(short
 WebInspector.KeyboardShortcut.shortcutToString = function(key, modifiers)
 {
     return WebInspector.KeyboardShortcut._modifiersToString(modifiers) + WebInspector.KeyboardShortcut._keyName(key);
-}
+};
 
 /**
  * @param {string|!WebInspector.KeyboardShortcut.Key} key
@@ -242,12 +249,14 @@ WebInspector.KeyboardShortcut.shortcutToString = function(key, modifiers)
  */
 WebInspector.KeyboardShortcut._keyName = function(key)
 {
-    if (typeof key === "string")
+    if (typeof key === "string") {
         return key.toUpperCase();
-    if (typeof key.name === "string")
+    }
+    if (typeof key.name === "string") {
         return key.name;
+    }
     return key.name[WebInspector.platform()] || key.name.other || '';
-}
+};
 
 /**
  * @param {number} keyCode
@@ -266,7 +275,7 @@ WebInspector.KeyboardShortcut._makeKeyFromCodeAndModifiers = function(keyCode, m
 WebInspector.KeyboardShortcut.keyCodeAndModifiersFromKey = function(key)
 {
     return { keyCode: key & 255, modifiers: key >> 8 };
-}
+};
 
 /**
  * @param {number|undefined} modifiers
@@ -274,21 +283,25 @@ WebInspector.KeyboardShortcut.keyCodeAndModifiersFromKey = function(key)
  */
 WebInspector.KeyboardShortcut._modifiersToString = function(modifiers)
 {
-    const cmdKey = "\u2318";
-    const optKey = "\u2325";
-    const shiftKey = "\u21e7";
-    const ctrlKey = "\u2303";
+    var cmdKey = "\u2318";
+    var optKey = "\u2325";
+    var shiftKey = "\u21e7";
+    var ctrlKey = "\u2303";
 
     var isMac = WebInspector.isMac();
     var res = "";
-    if (modifiers & WebInspector.KeyboardShortcut.Modifiers.Ctrl)
+    if (modifiers & WebInspector.KeyboardShortcut.Modifiers.Ctrl) {
         res += isMac ? ctrlKey : "Ctrl + ";
-    if (modifiers & WebInspector.KeyboardShortcut.Modifiers.Alt)
+    }
+    if (modifiers & WebInspector.KeyboardShortcut.Modifiers.Alt) {
         res += isMac ? optKey : "Alt + ";
-    if (modifiers & WebInspector.KeyboardShortcut.Modifiers.Shift)
+    }
+    if (modifiers & WebInspector.KeyboardShortcut.Modifiers.Shift) {
         res += isMac ? shiftKey : "Shift + ";
-    if (modifiers & WebInspector.KeyboardShortcut.Modifiers.Meta)
+    }
+    if (modifiers & WebInspector.KeyboardShortcut.Modifiers.Meta) {
         res += isMac ? cmdKey : "Win + ";
+    }
 
     return res;
 };

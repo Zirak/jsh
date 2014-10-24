@@ -55,14 +55,14 @@ WebInspector.ViewportControl = function(provider)
     this._anchorSelection = null;
     this._headSelection = null;
     this._stickToBottom = false;
-}
+};
 
 /**
  * @interface
  */
 WebInspector.ViewportControl.Provider = function()
 {
-}
+};
 
 WebInspector.ViewportControl.Provider.prototype = {
     /**
@@ -86,12 +86,12 @@ WebInspector.ViewportControl.Provider.prototype = {
      * @return {?WebInspector.ViewportElement}
      */
     itemElement: function(index) { return null; }
-}
+};
 
 /**
  * @interface
  */
-WebInspector.ViewportElement = function() { }
+WebInspector.ViewportElement = function() { };
 WebInspector.ViewportElement.prototype = {
     cacheFastHeight: function() { },
 
@@ -103,7 +103,7 @@ WebInspector.ViewportElement.prototype = {
      * @return {!Element}
      */
     element: function() { },
-}
+};
 
 /**
  * @constructor
@@ -113,7 +113,7 @@ WebInspector.ViewportElement.prototype = {
 WebInspector.StaticViewportElement = function(element)
 {
     this._element = element;
-}
+};
 
 WebInspector.StaticViewportElement.prototype = {
     cacheFastHeight: function() { },
@@ -129,7 +129,7 @@ WebInspector.StaticViewportElement.prototype = {
     {
         return this._element;
     },
-}
+};
 
 WebInspector.ViewportControl.prototype = {
     /**
@@ -146,8 +146,9 @@ WebInspector.ViewportControl.prototype = {
     _onCopy: function(event)
     {
         var text = this._selectedText();
-        if (!text)
+        if (!text) {
             return;
+        }
         event.preventDefault();
         event.clipboardData.setData("text/plain", text);
     },
@@ -158,8 +159,9 @@ WebInspector.ViewportControl.prototype = {
     _onDragStart: function(event)
     {
         var text = this._selectedText();
-        if (!text)
+        if (!text) {
             return false;
+        }
         event.dataTransfer.clearData();
         event.dataTransfer.setData("text/plain", text);
         event.dataTransfer.effectAllowed = "copy";
@@ -187,8 +189,9 @@ WebInspector.ViewportControl.prototype = {
      */
     _providerElement: function(index)
     {
-        if (!this._cachedProviderElements)
+        if (!this._cachedProviderElements) {
             this._cachedProviderElements = new Array(this._provider.itemCount());
+        }
         var element = this._cachedProviderElements[index];
         if (!element) {
             element = this._provider.itemElement(index);
@@ -199,15 +202,18 @@ WebInspector.ViewportControl.prototype = {
 
     _rebuildCumulativeHeightsIfNeeded: function()
     {
-        if (this._cumulativeHeights)
+        if (this._cumulativeHeights) {
             return;
+        }
         var itemCount = this._provider.itemCount();
-        if (!itemCount)
+        if (!itemCount) {
             return;
+        }
         this._cumulativeHeights = new Int32Array(itemCount);
         this._cumulativeHeights[0] = this._provider.fastHeight(0);
-        for (var i = 1; i < itemCount; ++i)
+        for (var i = 1; i < itemCount; ++i) {
             this._cumulativeHeights[i] = this._cumulativeHeights[i - 1] + this._provider.fastHeight(i);
+        }
     },
 
     /**
@@ -224,8 +230,9 @@ WebInspector.ViewportControl.prototype = {
      */
     _isSelectionBackwards: function(selection)
     {
-        if (!selection || !selection.rangeCount)
+        if (!selection || !selection.rangeCount) {
             return false;
+        }
         var range = document.createRange();
         range.setStart(selection.anchorNode, selection.anchorOffset);
         range.setEnd(selection.focusNode, selection.focusOffset);
@@ -298,10 +305,12 @@ WebInspector.ViewportControl.prototype = {
         } else if (!hasVisibleSelection) {
             firstSelected = startSelection;
             lastSelected = endSelection;
-        } else if (topOverlap)
+        } else if (topOverlap) {
             firstSelected = isBackward ? this._headSelection : this._anchorSelection;
-        else if (bottomOverlap)
+        }
+        else if (bottomOverlap) {
             lastSelected = isBackward ? this._anchorSelection : this._headSelection;
+        }
 
         if (isBackward) {
             this._anchorSelection = lastSelected;
@@ -325,10 +334,12 @@ WebInspector.ViewportControl.prototype = {
             anchorElement = this._anchorSelection.node;
             anchorOffset = this._anchorSelection.offset;
         } else {
-            if (this._anchorSelection.item < this._firstVisibleIndex)
+            if (this._anchorSelection.item < this._firstVisibleIndex) {
                 anchorElement = this._topGapElement;
-            else if (this._anchorSelection.item > this._lastVisibleIndex)
+            }
+            else if (this._anchorSelection.item > this._lastVisibleIndex) {
                 anchorElement = this._bottomGapElement;
+            }
             anchorOffset = this._selectionIsBackward ? 1 : 0;
         }
 
@@ -338,10 +349,12 @@ WebInspector.ViewportControl.prototype = {
             headElement = this._headSelection.node;
             headOffset = this._headSelection.offset;
         } else {
-            if (this._headSelection.item < this._firstVisibleIndex)
+            if (this._headSelection.item < this._firstVisibleIndex) {
                 headElement = this._topGapElement;
-            else if (this._headSelection.item > this._lastVisibleIndex)
+            }
+            else if (this._headSelection.item > this._lastVisibleIndex) {
                 headElement = this._bottomGapElement;
+            }
             headOffset = this._selectionIsBackward ? 0 : 1;
         }
 
@@ -350,15 +363,20 @@ WebInspector.ViewportControl.prototype = {
 
     refresh: function()
     {
-        if (!this._visibleHeight())
+        if (!this._visibleHeight()) {
             return;  // Do nothing for invisible controls.
+        }
 
         var itemCount = this._provider.itemCount();
         if (!itemCount) {
-            for (var i = 0; i < this._renderedItems.length; ++i)
-                this._renderedItems[i].cacheFastHeight();
-            for (var i = 0; i < this._renderedItems.length; ++i)
-                this._renderedItems[i].willHide();
+            this._renderedItems.forEach(function (item) {
+                 item.cacheFastHeight();
+            });
+
+            this._renderedItems.forEach(function (item) {
+                item.willHide();
+            });
+
             this._renderedItems = [];
             this._contentElement.removeChildren();
             this._topGapElement.style.height = "0px";
@@ -376,13 +394,15 @@ WebInspector.ViewportControl.prototype = {
         var shouldStickToBottom = this._stickToBottom && this.element.isScrolledToBottom();
         var isInvalidating = !this._cumulativeHeights;
 
-        if (this._cumulativeHeights && itemCount !== this._cumulativeHeights.length)
+        if (this._cumulativeHeights && itemCount !== this._cumulativeHeights.length) {
             delete this._cumulativeHeights;
+        }
         for (var i = 0; i < this._renderedItems.length; ++i) {
             this._renderedItems[i].cacheFastHeight();
             // Tolerate 1-pixel error due to double-to-integer rounding errors.
-            if (this._cumulativeHeights && Math.abs(this._cachedItemHeight(this._firstVisibleIndex + i) - this._provider.fastHeight(i + this._firstVisibleIndex)) > 1)
+            if (this._cumulativeHeights && Math.abs(this._cachedItemHeight(this._firstVisibleIndex + i) - this._provider.fastHeight(i + this._firstVisibleIndex)) > 1) {
                 delete this._cumulativeHeights;
+            }
         }
         this._rebuildCumulativeHeightsIfNeeded();
         var oldFirstVisibleIndex = this._firstVisibleIndex;
@@ -405,22 +425,27 @@ WebInspector.ViewportControl.prototype = {
         this._bottomGapElement._active = !!bottomGapHeight;
 
         this._contentElement.style.setProperty("height", "10000000px");
-        if (isInvalidating)
+        if (isInvalidating) {
             this._fullViewportUpdate();
-        else
+        }
+        else {
             this._partialViewportUpdate(oldFirstVisibleIndex, oldLastVisibleIndex);
+        }
         this._contentElement.style.removeProperty("height");
         // Should be the last call in the method as it might force layout.
-        if (shouldRestoreSelection)
+        if (shouldRestoreSelection) {
             this._restoreSelection(selection);
-        if (shouldStickToBottom)
+        }
+        if (shouldStickToBottom) {
             this.element.scrollTop = this.element.scrollHeight;
+        }
     },
 
     _fullViewportUpdate: function()
     {
-        for (var i = 0; i < this._renderedItems.length; ++i)
-            this._renderedItems[i].willHide();
+        this._renderedItems.forEach(function (item) {
+            item.willHide();
+        });
         this._renderedItems = [];
         this._contentElement.removeChildren();
         for (var i = this._firstVisibleIndex; i <= this._lastVisibleIndex; ++i) {
@@ -437,16 +462,18 @@ WebInspector.ViewportControl.prototype = {
      */
     _partialViewportUpdate: function(oldFirstVisibleIndex, oldLastVisibleIndex)
     {
-        var willBeHidden = [];
-        for (var i = 0; i < this._renderedItems.length; ++i) {
+        var willBeHidden = this._renderedItems.filter(function (item, i) {
             var index = oldFirstVisibleIndex + i;
-            if (index < this._firstVisibleIndex || this._lastVisibleIndex < index)
-                willBeHidden.push(this._renderedItems[i]);
-        }
-        for (var i = 0; i < willBeHidden.length; ++i)
-            willBeHidden[i].willHide();
-        for (var i = 0; i < willBeHidden.length; ++i)
-            willBeHidden[i].element().remove();
+            return index < this._firstVisibleIndex || this._lastVisibleIndex < index;
+        }, this);
+
+        willBeHidden.forEach(function (item) {
+            item.willHide();
+        });
+
+        willBeHidden.forEach(function (item) {
+            item.element().remove();
+        });
 
         this._renderedItems = [];
         var anchor = this._contentElement.firstChild;
@@ -469,8 +496,9 @@ WebInspector.ViewportControl.prototype = {
     _selectedText: function()
     {
         this._updateSelectionModel(window.getSelection());
-        if (!this._headSelection || !this._anchorSelection)
+        if (!this._headSelection || !this._anchorSelection) {
             return null;
+        }
 
         var startSelection = null;
         var endSelection = null;
@@ -483,18 +511,21 @@ WebInspector.ViewportControl.prototype = {
         }
 
         var textLines = [];
-        for (var i = startSelection.item; i <= endSelection.item; ++i)
+        for (var i = startSelection.item; i <= endSelection.item; ++i) {
             textLines.push(this._providerElement(i).element().textContent);
+        }
+
+        var itemTextOffset;
 
         var endSelectionElement = this._providerElement(endSelection.item).element();
         if (endSelection.node && endSelection.node.isSelfOrDescendant(endSelectionElement)) {
-            var itemTextOffset = this._textOffsetInNode(endSelectionElement, endSelection.node, endSelection.offset);
+            itemTextOffset = this._textOffsetInNode(endSelectionElement, endSelection.node, endSelection.offset);
             textLines[textLines.length - 1] = textLines.peekLast().substring(0, itemTextOffset);
         }
 
         var startSelectionElement = this._providerElement(startSelection.item).element();
         if (startSelection.node && startSelection.node.isSelfOrDescendant(startSelectionElement)) {
-            var itemTextOffset = this._textOffsetInNode(startSelectionElement, startSelection.node, startSelection.offset);
+            itemTextOffset = this._textOffsetInNode(startSelectionElement, startSelection.node, startSelection.offset);
             textLines[0] = textLines[0].substring(itemTextOffset);
         }
 
@@ -509,12 +540,14 @@ WebInspector.ViewportControl.prototype = {
      */
     _textOffsetInNode: function(itemElement, container, offset)
     {
-        if (!offset)
+        if (!offset) {
             return 0;
+        }
         var chars = 0;
         var node = itemElement;
-        while ((node = node.traverseNextTextNode()) && node !== container)
+        while ((node = node.traverseNextTextNode()) && node !== container) {
             chars += node.textContent.length;
+        }
         return chars + offset;
     },
 
@@ -547,10 +580,12 @@ WebInspector.ViewportControl.prototype = {
      */
     renderedElementAt: function(index)
     {
-        if (index < this._firstVisibleIndex)
+        if (index < this._firstVisibleIndex) {
             return null;
-        if (index > this._lastVisibleIndex)
+        }
+        if (index > this._lastVisibleIndex) {
             return null;
+        }
         return this._renderedItems[index - this._firstVisibleIndex].element();
     },
 
@@ -560,14 +595,18 @@ WebInspector.ViewportControl.prototype = {
      */
     scrollItemIntoView: function(index, makeLast)
     {
-        if (index > this._firstVisibleIndex && index < this._lastVisibleIndex)
+        if (index > this._firstVisibleIndex && index < this._lastVisibleIndex) {
             return;
-        if (makeLast)
+        }
+        if (makeLast) {
             this.forceScrollItemToBeLast(index);
-        else if (index <= this._firstVisibleIndex)
+        }
+        else if (index <= this._firstVisibleIndex) {
             this.forceScrollItemToBeFirst(index);
-        else if (index >= this._lastVisibleIndex)
+        }
+        else if (index >= this._lastVisibleIndex) {
             this.forceScrollItemToBeLast(index);
+        }
     },
 
     /**
@@ -598,4 +637,4 @@ WebInspector.ViewportControl.prototype = {
         // Use offsetHeight instead of clientHeight to avoid being affected by horizontal scroll.
         return this.element.offsetHeight;
     }
-}
+};

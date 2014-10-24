@@ -44,19 +44,20 @@ WebInspector.ConsoleModel = function(target)
     this._consoleAgent = target.consoleAgent();
     target.registerConsoleDispatcher(new WebInspector.ConsoleDispatcher(this));
     this._enableAgent();
-}
+};
 
 WebInspector.ConsoleModel.Events = {
     ConsoleCleared: "ConsoleCleared",
     MessageAdded: "MessageAdded",
     CommandEvaluated: "CommandEvaluated",
-}
+};
 
 WebInspector.ConsoleModel.prototype = {
     _enableAgent: function()
     {
-        if (WebInspector.settings.monitoringXHREnabled.get())
+        if (WebInspector.settings.monitoringXHREnabled.get()) {
             this._consoleAgent.setMonitoringXHREnabled(true);
+        }
 
         this._enablingConsole = true;
 
@@ -133,7 +134,7 @@ WebInspector.ConsoleModel.prototype = {
     },
 
     __proto__: WebInspector.SDKObject.prototype
-}
+};
 
 /**
  * @param {!WebInspector.ExecutionContext} executionContext
@@ -156,8 +157,9 @@ WebInspector.ConsoleModel.evaluateCommandInConsole = function(executionContext, 
      */
     function printResult(result, wasThrown, valueResult)
     {
-        if (!result)
+        if (!result) {
             return;
+        }
 
         WebInspector.console.show();
         this.dispatchEventToListeners(WebInspector.ConsoleModel.Events.CommandEvaluated, {result: result, wasThrown: wasThrown, text: text, commandMessage: commandMessage});
@@ -166,7 +168,7 @@ WebInspector.ConsoleModel.evaluateCommandInConsole = function(executionContext, 
     executionContext.evaluate(text, "console", useCommandLineAPI, false, false, true, printResult.bind(target.consoleModel));
 
     // WebInspector.userMetrics.ConsoleEvaluated.record();
-}
+};
 
 
 /**
@@ -214,7 +216,7 @@ WebInspector.ConsoleMessage = function(target, source, level, messageText, type,
         }
         this.asyncStackTrace = undefined;
     }
-}
+};
 
 WebInspector.ConsoleMessage.prototype = {
     /**
@@ -297,45 +299,52 @@ WebInspector.ConsoleMessage.prototype = {
      */
     isEqual: function(msg)
     {
-        if (!msg)
+        if (!msg) {
             return false;
+        }
 
-        if (!this._isEqualStackTraces(this.stackTrace, msg.stackTrace))
+        if (!this._isEqualStackTraces(this.stackTrace, msg.stackTrace)) {
             return false;
+        }
 
         var asyncTrace1 = this.asyncStackTrace;
         var asyncTrace2 = msg.asyncStackTrace;
         while (asyncTrace1 || asyncTrace2) {
-            if (!asyncTrace1 || !asyncTrace2)
+            if (!asyncTrace1 || !asyncTrace2) {
                 return false;
-            if (asyncTrace1.description !== asyncTrace2.description)
+            }
+            if (asyncTrace1.description !== asyncTrace2.description) {
                 return false;
-            if (!this._isEqualStackTraces(asyncTrace1.callFrames, asyncTrace2.callFrames))
+            }
+            if (!this._isEqualStackTraces(asyncTrace1.callFrames, asyncTrace2.callFrames)) {
                 return false;
+            }
             asyncTrace1 = asyncTrace1.asyncStackTrace;
             asyncTrace2 = asyncTrace2.asyncStackTrace;
         }
 
         if (this.parameters) {
-            if (!msg.parameters || this.parameters.length !== msg.parameters.length)
+            if (!msg.parameters || this.parameters.length !== msg.parameters.length) {
                 return false;
+            }
 
             for (var i = 0; i < msg.parameters.length; ++i) {
                 // Never treat objects as equal - their properties might change over time.
-                if (this.parameters[i].type !== msg.parameters[i].type || msg.parameters[i].type === "object" || this.parameters[i].value !== msg.parameters[i].value)
+                if (this.parameters[i].type !== msg.parameters[i].type || msg.parameters[i].type === "object" || this.parameters[i].value !== msg.parameters[i].value) {
                     return false;
+                }
             }
         }
 
-        return (this.target() === msg.target())
-            && (this.source === msg.source)
-            && (this.type === msg.type)
-            && (this.level === msg.level)
-            && (this.line === msg.line)
-            && (this.url === msg.url)
-            && (this.messageText === msg.messageText)
-            && (this.request === msg.request)
-            && (this.executionContextId === msg.executionContextId);
+        return (this.target() === msg.target()) &&
+            (this.source === msg.source) &&
+            (this.type === msg.type) &&
+            (this.level === msg.level) &&
+            (this.line === msg.line) &&
+            (this.url === msg.url) &&
+            (this.messageText === msg.messageText) &&
+            (this.request === msg.request) &&
+            (this.executionContextId === msg.executionContextId);
     },
 
     /**
@@ -347,18 +356,20 @@ WebInspector.ConsoleMessage.prototype = {
     {
         stackTrace1 = stackTrace1 || [];
         stackTrace2 = stackTrace2 || [];
-        if (stackTrace1.length !== stackTrace2.length)
+        if (stackTrace1.length !== stackTrace2.length) {
             return false;
+        }
         for (var i = 0, n = stackTrace1.length; i < n; ++i) {
             if (stackTrace1[i].url !== stackTrace2[i].url ||
                 stackTrace1[i].functionName !== stackTrace2[i].functionName ||
                 stackTrace1[i].lineNumber !== stackTrace2[i].lineNumber ||
-                stackTrace1[i].columnNumber !== stackTrace2[i].columnNumber)
+                stackTrace1[i].columnNumber !== stackTrace2[i].columnNumber) {
                 return false;
+            }
         }
         return true;
     }
-}
+};
 
 // Note: Keep these constants in sync with the ones in Console.h
 /**
@@ -376,7 +387,7 @@ WebInspector.ConsoleMessage.MessageSource = {
     Security: "security",
     Other: "other",
     Deprecation: "deprecation"
-}
+};
 
 /**
  * @enum {string}
@@ -396,7 +407,7 @@ WebInspector.ConsoleMessage.MessageType = {
     Profile: "profile",
     ProfileEnd: "profileEnd",
     Command: "command"
-}
+};
 
 /**
  * @enum {string}
@@ -407,7 +418,7 @@ WebInspector.ConsoleMessage.MessageLevel = {
     Warning: "warning",
     Error: "error",
     Debug: "debug"
-}
+};
 
 /**
  * @param {!WebInspector.ConsoleMessage} a
@@ -417,7 +428,7 @@ WebInspector.ConsoleMessage.MessageLevel = {
 WebInspector.ConsoleMessage.timestampComparator = function (a, b)
 {
     return a.timestamp - b.timestamp;
-}
+};
 
 /**
  * @constructor
@@ -427,7 +438,7 @@ WebInspector.ConsoleMessage.timestampComparator = function (a, b)
 WebInspector.ConsoleDispatcher = function(console)
 {
     this._console = console;
-}
+};
 
 WebInspector.ConsoleDispatcher.prototype = {
     /**
@@ -463,10 +474,11 @@ WebInspector.ConsoleDispatcher.prototype = {
 
     messagesCleared: function()
     {
-        if (!WebInspector.settings.preserveConsoleLog.get())
+        if (!WebInspector.settings.preserveConsoleLog.get()) {
             this._console._messagesCleared();
+        }
     }
-}
+};
 
 /**
  * @constructor
@@ -476,7 +488,7 @@ WebInspector.ConsoleDispatcher.prototype = {
 WebInspector.MultitargetConsoleModel = function()
 {
     WebInspector.targetManager.observeTargets(this);
-}
+};
 
 WebInspector.MultitargetConsoleModel.prototype = {
     /**
@@ -512,8 +524,9 @@ WebInspector.MultitargetConsoleModel.prototype = {
     {
         var targets = WebInspector.targetManager.targets();
         var result = [];
-        for (var i = 0; i < targets.length; ++i)
+        for (var i = 0; i < targets.length; ++i) {
             result = result.concat(targets[i].consoleModel.messages());
+        }
         return result;
     },
 
@@ -539,9 +552,9 @@ WebInspector.MultitargetConsoleModel.prototype = {
     },
 
     __proto__: WebInspector.Object.prototype
-}
+};
 
 /**
  * @type {!WebInspector.MultitargetConsoleModel}
  */
-WebInspector.multitargetConsoleModel;
+WebInspector.multitargetConsoleModel = WebInspector.multitargetConsoleModel;

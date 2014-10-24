@@ -67,7 +67,7 @@ WebInspector.Drawer = function(splitView)
     this._tabbedPane.show(this._drawerEditorSplitView.mainElement());
 
     this.closeDrawer();
-}
+};
 
 WebInspector.Drawer.prototype = {
     /**
@@ -144,19 +144,22 @@ WebInspector.Drawer.prototype = {
      */
     _innerShow: function(immediate)
     {
-        if (this.isShowing())
+        if (this.isShowing()) {
             return;
+        }
 
         this._splitView.showBoth(!immediate);
 
-        if (this._visibleView())
+        if (this._visibleView()) {
             this._visibleView().focus();
+        }
     },
 
     closeDrawer: function()
     {
-        if (!this.isShowing())
+        if (!this.isShowing()) {
             return;
+        }
 
         WebInspector.restoreFocusFromElement(this.element);
         this._splitView.hideSidebar(true);
@@ -176,16 +179,19 @@ WebInspector.Drawer.prototype = {
     _tabSelected: function(event)
     {
         var tabId = this._tabbedPane.selectedTabId;
-        if (tabId && event.data["isUserGesture"] && !this._tabbedPane.isTabCloseable(tabId))
+        if (tabId && event.data.isUserGesture && !this._tabbedPane.isTabCloseable(tabId)) {
             this._lastSelectedViewSetting.set(tabId);
+        }
     },
 
     toggle: function()
     {
-        if (this._toggleDrawerButton.toggled)
+        if (this._toggleDrawerButton.toggled) {
             this.closeDrawer();
-        else
+        }
+        else {
             this.showDrawer();
+        }
     },
 
     /**
@@ -212,13 +218,15 @@ WebInspector.Drawer.prototype = {
         var mode = /** @type {string} */ (event.data);
         var shown = mode === WebInspector.SplitView.ShowMode.Both;
 
-        if (this._isHidingDrawerEditor)
+        if (this._isHidingDrawerEditor) {
             return;
+        }
 
         this._drawerEditorShownSetting.set(shown);
 
-        if (!shown)
+        if (!shown) {
             return;
+        }
 
         this._ensureDrawerEditor();
         this._drawerEditor.view().show(this._drawerEditorSplitView.sidebarElement());
@@ -232,15 +240,17 @@ WebInspector.Drawer.prototype = {
 
     _ensureDrawerEditorExistsIfNeeded: function()
     {
-        if (!this._initialPanelWasShown || !this.isShowing() || !this._drawerEditorShownSetting.get() || !WebInspector.experimentsSettings.editorInDrawer.isEnabled())
+        if (!this._initialPanelWasShown || !this.isShowing() || !this._drawerEditorShownSetting.get() || !WebInspector.experimentsSettings.editorInDrawer.isEnabled()) {
             return;
+        }
         this._ensureDrawerEditor();
     },
 
     _ensureDrawerEditor: function()
     {
-        if (this._drawerEditor)
+        if (this._drawerEditor) {
             return;
+        }
         this._drawerEditor = WebInspector.moduleManager.instance(WebInspector.DrawerEditor);
         this._drawerEditor.installedIntoDrawer();
     },
@@ -250,15 +260,17 @@ WebInspector.Drawer.prototype = {
      */
     setDrawerEditorAvailable: function(available)
     {
-        if (!WebInspector.experimentsSettings.editorInDrawer.isEnabled())
+        if (!WebInspector.experimentsSettings.editorInDrawer.isEnabled()) {
             available = false;
+        }
         this._toggleDrawerEditorButton.element.classList.toggle("hidden", !available);
     },
 
     showDrawerEditor: function()
     {
-        if (!WebInspector.experimentsSettings.editorInDrawer.isEnabled())
+        if (!WebInspector.experimentsSettings.editorInDrawer.isEnabled()) {
             return;
+        }
 
         this._splitView.showBoth();
         this._drawerEditorSplitView.showBoth();
@@ -280,21 +292,21 @@ WebInspector.Drawer.prototype = {
     },
 
     __proto__: WebInspector.VBox.prototype
-}
+};
 
 /**
  * @interface
  */
 WebInspector.Drawer.ViewFactory = function()
 {
-}
+};
 
 WebInspector.Drawer.ViewFactory.prototype = {
     /**
      * @return {!WebInspector.View}
      */
     createView: function() {}
-}
+};
 
 /**
  * @constructor
@@ -305,7 +317,7 @@ WebInspector.Drawer.ViewFactory.prototype = {
 WebInspector.Drawer.SingletonViewFactory = function(constructor)
 {
     this._constructor = constructor;
-}
+};
 
 WebInspector.Drawer.SingletonViewFactory.prototype = {
     /**
@@ -313,18 +325,19 @@ WebInspector.Drawer.SingletonViewFactory.prototype = {
      */
     createView: function()
     {
-        if (!this._instance)
+        if (!this._instance) {
             this._instance = /** @type {!WebInspector.View} */(new this._constructor());
+        }
         return this._instance;
     }
-}
+};
 
 /**
  * @interface
  */
 WebInspector.DrawerEditor = function()
 {
-}
+};
 
 WebInspector.DrawerEditor.prototype = {
     /**
@@ -333,4 +346,4 @@ WebInspector.DrawerEditor.prototype = {
     view: function() { },
 
     installedIntoDrawer: function() { },
-}
+};

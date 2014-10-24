@@ -37,18 +37,19 @@ WebInspector.ConsolePanel = function()
 {
     WebInspector.Panel.call(this, "console");
     this._view = WebInspector.ConsolePanel._view();
-}
+};
 
 /**
  * @return {!WebInspector.ConsoleView}
  */
 WebInspector.ConsolePanel._view = function()
 {
-    if (!WebInspector.ConsolePanel._consoleView)
+    if (!WebInspector.ConsolePanel._consoleView) {
         WebInspector.ConsolePanel._consoleView = new WebInspector.ConsoleView(WebInspector.isWorkerFrontend());
+    }
 
     return WebInspector.ConsolePanel._consoleView;
-}
+};
 
 WebInspector.ConsolePanel.prototype = {
     /**
@@ -68,12 +69,13 @@ WebInspector.ConsolePanel.prototype = {
     willHide: function()
     {
         WebInspector.Panel.prototype.willHide.call(this);
-        if (WebInspector.ConsolePanel.WrapperView._instance)
+        if (WebInspector.ConsolePanel.WrapperView._instance) {
             WebInspector.ConsolePanel.WrapperView._instance._showViewInWrapper();
+        }
     },
 
     __proto__: WebInspector.Panel.prototype
-}
+};
 
 /**
  * @constructor
@@ -89,13 +91,14 @@ WebInspector.ConsolePanel.WrapperView = function()
     this._view = WebInspector.ConsolePanel._view();
     // FIXME: this won't be needed once drawer becomes a view.
     this.wasShown();
-}
+};
 
 WebInspector.ConsolePanel.WrapperView.prototype = {
     wasShown: function()
     {
-        if (!WebInspector.inspectorView.currentPanel() || WebInspector.inspectorView.currentPanel().name !== "console")
+        if (!WebInspector.inspectorView.currentPanel() || WebInspector.inspectorView.currentPanel().name !== "console") {
             this._showViewInWrapper();
+        }
     },
 
     /**
@@ -117,7 +120,7 @@ WebInspector.ConsolePanel.WrapperView.prototype = {
     },
 
     __proto__: WebInspector.VBox.prototype
-}
+};
 
 /**
  * @constructor
@@ -125,7 +128,7 @@ WebInspector.ConsolePanel.WrapperView.prototype = {
  */
 WebInspector.ConsolePanel.ConsoleRevealer = function()
 {
-}
+};
 
 WebInspector.ConsolePanel.ConsoleRevealer.prototype = {
     /**
@@ -140,4 +143,4 @@ WebInspector.ConsolePanel.ConsoleRevealer.prototype = {
         }
         WebInspector.inspectorView.showViewInDrawer("console");
     }
-}
+};

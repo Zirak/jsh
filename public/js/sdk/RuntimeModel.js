@@ -45,12 +45,12 @@ WebInspector.RuntimeModel = function(target)
      * @type {!Object.<number, !WebInspector.ExecutionContext>}
      */
     this._executionContextById = {};
-}
+};
 
 WebInspector.RuntimeModel.Events = {
     ExecutionContextCreated: "ExecutionContextCreated",
     ExecutionContextDestroyed: "ExecutionContextDestroyed",
-}
+};
 
 WebInspector.RuntimeModel.prototype = {
 
@@ -86,8 +86,9 @@ WebInspector.RuntimeModel.prototype = {
     {
         var contexts = this.executionContexts();
         this._executionContextById = {};
-        for (var  i = 0; i < contexts.length; ++i)
+        for (var  i = 0; i < contexts.length; ++i) {
             this.dispatchEventToListeners(WebInspector.RuntimeModel.Events.ExecutionContextDestroyed, contexts[i]);
+        }
     },
 
     /**
@@ -131,7 +132,7 @@ WebInspector.RuntimeModel.prototype = {
     },
 
     __proto__: WebInspector.SDKObject.prototype
-}
+};
 
 /**
  * @constructor
@@ -141,7 +142,7 @@ WebInspector.RuntimeModel.prototype = {
 WebInspector.RuntimeDispatcher = function(runtimeModel)
 {
     this._runtimeModel = runtimeModel;
-}
+};
 
 WebInspector.RuntimeDispatcher.prototype = {
     executionContextCreated: function(context)
@@ -159,7 +160,7 @@ WebInspector.RuntimeDispatcher.prototype = {
         this._runtimeModel._executionContextsCleared();
     }
 
-}
+};
 
 /**
  * @constructor
@@ -178,7 +179,7 @@ WebInspector.ExecutionContext = function(target, id, name, isPageContext, frameI
     this.isMainWorldContext = isPageContext;
     this._debuggerModel = target.debuggerModel;
     this.frameId = frameId;
-}
+};
 
 /**
  * @param {!WebInspector.ExecutionContext} a
@@ -188,12 +189,14 @@ WebInspector.ExecutionContext = function(target, id, name, isPageContext, frameI
 WebInspector.ExecutionContext.comparator = function(a, b)
 {
     // Main world context should always go first.
-    if (a.isMainWorldContext)
+    if (a.isMainWorldContext) {
         return -1;
-    if (b.isMainWorldContext)
+    }
+    if (b.isMainWorldContext) {
         return +1;
+    }
     return a.name.localeCompare(b.name);
-}
+};
 
 WebInspector.ExecutionContext.prototype = {
 
@@ -258,8 +261,9 @@ WebInspector.ExecutionContext.prototype = {
         var dotNotation = (expressionString[lastIndex] === ".");
         var bracketNotation = (expressionString[lastIndex] === "[");
 
-        if (dotNotation || bracketNotation)
+        if (dotNotation || bracketNotation) {
             expressionString = expressionString.substr(0, lastIndex);
+        }
 
         if (expressionString && parseInt(expressionString, 10) == expressionString) {
             // User is entering float value, do not suggest anything.
@@ -298,32 +302,40 @@ WebInspector.ExecutionContext.prototype = {
              */
             function getCompletions(primitiveType)
             {
+                /*jshint -W053*/
                 var object;
-                if (primitiveType === "string")
+                if (primitiveType === "string") {
                     object = new String("");
-                else if (primitiveType === "number")
+                }
+                else if (primitiveType === "number") {
                     object = new Number(0);
-                else if (primitiveType === "boolean")
+                }
+                else if (primitiveType === "boolean") {
                     object = new Boolean(false);
-                else
+                }
+                else {
                     object = this;
+                }
 
                 var resultSet = {};
                 for (var o = object; o; o = o.__proto__) {
                     try {
                         var names = Object.getOwnPropertyNames(o);
-                        for (var i = 0; i < names.length; ++i)
+                        for (var i = 0; i < names.length; ++i) {
                             resultSet[names[i]] = true;
+                        }
                     } catch (e) {
                     }
                 }
                 return resultSet;
             }
 
-            if (result.type === "object" || result.type === "function")
+            if (result.type === "object" || result.type === "function") {
                 result.callFunctionJSON(getCompletions, undefined, receivedPropertyNames.bind(this));
-            else if (result.type === "string" || result.type === "number" || result.type === "boolean")
+            }
+            else if (result.type === "string" || result.type === "number" || result.type === "boolean") {
                 this.evaluate("(" + getCompletions + ")(\"" + result.type + "\")", "completion", false, true, true, false, receivedPropertyNamesFromEval.bind(this));
+            }
         }
 
         /**
@@ -334,10 +346,12 @@ WebInspector.ExecutionContext.prototype = {
          */
         function receivedPropertyNamesFromEval(notRelevant, wasThrown, result)
         {
-            if (result && !wasThrown)
+            if (result && !wasThrown) {
                 receivedPropertyNames.call(this, result.value);
-            else
+            }
+            else {
                 completionsReadyCallback([]);
+            }
         }
 
         /**
@@ -352,10 +366,11 @@ WebInspector.ExecutionContext.prototype = {
             }
             var includeCommandLineAPI = (!dotNotation && !bracketNotation);
             if (includeCommandLineAPI) {
-                const commandLineAPI = ["dir", "dirxml", "keys", "values", "profile", "profileEnd", "monitorEvents", "unmonitorEvents", "inspect", "copy", "clear",
+                var commandLineAPI = ["dir", "dirxml", "keys", "values", "profile", "profileEnd", "monitorEvents", "unmonitorEvents", "inspect", "copy", "clear",
                     "getEventListeners", "debug", "undebug", "monitor", "unmonitor", "table", "$", "$$", "$x"];
-                for (var i = 0; i < commandLineAPI.length; ++i)
+                for (var i = 0; i < commandLineAPI.length; ++i) {
                     propertyNames[commandLineAPI[i]] = true;
+                }
             }
             this._reportCompletions(completionsReadyCallback, dotNotation, bracketNotation, expressionString, prefix, Object.keys(propertyNames));
         }
@@ -370,17 +385,21 @@ WebInspector.ExecutionContext.prototype = {
      * @param {!Array.<string>} properties
      */
     _reportCompletions: function(completionsReadyCallback, dotNotation, bracketNotation, expressionString, prefix, properties) {
+        var quoteUsed;
+
         if (bracketNotation) {
-            if (prefix.length && prefix[0] === "'")
-                var quoteUsed = "'";
-            else
-                var quoteUsed = "\"";
+            if (prefix.length && prefix[0] === "'") {
+                quoteUsed = "'";
+            }
+            else {
+                quoteUsed = "\"";
+            }
         }
 
         var results = [];
 
         if (!expressionString) {
-            const keywords = ["break", "case", "catch", "continue", "default", "delete", "do", "else", "finally", "for", "function", "if", "in",
+            var keywords = ["break", "case", "catch", "continue", "default", "delete", "do", "else", "finally", "for", "function", "if", "in",
                               "instanceof", "new", "return", "switch", "this", "throw", "try", "typeof", "var", "void", "while", "with"];
             properties = properties.concat(keywords);
         }
@@ -391,19 +410,23 @@ WebInspector.ExecutionContext.prototype = {
             var property = properties[i];
 
             // Assume that all non-ASCII characters are letters and thus can be used as part of identifier.
-            if (dotNotation && !/^[a-zA-Z_$\u008F-\uFFFF][a-zA-Z0-9_$\u008F-\uFFFF]*$/.test(property))
+            if (dotNotation && !/^[a-zA-Z_$\u008F-\uFFFF][a-zA-Z0-9_$\u008F-\uFFFF]*$/.test(property)) {
                 continue;
+            }
 
             if (bracketNotation) {
-                if (!/^[0-9]+$/.test(property))
+                if (!/^[0-9]+$/.test(property)) {
                     property = quoteUsed + property.escapeCharacters(quoteUsed + "\\") + quoteUsed;
+                }
                 property += "]";
             }
 
-            if (property.length < prefix.length)
+            if (property.length < prefix.length) {
                 continue;
-            if (prefix.length && !property.startsWith(prefix))
+            }
+            if (prefix.length && !property.startsWith(prefix)) {
                 continue;
+            }
 
             results.push(property);
         }
@@ -411,9 +434,9 @@ WebInspector.ExecutionContext.prototype = {
     },
 
     __proto__: WebInspector.SDKObject.prototype
-}
+};
 
 /**
  * @type {!WebInspector.RuntimeModel}
  */
-WebInspector.runtimeModel;
+WebInspector.runtimeModel = WebInspector.runtimeModel;

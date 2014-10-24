@@ -45,8 +45,8 @@ WebInspector.PropertiesSection = function(title, subtitle)
     this.propertiesTreeOutline.section = this;
 
     this.element.appendChild(this.propertiesElement);
-}
+};
 
 WebInspector.PropertiesSection.prototype = {
     __proto__: WebInspector.Section.prototype
-}
+};

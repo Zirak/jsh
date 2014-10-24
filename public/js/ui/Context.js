@@ -9,14 +9,14 @@ WebInspector.Context = function()
 {
     this._flavors = new Map();
     this._eventDispatchers = new Map();
-}
+};
 
 /**
  * @enum {string}
  */
 WebInspector.Context.Events = {
     FlavorChanged: "FlavorChanged"
-}
+};
 
 WebInspector.Context.prototype = {
     /**
@@ -27,12 +27,15 @@ WebInspector.Context.prototype = {
     setFlavor: function(flavorType, flavorValue)
     {
         var value = this._flavors.get(flavorType) || null;
-        if (value === flavorValue)
+        if (value === flavorValue) {
             return;
-        if (flavorValue)
+        }
+        if (flavorValue) {
             this._flavors.put(flavorType, flavorValue);
-        else
+        }
+        else {
             this._flavors.remove(flavorType);
+        }
 
         this._dispatchFlavorChange(flavorType, flavorValue);
     },
@@ -45,8 +48,9 @@ WebInspector.Context.prototype = {
     _dispatchFlavorChange: function(flavorType, flavorValue)
     {
         var dispatcher = this._eventDispatchers.get(flavorType);
-        if (!dispatcher)
+        if (!dispatcher) {
             return;
+        }
         dispatcher.dispatchEventToListeners(WebInspector.Context.Events.FlavorChanged, flavorValue);
     },
 
@@ -73,11 +77,13 @@ WebInspector.Context.prototype = {
     removeFlavorChangeListener: function(flavorType, listener, thisObject)
     {
         var dispatcher = this._eventDispatchers.get(flavorType);
-        if (!dispatcher)
+        if (!dispatcher) {
             return;
+        }
         dispatcher.removeEventListener(WebInspector.Context.Events.FlavorChanged, listener, thisObject);
-        if (!dispatcher.hasEventListeners(WebInspector.Context.Events.FlavorChanged))
+        if (!dispatcher.hasEventListeners(WebInspector.Context.Events.FlavorChanged)) {
             this._eventDispatchers.remove(flavorType);
+        }
     },
 
     /**
@@ -108,12 +114,13 @@ WebInspector.Context.prototype = {
 
         var availableFlavors = Set.fromArray(this.flavors());
         extensions.forEach(function(extension) {
-            if (WebInspector.moduleManager.isExtensionApplicableToContextTypes(extension, availableFlavors))
+            if (WebInspector.moduleManager.isExtensionApplicableToContextTypes(extension, availableFlavors)) {
                 targetExtensionSet.add(extension);
+            }
         });
 
         return targetExtensionSet;
     }
-}
+};
 
 WebInspector.context = new WebInspector.Context();

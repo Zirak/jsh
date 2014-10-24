@@ -11,7 +11,7 @@ WebInspector.ExecutionContextSelector = function()
     WebInspector.targetManager.observeTargets(this);
     WebInspector.context.addFlavorChangeListener(WebInspector.ExecutionContext, this._executionContextChanged, this);
     WebInspector.context.addFlavorChangeListener(WebInspector.Target, this._targetChanged, this);
-}
+};
 
 WebInspector.ExecutionContextSelector.prototype = {
 
@@ -21,8 +21,9 @@ WebInspector.ExecutionContextSelector.prototype = {
     targetAdded: function(target)
     {
         console.log('yaaay new target', target);
-        if (!WebInspector.context.flavor(WebInspector.Target))
+        if (!WebInspector.context.flavor(WebInspector.Target)) {
             WebInspector.context.setFlavor(WebInspector.Target, target);
+        }
 
         target.runtimeModel.addEventListener(WebInspector.RuntimeModel.Events.ExecutionContextCreated, this._onExecutionContextCreated, this);
         target.runtimeModel.addEventListener(WebInspector.RuntimeModel.Events.ExecutionContextDestroyed, this._onExecutionContextDestroyed, this);
@@ -36,12 +37,14 @@ WebInspector.ExecutionContextSelector.prototype = {
         target.runtimeModel.removeEventListener(WebInspector.RuntimeModel.Events.ExecutionContextCreated, this._onExecutionContextCreated, this);
         target.runtimeModel.removeEventListener(WebInspector.RuntimeModel.Events.ExecutionContextDestroyed, this._onExecutionContextDestroyed, this);
         var currentExecutionContext = WebInspector.context.flavor(WebInspector.ExecutionContext);
-        if (currentExecutionContext && currentExecutionContext.target() === target)
+        if (currentExecutionContext && currentExecutionContext.target() === target) {
             this._currentExecutionContextGone();
+        }
 
         var targets = WebInspector.targetManager.targets();
-        if (WebInspector.context.flavor(WebInspector.Target) === target && targets.length)
+        if (WebInspector.context.flavor(WebInspector.Target) === target && targets.length) {
             WebInspector.context.setFlavor(WebInspector.Target, targets[0]);
+        }
     },
 
     /**
@@ -50,8 +53,9 @@ WebInspector.ExecutionContextSelector.prototype = {
     _executionContextChanged: function(event)
     {
         var newContext = /** @type {?WebInspector.ExecutionContext} */ (event.data);
-        if (newContext)
+        if (newContext) {
             WebInspector.context.setFlavor(WebInspector.Target, newContext.target());
+        }
     },
 
     /**
@@ -62,18 +66,21 @@ WebInspector.ExecutionContextSelector.prototype = {
         var newTarget = /** @type {?WebInspector.Target} */(event.data);
         var currentContext = WebInspector.context.flavor(WebInspector.ExecutionContext);
 
-        if (!newTarget || (currentContext && currentContext.target() === newTarget))
+        if (!newTarget || (currentContext && currentContext.target() === newTarget)) {
             return;
+        }
 
         var executionContexts = newTarget.runtimeModel.executionContexts();
         console.log('execution contexts!', executionContexts);
-        if (!executionContexts.length)
+        if (!executionContexts.length) {
             return;
+        }
 
         var newContext = executionContexts[0];
         for (var i = 1; i < executionContexts.length; ++i) {
-            if (executionContexts[i].isMainWorldContext)
+            if (executionContexts[i].isMainWorldContext) {
                 newContext = executionContexts[i];
+            }
         }
         WebInspector.context.setFlavor(WebInspector.ExecutionContext, newContext);
     },
@@ -84,8 +91,9 @@ WebInspector.ExecutionContextSelector.prototype = {
     _onExecutionContextCreated: function(event)
     {
         var executionContext = /** @type {!WebInspector.ExecutionContext}*/ (event.data);
-        if (!WebInspector.context.flavor(WebInspector.ExecutionContext))
+        if (!WebInspector.context.flavor(WebInspector.ExecutionContext)) {
             WebInspector.context.setFlavor(WebInspector.ExecutionContext, executionContext);
+        }
     },
 
     /**
@@ -94,8 +102,9 @@ WebInspector.ExecutionContextSelector.prototype = {
     _onExecutionContextDestroyed: function(event)
     {
         var executionContext = /** @type {!WebInspector.ExecutionContext}*/ (event.data);
-        if (WebInspector.context.flavor(WebInspector.ExecutionContext) === executionContext)
+        if (WebInspector.context.flavor(WebInspector.ExecutionContext) === executionContext) {
             this._currentExecutionContextGone();
+        }
     },
 
     _currentExecutionContextGone: function()
@@ -112,7 +121,7 @@ WebInspector.ExecutionContextSelector.prototype = {
         WebInspector.context.setFlavor(WebInspector.ExecutionContext, newContext);
     }
 
-}
+};
 
 /**
  * @param {!Element} proxyElement
@@ -133,4 +142,4 @@ WebInspector.ExecutionContextSelector.completionsForTextPromptInCurrentContext =
     var expressionString = expressionRange.toString();
     var prefix = wordRange.toString();
     executionContext.completionsForExpression(expressionString, prefix, force, completionsReadyCallback);
-}
+};

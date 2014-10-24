@@ -36,7 +36,7 @@ function InspectorFrontendHostAPI()
 /** @typedef {{type:string, id:(number|undefined),
                label:(string|undefined), enabled:(boolean|undefined), checked:(boolean|undefined),
                subItems:(!Array.<!InspectorFrontendHostAPI.ContextMenuDescriptor>|undefined)}} */
-InspectorFrontendHostAPI.ContextMenuDescriptor;
+InspectorFrontendHostAPI.ContextMenuDescriptor = InspectorFrontendHostAPI.ContextMenuDescriptor;
 
 InspectorFrontendHostAPI.Events = {
     AppendedToURL: "appendedToURL",
@@ -60,7 +60,7 @@ InspectorFrontendHostAPI.Events = {
     SetToolbarColors: "setToolbarColors",
     SetUseSoftMenu: "setUseSoftMenu",
     ShowConsole: "showConsole"
-}
+};
 
 InspectorFrontendHostAPI.EventDescriptors = [
     [InspectorFrontendHostAPI.Events.AppendedToURL, ["url"]],
@@ -282,7 +282,7 @@ InspectorFrontendHostAPI.prototype = {
      * @return {boolean}
      */
     isHostedMode: function() { }
-}
+};
 
 /**
  * @constructor
@@ -290,7 +290,7 @@ InspectorFrontendHostAPI.prototype = {
  */
 WebInspector.InspectorFrontendHostStub = function()
 {
-}
+};
 
 WebInspector.InspectorFrontendHostStub.prototype = {
     /**
@@ -315,11 +315,13 @@ WebInspector.InspectorFrontendHostStub.prototype = {
     platform: function()
     {
         var match = navigator.userAgent.match(/Windows NT/);
-        if (match)
+        if (match) {
             return "windows";
+        }
         match = navigator.userAgent.match(/Mac OS X/);
-        if (match)
+        if (match) {
             return "mac";
+        }
         return "linux";
     },
 
@@ -609,8 +611,9 @@ var InspectorFrontendHost = window.InspectorFrontendHost || null;
         var proto = WebInspector.InspectorFrontendHostStub.prototype;
         for (var name in proto) {
             var value = proto[name];
-            if (typeof value !== "function" || InspectorFrontendHost[name])
+            if (typeof value !== "function" || InspectorFrontendHost[name]) {
                 continue;
+            }
 
             InspectorFrontendHost[name] = stub.bind(null, name);
         }
@@ -639,19 +642,22 @@ function InspectorFrontendAPIImpl()
     this._pendingCommands = [];
 
     var descriptors = InspectorFrontendHostAPI.EventDescriptors;
-    for (var i = 0; i < descriptors.length; ++i)
+    for (var i = 0; i < descriptors.length; ++i) {
         this[descriptors[i][0]] = this._dispatch.bind(this, descriptors[i][0], descriptors[i][1], descriptors[i][2]);
+    }
 }
 
 InspectorFrontendAPIImpl.prototype = {
     loadCompleted: function()
     {
         this._isLoaded = true;
-        for (var i = 0; i < this._pendingCommands.length; ++i)
+        for (var i = 0; i < this._pendingCommands.length; ++i) {
             this._pendingCommands[i]();
+        }
         this._pendingCommands = [];
-        if (window.opener)
+        if (window.opener) {
             window.opener.postMessage(["loadCompleted"], "*");
+        }
     },
 
     /**
@@ -662,10 +668,12 @@ InspectorFrontendAPIImpl.prototype = {
     _dispatch: function(name, signature, runOnceLoaded)
     {
         var params = Array.prototype.slice.call(arguments, 3);
-        if (runOnceLoaded)
+        if (runOnceLoaded) {
             this._runOnceLoaded(dispatchAfterLoad);
-        else
+        }
+        else {
             dispatchAfterLoad();
+        }
 
         function dispatchAfterLoad()
         {
@@ -675,8 +683,9 @@ InspectorFrontendAPIImpl.prototype = {
                 return;
             }
             var data = {};
-            for (var i = 0; i < signature.length; ++i)
+            for (var i = 0; i < signature.length; ++i) {
                 data[signature[i]] = params[i];
+            }
             InspectorFrontendHost.events.dispatchEventToListeners(name, data);
         }
     },
@@ -699,8 +708,8 @@ InspectorFrontendAPIImpl.prototype = {
      */
     embedderMessageAck: function(id, error)
     {
-        InspectorFrontendHost["embedderMessageAck"](id, error);
+        InspectorFrontendHost.embedderMessageAck(id, error);
     }
-}
+};
 
 var InspectorFrontendAPI = new InspectorFrontendAPIImpl();

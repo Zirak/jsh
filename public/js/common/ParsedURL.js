@@ -73,7 +73,7 @@ WebInspector.ParsedURL = function(url)
     var path = this.path;
     var indexOfQuery = path.indexOf("?");
     if (indexOfQuery !== -1) {
-        this.queryParams = path.substring(indexOfQuery + 1)
+        this.queryParams = path.substring(indexOfQuery + 1);
         path = path.substring(0, indexOfQuery);
     }
 
@@ -82,9 +82,10 @@ WebInspector.ParsedURL = function(url)
     if (lastSlashIndex !== -1) {
         this.folderPathComponents = path.substring(0, lastSlashIndex);
         this.lastPathComponent = path.substring(lastSlashIndex + 1);
-    } else
+    } else {
         this.lastPathComponent = path;
-}
+    }
+};
 
 /**
  * @param {string} url
@@ -98,12 +99,14 @@ WebInspector.ParsedURL.splitURL = function(url)
     var name;
     if (parsedURL.isValid) {
         origin = parsedURL.scheme + "://" + parsedURL.host;
-        if (parsedURL.port)
+        if (parsedURL.port) {
             origin += ":" + parsedURL.port;
+        }
         folderPath = parsedURL.folderPathComponents;
         name = parsedURL.lastPathComponent;
-        if (parsedURL.queryParams)
+        if (parsedURL.queryParams) {
             name += "?" + parsedURL.queryParams;
+        }
     } else {
         origin = "";
         folderPath = "";
@@ -112,13 +115,14 @@ WebInspector.ParsedURL.splitURL = function(url)
     var result = [origin];
     var splittedPath = folderPath.split("/");
     for (var i = 1; i < splittedPath.length; ++i) {
-        if (!splittedPath[i])
+        if (!splittedPath[i]) {
             continue;
+        }
         result.push(splittedPath[i]);
     }
     result.push(name);
     return result;
-}
+};
 
 
 /**
@@ -129,30 +133,37 @@ WebInspector.ParsedURL.splitURL = function(url)
 
 WebInspector.ParsedURL.normalizePath = function(path)
 {
-    if (path.indexOf("..") === -1 && path.indexOf('.') === -1)
+    if (path.indexOf("..") === -1 && path.indexOf('.') === -1) {
         return path;
+    }
 
     var normalizedSegments = [];
     var segments = path.split("/");
     for (var i = 0; i < segments.length; i++) {
         var segment = segments[i];
-        if (segment === ".")
+        if (segment === ".") {
             continue;
-        else if (segment === "..")
+        }
+        else if (segment === "..") {
             normalizedSegments.pop();
-        else if (segment)
+        }
+        else if (segment) {
             normalizedSegments.push(segment);
+        }
     }
     var normalizedPath = normalizedSegments.join("/");
-    if (normalizedPath[normalizedPath.length - 1] === "/")
+    if (normalizedPath[normalizedPath.length - 1] === "/") {
         return normalizedPath;
-    if (path[0] === "/" && normalizedPath)
+    }
+    if (path[0] === "/" && normalizedPath) {
         normalizedPath = "/" + normalizedPath;
-    if ((path[path.length - 1] === "/") || (segments[segments.length - 1] === ".") || (segments[segments.length - 1] === ".."))
+    }
+    if ((path[path.length - 1] === "/") || (segments[segments.length - 1] === ".") || (segments[segments.length - 1] === "..")) {
         normalizedPath = normalizedPath + "/";
+    }
 
     return normalizedPath;
-}
+};
 
 /**
  * @param {string} baseURL
@@ -161,24 +172,29 @@ WebInspector.ParsedURL.normalizePath = function(path)
  */
 WebInspector.ParsedURL.completeURL = function(baseURL, href)
 {
+    /*jshint -W107*/
+    // above ignores script urls (javascript:)
     if (href) {
         // Return special URLs as-is.
         var trimmedHref = href.trim();
-        if (trimmedHref.startsWith("data:") || trimmedHref.startsWith("blob:") || trimmedHref.startsWith("javascript:"))
+        if (trimmedHref.startsWith("data:") || trimmedHref.startsWith("blob:") || trimmedHref.startsWith("javascript:")) {
             return href;
+        }
 
         // Return absolute URLs as-is.
         var parsedHref = trimmedHref.asParsedURL();
-        if (parsedHref && parsedHref.scheme)
+        if (parsedHref && parsedHref.scheme) {
             return trimmedHref;
+        }
     } else {
         return baseURL;
     }
 
     var parsedURL = baseURL.asParsedURL();
     if (parsedURL) {
-        if (parsedURL.isDataURL())
+        if (parsedURL.isDataURL()) {
             return href;
+        }
         var path = href;
 
         var query = path.indexOf("?");
@@ -200,15 +216,17 @@ WebInspector.ParsedURL.completeURL = function(baseURL, href)
                 // A href of "?foo=bar" implies "basePath?foo=bar".
                 // With "basePath?a=b" and "?foo=bar" we should get "basePath?foo=bar".
                 var baseQuery = parsedURL.path.indexOf("?");
-                if (baseQuery !== -1)
+                if (baseQuery !== -1) {
                     basePath = basePath.substring(0, baseQuery);
+                }
             } // else it must be a fragment
             return parsedURL.scheme + "://" + parsedURL.host + (parsedURL.port ? (":" + parsedURL.port) : "") + basePath + postfix;
         } else if (path.charAt(0) !== "/") {  // relative path
             var prefix = parsedURL.path;
             var prefixQuery = prefix.indexOf("?");
-            if (prefixQuery !== -1)
+            if (prefixQuery !== -1) {
                 prefix = prefix.substring(0, prefixQuery);
+            }
             prefix = prefix.substring(0, prefix.lastIndexOf("/")) + "/";
             path = prefix + path;
         } else if (path.length > 1 && path.charAt(1) === "/") {
@@ -218,24 +236,29 @@ WebInspector.ParsedURL.completeURL = function(baseURL, href)
         return parsedURL.scheme + "://" + parsedURL.host + (parsedURL.port ? (":" + parsedURL.port) : "") + WebInspector.ParsedURL.normalizePath(path) + postfix;
     }
     return null;
-}
+};
 
 WebInspector.ParsedURL.prototype = {
     get displayName()
     {
-        if (this._displayName)
+        if (this._displayName) {
             return this._displayName;
+        }
 
-        if (this.isDataURL())
+        if (this.isDataURL()) {
             return this.dataURLDisplayName();
-        if (this.isAboutBlank())
+        }
+        if (this.isAboutBlank()) {
             return this.url;
+        }
 
         this._displayName = this.lastPathComponent;
-        if (!this._displayName)
+        if (!this._displayName) {
             this._displayName = (this.host || "") + "/";
-        if (this._displayName === "/")
+        }
+        if (this._displayName === "/") {
             this._displayName = this.url;
+        }
         return this._displayName;
     },
 
@@ -244,10 +267,12 @@ WebInspector.ParsedURL.prototype = {
      */
     dataURLDisplayName: function()
     {
-        if (this._dataURLDisplayName)
+        if (this._dataURLDisplayName) {
             return this._dataURLDisplayName;
-        if (!this.isDataURL())
+        }
+        if (!this.isDataURL()) {
             return "";
+        }
         this._dataURLDisplayName = this.url.trimEnd(20);
         return this._dataURLDisplayName;
     },
@@ -267,7 +292,7 @@ WebInspector.ParsedURL.prototype = {
     {
         return this.scheme === "data";
     }
-}
+};
 
 /**
  * @return {?WebInspector.ParsedURL}
@@ -275,7 +300,8 @@ WebInspector.ParsedURL.prototype = {
 String.prototype.asParsedURL = function()
 {
     var parsedURL = new WebInspector.ParsedURL(this.toString());
-    if (parsedURL.isValid)
+    if (parsedURL.isValid) {
         return parsedURL;
+    }
     return null;
-}
+};

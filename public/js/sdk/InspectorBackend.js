@@ -64,8 +64,9 @@ InspectorBackendClass.prototype = {
     _addAgentGetterMethodToProtocolAgentsPrototype: function(domain)
     {
         var upperCaseLength = 0;
-        while (upperCaseLength < domain.length && domain[upperCaseLength].toLowerCase() !== domain[upperCaseLength])
+        while (upperCaseLength < domain.length && domain[upperCaseLength].toLowerCase() !== domain[upperCaseLength]) {
             ++upperCaseLength;
+        }
 
         var methodName = domain.substr(0, upperCaseLength).toLowerCase() + domain.slice(upperCaseLength) + "Agent";
 
@@ -84,7 +85,7 @@ InspectorBackendClass.prototype = {
          */
         function registerDispatcher(dispatcher)
         {
-            this.registerDispatcher(domain, dispatcher)
+            this.registerDispatcher(domain, dispatcher);
         }
 
         window.Protocol.Agents.prototype["register" + domain + "Dispatcher"] = registerDispatcher;
@@ -95,8 +96,9 @@ InspectorBackendClass.prototype = {
      */
     connection: function()
     {
-        if (!this._connection)
+        if (!this._connection) {
             throw "Main connection was not initialized";
+        }
         return this._connection;
     },
 
@@ -134,8 +136,9 @@ InspectorBackendClass.prototype = {
      */
     _dispatcherPrototype: function(domain)
     {
-        if (!this._dispatcherPrototypes[domain])
+        if (!this._dispatcherPrototypes[domain]) {
             this._dispatcherPrototypes[domain] = new InspectorBackendClass.DispatcherPrototype();
+        }
         return this._dispatcherPrototypes[domain];
     },
 
@@ -187,8 +190,9 @@ InspectorBackendClass.prototype = {
      */
     loadFromJSONIfNeeded: function(jsonUrl)
     {
-        if (this._initialized)
+        if (this._initialized) {
             return;
+        }
 
         var xhr = new XMLHttpRequest();
         xhr.open("GET", jsonUrl, false);
@@ -221,14 +225,16 @@ InspectorBackendClass.prototype = {
                 clientCallback(defaultValue);
                 return;
             }
-            if (constructor)
+            if (constructor) {
                 clientCallback(new constructor(value));
-            else
+            }
+            else {
                 clientCallback(value);
+            }
         }
         return callbackWrapper;
     }
-}
+};
 
 /**
  * @param {*} schema
@@ -239,11 +245,14 @@ InspectorBackendClass._generateCommands = function(schema) {
     var rawTypes = {};
     var result = [];
 
-    var domains = schema["domains"] || [];
-    for (var i = 0; i < domains.length; ++i) {
-        var domain = domains[i];
-        for (var j = 0; domain.types && j < domain.types.length; ++j) {
-            var type = domain.types[j];
+    var domains = schema.domains || [],
+        i, j, k,
+        type, domain, parameter, paramsText;
+
+    for (i = 0; i < domains.length; ++i) {
+        domain = domains[i];
+        for (j = 0; domain.types && j < domain.types.length; ++j) {
+            type = domain.types[j];
             rawTypes[domain.domain + "." + type.id] = jsTypes[type.type] || type.type;
         }
     }
@@ -254,7 +263,7 @@ InspectorBackendClass._generateCommands = function(schema) {
     }
     function generateEnum(enumName, items)
     {
-        var members = []
+        var members = [];
         for (var m = 0; m < items.length; ++m) {
             var value = items[m];
             var name = value.replace(/-(\w)/g, toUpperCase.bind(null, 1)).toTitleCase();
@@ -264,41 +273,45 @@ InspectorBackendClass._generateCommands = function(schema) {
         return "InspectorBackend.registerEnum(\"" + enumName + "\", {" + members.join(", ") + "});";
     }
 
-    for (var i = 0; i < domains.length; ++i) {
-        var domain = domains[i];
+    for (i = 0; i < domains.length; ++i) {
+        domain = domains[i];
 
-        var types = domain["types"] || [];
-        for (var j = 0; j < types.length; ++j) {
-            var type = types[j];
-            if ((type["type"] === "string") && type["enum"])
+        var types = domain.types || [];
+        for (j = 0; j < types.length; ++j) {
+            type = types[j];
+            if ((type.type === "string") && type["enum"]) {
                 result.push(generateEnum(domain.domain + "." + type.id, type["enum"]));
-            else if (type["type"] === "object") {
-                var properties = type["properties"] || [];
-                for (var k = 0; k < properties.length; ++k) {
+            }
+            else if (type.type === "object") {
+                var properties = type.properties || [];
+                for (k = 0; k < properties.length; ++k) {
                     var property = properties[k];
-                    if ((property["type"] === "string") && property["enum"])
-                        result.push(generateEnum(domain.domain + "." + type.id + property["name"].toTitleCase(), property["enum"]));
+                    if ((property.type === "string") && property["enum"]) {
+                        result.push(generateEnum(domain.domain + "." + type.id + property.name.toTitleCase(), property["enum"]));
+                    }
                 }
             }
         }
 
-        var commands = domain["commands"] || [];
-        for (var j = 0; j < commands.length; ++j) {
+        var commands = domain.commands || [];
+        for (j = 0; j < commands.length; ++j) {
             var command = commands[j];
-            var parameters = command["parameters"];
-            var paramsText = [];
-            for (var k = 0; parameters && k < parameters.length; ++k) {
-                var parameter = parameters[k];
+            var parameters = command.parameters;
+            paramsText = [];
+            for (k = 0; parameters && k < parameters.length; ++k) {
+                parameter = parameters[k];
 
-                var type;
-                if (parameter.type)
+                if (parameter.type) {
                     type = jsTypes[parameter.type] || parameter.type;
+                }
                 else {
-                    var ref = parameter["$ref"];
-                    if (ref.indexOf(".") !== -1)
+                    var ref = parameter.$ref;
+                    if (ref.indexOf(".") !== -1) {
                         type = rawTypes[ref];
-                    else
+                    }
+                    else {
                         type = rawTypes[domain.domain + "." + ref];
+                    }
                 }
 
                 var text = "{\"name\": \"" + parameter.name + "\", \"type\": \"" + type + "\", \"optional\": " + (parameter.optional ? "true" : "false") + "}";
@@ -306,20 +319,20 @@ InspectorBackendClass._generateCommands = function(schema) {
             }
 
             var returnsText = [];
-            var returns = command["returns"] || [];
-            for (var k = 0; k < returns.length; ++k) {
-                var parameter = returns[k];
+            var returns = command.returns || [];
+            for (k = 0; k < returns.length; ++k) {
+                parameter = returns[k];
                 returnsText.push("\"" + parameter.name + "\"");
             }
             var hasErrorData = String(Boolean(command.error));
             result.push("InspectorBackend.registerCommand(\"" + domain.domain + "." + command.name + "\", [" + paramsText.join(", ") + "], [" + returnsText.join(", ") + "], " + hasErrorData + ");");
         }
 
-        for (var j = 0; domain.events && j < domain.events.length; ++j) {
+        for (j = 0; domain.events && j < domain.events.length; ++j) {
             var event = domain.events[j];
-            var paramsText = [];
-            for (var k = 0; event.parameters && k < event.parameters.length; ++k) {
-                var parameter = event.parameters[k];
+            paramsText = [];
+            for (k = 0; event.parameters && k < event.parameters.length; ++k) {
+                parameter = event.parameters[k];
                 paramsText.push("\"" + parameter.name + "\"");
             }
             result.push("InspectorBackend.registerEvent(\"" + domain.domain + "." + event.name + "\", [" + paramsText.join(", ") + "]);");
@@ -328,7 +341,7 @@ InspectorBackendClass._generateCommands = function(schema) {
         result.push("InspectorBackend.register" + domain.domain + "Dispatcher = InspectorBackend.registerDomainDispatcher.bind(InspectorBackend, \"" + domain.domain + "\");");
     }
     return result.join("\n");
-}
+};
 
 /**
  *  @constructor
@@ -343,11 +356,11 @@ InspectorBackendClass.Connection = function()
     this._callbacks = {};
     this._initialize(InspectorBackend._agentPrototypes, InspectorBackend._dispatcherPrototypes);
     this._isConnected = true;
-}
+};
 
 InspectorBackendClass.Connection.Events = {
     Disconnected: "Disconnected",
-}
+};
 
 InspectorBackendClass.Connection.prototype = {
 
@@ -357,13 +370,15 @@ InspectorBackendClass.Connection.prototype = {
      */
     _initialize: function(agentPrototypes, dispatcherPrototypes)
     {
-        for (var domain in agentPrototypes) {
+        var domain;
+        for (domain in agentPrototypes) {
             this._agents[domain] = Object.create(agentPrototypes[domain]);
             this._agents[domain].setConnection(this);
         }
 
-        for (var domain in dispatcherPrototypes)
-            this._dispatchers[domain] = Object.create(dispatcherPrototypes[domain])
+        for (domain in dispatcherPrototypes) {
+            this._dispatchers[domain] = Object.create(dispatcherPrototypes[domain]);
+        }
 
     },
 
@@ -372,8 +387,9 @@ InspectorBackendClass.Connection.prototype = {
      */
     registerAgentsOn: function(object)
     {
-        for (var domain in this._agents)
+        for (var domain in this._agents) {
             object[domain + "Agent"]  = this._agents[domain];
+        }
     },
 
     /**
@@ -421,13 +437,15 @@ InspectorBackendClass.Connection.prototype = {
         messageObject.id = messageId;
 
         messageObject.method = method;
-        if (params)
+        if (params) {
             messageObject.params = params;
+        }
 
         var wrappedCallback = this._wrap(callback, domain, method);
 
-        if (InspectorBackendClass.Options.dumpInspectorProtocolMessages)
+        if (InspectorBackendClass.Options.dumpInspectorProtocolMessages) {
             this._dumpProtocolMessage("frontend: " + JSON.stringify(messageObject));
+        }
 
         ++this._pendingResponsesCount;
         this._callbacks[messageId] = wrappedCallback;
@@ -442,13 +460,15 @@ InspectorBackendClass.Connection.prototype = {
      */
     _wrap: function(callback, domain, method)
     {
-        if (!callback)
+        if (!callback) {
             callback = function() {};
+        }
 
         callback.methodName = method;
         callback.domain = domain;
-        if (InspectorBackendClass.Options.dumpInspectorTimeStats)
+        if (InspectorBackendClass.Options.dumpInspectorTimeStats) {
             callback.sendRequestTime = Date.now();
+        }
 
         return callback;
     },
@@ -474,8 +494,9 @@ InspectorBackendClass.Connection.prototype = {
      */
     dispatch: function(message)
     {
-        if (InspectorBackendClass.Options.dumpInspectorProtocolMessages)
+        if (InspectorBackendClass.Options.dumpInspectorProtocolMessages) {
             this._dumpProtocolMessage("backend: " + ((typeof message === "string") ? message : JSON.stringify(message)));
+        }
 
         var messageObject = /** @type {!Object} */ ((typeof message === "string") ? JSON.parse(message) : message);
 
@@ -488,18 +509,21 @@ InspectorBackendClass.Connection.prototype = {
             }
 
             var processingStartTime;
-            if (InspectorBackendClass.Options.dumpInspectorTimeStats)
+            if (InspectorBackendClass.Options.dumpInspectorTimeStats) {
                 processingStartTime = Date.now();
+            }
 
             this.agent(callback.domain).dispatchResponse(messageObject, callback.methodName, callback);
             --this._pendingResponsesCount;
             delete this._callbacks[messageObject.id];
 
-            if (InspectorBackendClass.Options.dumpInspectorTimeStats)
+            if (InspectorBackendClass.Options.dumpInspectorTimeStats) {
                 console.log("time-stats: " + callback.methodName + " = " + (processingStartTime - callback.sendRequestTime) + " + " + (Date.now() - processingStartTime));
+            }
 
-            if (this._scripts && !this._pendingResponsesCount)
+            if (this._scripts && !this._pendingResponsesCount) {
                 this.runAfterPendingDispatches();
+            }
             return;
         } else {
             var method = messageObject.method.split(".");
@@ -520,8 +544,9 @@ InspectorBackendClass.Connection.prototype = {
      */
     registerDispatcher: function(domain, dispatcher)
     {
-        if (!this._dispatchers[domain])
+        if (!this._dispatchers[domain]) {
             return;
+        }
 
         this._dispatchers[domain].setDomainDispatcher(dispatcher);
     },
@@ -531,17 +556,20 @@ InspectorBackendClass.Connection.prototype = {
      */
     runAfterPendingDispatches: function(script)
     {
-        if (!this._scripts)
+        if (!this._scripts) {
             this._scripts = [];
+        }
 
-        if (script)
+        if (script) {
             this._scripts.push(script);
+        }
 
         if (!this._pendingResponsesCount) {
             var scripts = this._scripts;
             this._scripts = [];
-            for (var id = 0; id < scripts.length; ++id)
+            for (var id = 0; id < scripts.length; ++id) {
                 scripts[id].call(this);
+            }
         }
     },
 
@@ -563,10 +591,12 @@ InspectorBackendClass.Connection.prototype = {
 
     _runPendingCallbacks: function()
     {
-        var keys = Object.keys(this._callbacks).map(function(num) {return parseInt(num, 10)});
+        var keys = Object.keys(this._callbacks).map(function(num) {
+            return parseInt(num, 10);
+        });
         for (var i = 0; i < keys.length; ++i) {
             var callback = this._callbacks[keys[i]];
-            this._dispatchConnectionErrorResponse(callback.domain, callback.methodName, callback)
+            this._dispatchConnectionErrorResponse(callback.domain, callback.methodName, callback);
         }
         this._callbacks = {};
     },
@@ -585,7 +615,7 @@ InspectorBackendClass.Connection.prototype = {
 
     __proto__: WebInspector.Object.prototype
 
-}
+};
 
 /**
  * @constructor
@@ -595,7 +625,7 @@ InspectorBackendClass.MainConnection = function()
 {
     InspectorBackendClass.Connection.call(this);
     InspectorFrontendHost.events.addEventListener(InspectorFrontendHostAPI.Events.DispatchMessage, this._dispatchMessage, this);
-}
+};
 
 InspectorBackendClass.MainConnection.prototype = {
 
@@ -617,7 +647,7 @@ InspectorBackendClass.MainConnection.prototype = {
     },
 
     __proto__: InspectorBackendClass.Connection.prototype
-}
+};
 
 /**
  * @constructor
@@ -633,7 +663,7 @@ InspectorBackendClass.WebSocketConnection = function(url, onConnectionReady)
     this._socket.onerror = this._onError.bind(this);
     this._socket.onopen = onConnectionReady.bind(null, this);
     this._socket.onclose = this.connectionClosed.bind(this, "websocket_closed");
-}
+};
 
 /**
  * @param {string} url
@@ -642,7 +672,7 @@ InspectorBackendClass.WebSocketConnection = function(url, onConnectionReady)
 InspectorBackendClass.WebSocketConnection.Create = function(url, onConnectionReady)
 {
     new InspectorBackendClass.WebSocketConnection(url, onConnectionReady);
-}
+};
 
 InspectorBackendClass.WebSocketConnection.prototype = {
 
@@ -651,7 +681,7 @@ InspectorBackendClass.WebSocketConnection.prototype = {
      */
     _onMessage: function(message)
     {
-        var data = /** @type {string} */ (message.data)
+        var data = /** @type {string} */ (message.data);
         this.dispatch(data);
     },
 
@@ -673,7 +703,7 @@ InspectorBackendClass.WebSocketConnection.prototype = {
     },
 
     __proto__: InspectorBackendClass.Connection.prototype
-}
+};
 
 
 /**
@@ -683,7 +713,7 @@ InspectorBackendClass.WebSocketConnection.prototype = {
 InspectorBackendClass.StubConnection = function()
 {
     InspectorBackendClass.Connection.call(this);
-}
+};
 
 InspectorBackendClass.StubConnection.prototype = {
 
@@ -700,11 +730,11 @@ InspectorBackendClass.StubConnection.prototype = {
      */
     _echoResponse: function(messageObject)
     {
-        this.dispatch(messageObject)
+        this.dispatch(messageObject);
     },
 
     __proto__: InspectorBackendClass.Connection.prototype
-}
+};
 
 /**
  * @constructor
@@ -715,7 +745,7 @@ InspectorBackendClass.AgentPrototype = function(domain)
     this._replyArgs = {};
     this._hasErrorData = {};
     this._domain = domain;
-}
+};
 
 InspectorBackendClass.AgentPrototype.prototype = {
 
@@ -760,8 +790,9 @@ InspectorBackendClass.AgentPrototype.prototype = {
         this["invoke_" + methodName] = invoke;
 
         this._replyArgs[domainAndMethod] = replyArgs;
-        if (hasErrorData)
+        if (hasErrorData) {
             this._hasErrorData[domainAndMethod] = true;
+        }
 
     },
 
@@ -780,9 +811,9 @@ InspectorBackendClass.AgentPrototype.prototype = {
         var hasParams = false;
         for (var i = 0; i < signature.length; ++i) {
             var param = signature[i];
-            var paramName = param["name"];
-            var typeName = param["type"];
-            var optionalFlag = param["optional"];
+            var paramName = param.name;
+            var typeName = param.type;
+            var optionalFlag = param.optional;
 
             if (!args.length && !optionalFlag) {
                 console.error("Protocol Error: Invalid number of arguments for method '" + method + "' call. It must have the following arguments '" + JSON.stringify(signature) + "'.");
@@ -828,24 +859,27 @@ InspectorBackendClass.AgentPrototype.prototype = {
      */
     dispatchResponse: function(messageObject, methodName, callback)
     {
-        if (messageObject.error && messageObject.error.code !== InspectorBackendClass._DevToolsErrorCode && !InspectorBackendClass.Options.suppressRequestErrors)
+        if (messageObject.error && messageObject.error.code !== InspectorBackendClass._DevToolsErrorCode && !InspectorBackendClass.Options.suppressRequestErrors) {
             console.error("Request with id = " + messageObject.id + " failed. " + JSON.stringify(messageObject.error));
+        }
 
         var argumentsArray = [];
         argumentsArray[0] = messageObject.error ? messageObject.error.message: null;
 
-        if (this._hasErrorData[methodName])
+        if (this._hasErrorData[methodName]) {
             argumentsArray[1] = messageObject.error ? messageObject.error.data : null;
+        }
 
         if (messageObject.result) {
             var paramNames = this._replyArgs[methodName] || [];
-            for (var i = 0; i < paramNames.length; ++i)
+            for (var i = 0; i < paramNames.length; ++i) {
                 argumentsArray.push(messageObject.result[paramNames[i]]);
+            }
         }
 
         callback.apply(null, argumentsArray);
     }
-}
+};
 
 /**
  * @constructor
@@ -854,7 +888,7 @@ InspectorBackendClass.DispatcherPrototype = function()
 {
     this._eventArgs = {};
     this._dispatcher = null;
-}
+};
 
 InspectorBackendClass.DispatcherPrototype.prototype = {
 
@@ -864,7 +898,7 @@ InspectorBackendClass.DispatcherPrototype.prototype = {
      */
     registerEvent: function(eventName, params)
     {
-        this._eventArgs[eventName] = params
+        this._eventArgs[eventName] = params;
     },
 
     /**
@@ -881,8 +915,9 @@ InspectorBackendClass.DispatcherPrototype.prototype = {
      */
     dispatch: function(functionName, messageObject)
     {
-        if (!this._dispatcher)
+        if (!this._dispatcher) {
             return;
+        }
 
         if (!(functionName in this._dispatcher)) {
             console.error("Protocol Error: Attempted to dispatch an unimplemented method '" + messageObject.method + "'");
@@ -897,26 +932,29 @@ InspectorBackendClass.DispatcherPrototype.prototype = {
         var params = [];
         if (messageObject.params) {
             var paramNames = this._eventArgs[messageObject.method];
-            for (var i = 0; i < paramNames.length; ++i)
+            for (var i = 0; i < paramNames.length; ++i) {
                 params.push(messageObject.params[paramNames[i]]);
+            }
         }
 
         var processingStartTime;
-        if (InspectorBackendClass.Options.dumpInspectorTimeStats)
+        if (InspectorBackendClass.Options.dumpInspectorTimeStats) {
             processingStartTime = Date.now();
+        }
 
         this._dispatcher[functionName].apply(this._dispatcher, params);
 
-        if (InspectorBackendClass.Options.dumpInspectorTimeStats)
+        if (InspectorBackendClass.Options.dumpInspectorTimeStats) {
             console.log("time-stats: " + messageObject.method + " = " + (Date.now() - processingStartTime));
+        }
     }
 
-}
+};
 
 InspectorBackendClass.Options = {
     dumpInspectorTimeStats: false,
     dumpInspectorProtocolMessages: true,
     suppressRequestErrors: false
-}
+};
 
 InspectorBackend = new InspectorBackendClass();

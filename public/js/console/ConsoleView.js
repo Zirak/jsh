@@ -119,8 +119,9 @@ WebInspector.ConsoleView = function(hideContextSelector)
     this._showAllMessagesCheckbox.inputElement.checked = true;
     this._showAllMessagesCheckbox.inputElement.addEventListener("change", this._updateMessageList.bind(this), false);
 
-    if (!WebInspector.experimentsSettings.workersInMainWindow.isEnabled())
+    if (!WebInspector.experimentsSettings.workersInMainWindow.isEnabled()) {
         this._showAllMessagesCheckbox.element.classList.add("hidden");
+    }
 
     // statusBarElement.appendChild(this._showAllMessagesCheckbox.element);
 
@@ -164,7 +165,7 @@ WebInspector.ConsoleView = function(hideContextSelector)
     WebInspector.multitargetConsoleModel.messages().forEach(appendMessage, this);
 
     // WebInspector.context.addFlavorChangeListener(WebInspector.ExecutionContext, this._executionContextChangedExternally, this);
-}
+};
 
 WebInspector.ConsoleView.prototype = {
     /**
@@ -277,7 +278,7 @@ WebInspector.ConsoleView.prototype = {
      */
     defaultFocusedElement: function()
     {
-        return this._promptElement
+        return this._promptElement;
     },
 
     _onFiltersToggled: function(event)
@@ -298,8 +299,9 @@ WebInspector.ConsoleView.prototype = {
             result =  frame ? frame.displayName() : result;
         }
 
-        if (!executionContext.isMainWorldContext)
+        if (!executionContext.isMainWorldContext) {
             result = "\u00a0\u00a0\u00a0\u00a0" + result;
+        }
 
         var maxLength = 50;
         return result.trimMiddle(maxLength);
@@ -336,8 +338,9 @@ WebInspector.ConsoleView.prototype = {
             }
         }
         this._executionContextSelector.selectElement().insertBefore(newOption, insertBeforeOption);
-        if (executionContext === WebInspector.context.flavor(WebInspector.ExecutionContext))
+        if (executionContext === WebInspector.context.flavor(WebInspector.ExecutionContext)) {
             this._executionContextSelector.select(newOption);
+        }
     },
 
     /**
@@ -365,8 +368,9 @@ WebInspector.ConsoleView.prototype = {
     {
         var executionContexts = this._optionByExecutionContext.keys();
         for (var i = 0; i < executionContexts.length; ++i) {
-            if (executionContexts[i].target() === target)
+            if (executionContexts[i].target() === target) {
                 this._executionContextDestroyed(executionContexts[i]);
+            }
         }
     },
 
@@ -375,8 +379,9 @@ WebInspector.ConsoleView.prototype = {
         var newContext = this._currentExecutionContext();
         WebInspector.context.setFlavor(WebInspector.ExecutionContext, newContext);
         this._prompt.clearAutoComplete(true);
-        if (!this._showAllMessagesCheckbox.checked())
+        if (!this._showAllMessagesCheckbox.checked()) {
             this._updateMessageList();
+        }
     },
 
     /**
@@ -385,13 +390,15 @@ WebInspector.ConsoleView.prototype = {
     _executionContextChangedExternally: function(event)
     {
         var executionContext =  /** @type {?WebInspector.ExecutionContext} */ (event.data);
-        if (!executionContext)
+        if (!executionContext) {
             return;
+        }
 
         var options = this._executionContextSelector.selectElement().options;
         for (var i = 0; i < options.length; ++i) {
-            if (options[i].__executionContext === executionContext)
+            if (options[i].__executionContext === executionContext) {
                 this._executionContextSelector.select(options[i]);
+            }
         }
     },
 
@@ -413,14 +420,16 @@ WebInspector.ConsoleView.prototype = {
     wasShown: function()
     {
         this._viewport.refresh();
-        if (!this._prompt.isCaretInsidePrompt())
+        if (!this._prompt.isCaretInsidePrompt()) {
             this._prompt.moveCaretToEndOfPrompt();
+        }
     },
 
     focus: function()
     {
-        if (this._promptElement === WebInspector.currentFocusElement())
+        if (this._promptElement === WebInspector.currentFocusElement()) {
             return;
+        }
         WebInspector.setCurrentFocusElement(this._promptElement);
         this._prompt.moveCaretToEndOfPrompt();
     },
@@ -433,10 +442,12 @@ WebInspector.ConsoleView.prototype = {
 
     restoreScrollPositions: function()
     {
-        if (this._scrolledToBottom)
+        if (this._scrolledToBottom) {
             this._immediatelyScrollIntoView();
-        else
+        }
+        else {
             WebInspector.View.prototype.restoreScrollPositions.call(this);
+        }
     },
 
     onResize: function()
@@ -469,6 +480,7 @@ WebInspector.ConsoleView.prototype = {
     _updateFilterStatus: function()
     {
         // zirak
+        /*jshint -W027*/
         return;
         this._filterStatusTextElement.textContent = WebInspector.UIString(this._hiddenByFilterCount === 1 ? "%d message is hidden by filters." : "%d messages are hidden by filters.", this._hiddenByFilterCount);
         this._filterStatusMessageElement.style.display = this._hiddenByFilterCount ? "" : "none";
@@ -492,16 +504,20 @@ WebInspector.ConsoleView.prototype = {
         this._consoleMessages.splice(insertAt, 0, viewMessage);
 
         var message = viewMessage.consoleMessage();
-        if (this._urlToMessageCount[message.url])
+        if (this._urlToMessageCount[message.url]) {
             this._urlToMessageCount[message.url]++;
-        else
+        }
+        else {
             this._urlToMessageCount[message.url] = 1;
+        }
 
-        if (this._tryToCollapseMessages(viewMessage, this._visibleViewMessages.peekLast()))
+        if (this._tryToCollapseMessages(viewMessage, this._visibleViewMessages.peekLast())) {
             return;
+        }
 
-        if (this._filter.shouldBeVisible(viewMessage))
-            this._showConsoleMessage(viewMessage)
+        if (this._filter.shouldBeVisible(viewMessage)) {
+            this._showConsoleMessage(viewMessage);
+        }
         else {
             this._hiddenByFilterCount++;
             this._updateFilterStatus();
@@ -534,15 +550,17 @@ WebInspector.ConsoleView.prototype = {
     {
         var lastMessage = this._visibleViewMessages.peekLast();
         if (viewMessage.consoleMessage().type === WebInspector.ConsoleMessage.MessageType.EndGroup) {
-            if (lastMessage && !this._currentGroup.messagesHidden())
+            if (lastMessage && !this._currentGroup.messagesHidden()) {
                 lastMessage.incrementCloseGroupDecorationCount();
+            }
             this._currentGroup = this._currentGroup.parentGroup();
             return;
         }
         if (!this._currentGroup.messagesHidden()) {
             var originatingMessage = viewMessage.consoleMessage().originatingMessage();
-            if (lastMessage && originatingMessage && lastMessage.consoleMessage() === originatingMessage)
+            if (lastMessage && originatingMessage && lastMessage.consoleMessage() === originatingMessage) {
                 lastMessage.toMessageElement().classList.add("console-adjacent-user-command-result");
+            }
 
             this._visibleViewMessages.push(viewMessage);
 
@@ -552,8 +570,9 @@ WebInspector.ConsoleView.prototype = {
             }
         }
 
-        if (viewMessage.consoleMessage().isGroupStartMessage())
+        if (viewMessage.consoleMessage().isGroupStartMessage()) {
             this._currentGroup = new WebInspector.ConsoleGroup(this._currentGroup, viewMessage);
+        }
     },
 
     /**
@@ -583,16 +602,18 @@ WebInspector.ConsoleView.prototype = {
         this._scrolledToBottom = true;
         this._updateMessageList();
 
-        if (this._searchRegex)
+        if (this._searchRegex) {
             this._searchableView.updateSearchMatchesCount(0);
+        }
 
         this._linkifier.reset();
     },
 
     _handleContextMenuEvent: function(event)
     {
-        if (event.target.enclosingNodeOrSelfWithNodeName("a"))
+        if (event.target.enclosingNodeOrSelfWithNodeName("a")) {
             return;
+        }
 
         var contextMenu = new WebInspector.ContextMenu(event);
 
@@ -655,23 +676,28 @@ WebInspector.ConsoleView.prototype = {
 
     _updateMessageList: function()
     {
+        var i;
+
         this._topGroup = WebInspector.ConsoleGroup.createTopGroup();
         this._currentGroup = this._topGroup;
         this._searchResults = [];
         this._hiddenByFilterCount = 0;
-        for (var i = 0; i < this._visibleViewMessages.length; ++i) {
+        for (i = 0; i < this._visibleViewMessages.length; ++i) {
             this._visibleViewMessages[i].resetCloseGroupDecorationCount();
             this._visibleViewMessages[i].resetIncrementRepeatCount();
         }
         this._visibleViewMessages = [];
-        for (var i = 0; i < this._consoleMessages.length; ++i) {
+        for (i = 0; i < this._consoleMessages.length; ++i) {
             var viewMessage = this._consoleMessages[i];
-            if (this._tryToCollapseMessages(viewMessage, this._visibleViewMessages.peekLast()))
+            if (this._tryToCollapseMessages(viewMessage, this._visibleViewMessages.peekLast())) {
                 continue;
-            if (this._filter.shouldBeVisible(viewMessage))
+            }
+            if (this._filter.shouldBeVisible(viewMessage)) {
                 this._showConsoleMessage(viewMessage);
-            else
+            }
+            else {
                 this._hiddenByFilterCount++;
+            }
         }
         this._updateFilterStatus();
         this._viewport.invalidate();
@@ -691,11 +717,13 @@ WebInspector.ConsoleView.prototype = {
      */
     _messagesClicked: function(event)
     {
-        if (!this._prompt.isCaretInsidePrompt() && window.getSelection().isCollapsed)
+        if (!this._prompt.isCaretInsidePrompt() && window.getSelection().isCollapsed) {
             this._prompt.moveCaretToEndOfPrompt();
+        }
         var groupMessage = event.target.enclosingNodeOrSelfWithClass("console-group-title");
-        if (!groupMessage)
+        if (!groupMessage) {
             return;
+        }
         var consoleGroupViewMessage = groupMessage.parentElement.message;
         consoleGroupViewMessage.setCollapsed(!consoleGroupViewMessage.collapsed());
         this._updateMessageList();
@@ -755,8 +783,9 @@ WebInspector.ConsoleView.prototype = {
     _requestClearMessages: function()
     {
         var targets = WebInspector.targetManager.targets();
-        for (var i = 0; i < targets.length; ++i)
+        for (var i = 0; i < targets.length; ++i) {
             targets[i].consoleModel.requestClearMessages();
+        }
     },
 
     _promptKeyDown: function(event)
@@ -777,16 +806,18 @@ WebInspector.ConsoleView.prototype = {
 
     _enterKeyPressed: function(event)
     {
-        if (event.altKey || event.ctrlKey || event.shiftKey)
+        if (event.altKey || event.ctrlKey || event.shiftKey) {
             return;
+        }
 
         event.consume(true);
 
         this._prompt.clearAutoComplete(true);
 
         var str = this._prompt.text;
-        if (!str.length)
+        if (!str.length) {
             return;
+        }
         this._appendCommand(str, true);
     },
 
@@ -797,8 +828,9 @@ WebInspector.ConsoleView.prototype = {
      */
     _printResult: function(result, wasThrown, originatingConsoleMessage)
     {
-        if (!result)
+        if (!result) {
             return;
+        }
 
         var target = result.target();
         /**
@@ -854,8 +886,9 @@ WebInspector.ConsoleView.prototype = {
         this._prompt.text = "";
 
         var currentExecutionContext = WebInspector.context.flavor(WebInspector.ExecutionContext);
-        if (currentExecutionContext)
+        if (currentExecutionContext) {
             WebInspector.ConsoleModel.evaluateCommandInConsole(currentExecutionContext, text, useCommandLineAPI);
+        }
     },
 
     /**
@@ -899,38 +932,44 @@ WebInspector.ConsoleView.prototype = {
         /** @type {!Array.<number>} */
         this._searchResults = [];
         for (var i = 0; i < this._visibleViewMessages.length; i++) {
-            if (this._visibleViewMessages[i].matchesRegex(this._searchRegex))
+            if (this._visibleViewMessages[i].matchesRegex(this._searchRegex)) {
                 this._searchResults.push(i);
+            }
         }
         this._searchableView.updateSearchMatchesCount(this._searchResults.length);
         this._currentSearchResultIndex = -1;
-        if (shouldJump && this._searchResults.length)
+        if (shouldJump && this._searchResults.length) {
             this._jumpToSearchResult(jumpBackwards ? -1 : 0);
+        }
         this._viewport.refresh();
     },
 
     jumpToNextSearchResult: function()
     {
-        if (!this._searchResults || !this._searchResults.length)
+        if (!this._searchResults || !this._searchResults.length) {
             return;
+        }
         this._jumpToSearchResult(this._currentSearchResultIndex + 1);
     },
 
     jumpToPreviousSearchResult: function()
     {
-        if (!this._searchResults || !this._searchResults.length)
+        if (!this._searchResults || !this._searchResults.length) {
             return;
+        }
         this._jumpToSearchResult(this._currentSearchResultIndex - 1);
     },
 
     _clearCurrentSearchResultHighlight: function()
     {
-        if (!this._searchResults)
+        if (!this._searchResults) {
             return;
+        }
 
         var highlightedViewMessage = this._visibleViewMessages[this._searchResults[this._currentSearchResultIndex]];
-        if (highlightedViewMessage)
+        if (highlightedViewMessage) {
             highlightedViewMessage.clearHighlight();
+        }
         this._currentSearchResultIndex = -1;
     },
 
@@ -946,7 +985,7 @@ WebInspector.ConsoleView.prototype = {
     },
 
     __proto__: WebInspector.VBox.prototype
-}
+};
 
 /**
  * @constructor
@@ -1005,10 +1044,12 @@ WebInspector.ConsoleViewFilter.prototype = {
      */
     removeMessageURLFilter: function(url)
     {
-        if (!url)
+        if (!url) {
             this._messageURLFilters = {};
-        else
+        }
+        else {
             delete this._messageURLFilters[url];
+        }
 
         WebInspector.settings.messageURLFilters.set(this._messageURLFilters);
         this._filterChanged();
@@ -1030,20 +1071,25 @@ WebInspector.ConsoleViewFilter.prototype = {
     {
         var message = viewMessage.consoleMessage();
         var executionContext = WebInspector.context.flavor(WebInspector.ExecutionContext);
-        if (!message.target())
+        if (!message.target()) {
             return true;
+        }
 
-        if (!this._view._showAllMessagesCheckbox.checked() && executionContext && (message.target() !== executionContext.target() || message.executionContextId !== executionContext.id))
+        if (!this._view._showAllMessagesCheckbox.checked() && executionContext && (message.target() !== executionContext.target() || message.executionContextId !== executionContext.id)) {
             return false;
+        }
 
-        if (viewMessage.consoleMessage().isGroupMessage())
+        if (viewMessage.consoleMessage().isGroupMessage()) {
             return true;
+        }
 
-        if (message.type === WebInspector.ConsoleMessage.MessageType.Result || message.type === WebInspector.ConsoleMessage.MessageType.Command)
+        if (message.type === WebInspector.ConsoleMessage.MessageType.Result || message.type === WebInspector.ConsoleMessage.MessageType.Command) {
             return true;
+        }
 
-        if (message.url && this._messageURLFilters[message.url])
+        if (message.url && this._messageURLFilters[message.url]) {
             return false;
+        }
 
         /*
         if (message.level && !this._levelFilterUI.accept(message.level))
@@ -1052,8 +1098,9 @@ WebInspector.ConsoleViewFilter.prototype = {
 
         if (this._filterRegex) {
             this._filterRegex.lastIndex = 0;
-            if (!viewMessage.matchesRegex(this._filterRegex))
+            if (!viewMessage.matchesRegex(this._filterRegex)) {
                 return false;
+            }
         }
 
         return true;
@@ -1082,7 +1129,7 @@ WebInspector.ConsoleViewFilter.prototype = {
 WebInspector.ConsoleCommand = function(message, nestingLevel)
 {
     WebInspector.ConsoleViewMessage.call(this, message, null, nestingLevel);
-}
+};
 
 WebInspector.ConsoleCommand.prototype = {
     clearHighlight: function()
@@ -1141,7 +1188,7 @@ WebInspector.ConsoleCommand.prototype = {
     },
 
     __proto__: WebInspector.ConsoleViewMessage.prototype
-}
+};
 
 /**
  * @constructor
@@ -1153,7 +1200,7 @@ WebInspector.ConsoleCommand.prototype = {
 WebInspector.ConsoleCommandResult = function(message, linkifier, nestingLevel)
 {
     WebInspector.ConsoleViewMessage.call(this, message, linkifier, nestingLevel);
-}
+};
 
 WebInspector.ConsoleCommandResult.prototype = {
     /**
@@ -1177,7 +1224,7 @@ WebInspector.ConsoleCommandResult.prototype = {
     },
 
     __proto__: WebInspector.ConsoleViewMessage.prototype
-}
+};
 
 /**
  * @constructor
@@ -1189,7 +1236,7 @@ WebInspector.ConsoleGroup = function(parentGroup, groupMessage)
     this._parentGroup = parentGroup;
     this._nestingLevel = parentGroup ? parentGroup.nestingLevel() + 1 : 0;
     this._messagesHidden = groupMessage && groupMessage.collapsed() || this._parentGroup && this._parentGroup.messagesHidden();
-}
+};
 
 /**
  * @return {!WebInspector.ConsoleGroup}
@@ -1197,7 +1244,7 @@ WebInspector.ConsoleGroup = function(parentGroup, groupMessage)
 WebInspector.ConsoleGroup.createTopGroup = function()
 {
     return new WebInspector.ConsoleGroup(null, null);
-}
+};
 
 WebInspector.ConsoleGroup.prototype = {
     /**
@@ -1223,7 +1270,7 @@ WebInspector.ConsoleGroup.prototype = {
     {
         return this._parentGroup || this;
     },
-}
+};
 
 /**
  * @constructor
@@ -1231,7 +1278,7 @@ WebInspector.ConsoleGroup.prototype = {
  */
 WebInspector.ConsoleView.ShowConsoleActionDelegate = function()
 {
-}
+};
 
 WebInspector.ConsoleView.ShowConsoleActionDelegate.prototype = {
     /**
@@ -1242,4 +1289,4 @@ WebInspector.ConsoleView.ShowConsoleActionDelegate.prototype = {
         WebInspector.console.show();
         return true;
     }
-}
+};

@@ -174,7 +174,7 @@ window.addEventListener('DOMContentLoaded', function () {
 
 // at the end because blobs of text.
 jsh.introduce = function () {
-    var header = (function () {/** @preserve
+    var header = function () {/** @preserve
      _     _
     (_)   | |       Welcome to jsh, an embedded Chrome dev-tools console!
      _ ___| |__
@@ -191,7 +191,7 @@ jsh.introduce = function () {
         Hit Ctrl+L to clear this message.
     */
         console.lulz = 4; delete console.lulz;
-    }).toString().split('\n').slice(1, -2).join('\n');
+    }.toString().split('\n').slice(1, -2).join('\n');
 
     WebInspector.console.log(header);
 };

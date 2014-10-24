@@ -41,7 +41,7 @@ WebInspector.TextRange = function(startLine, startColumn, endLine, endColumn)
     this.startColumn = startColumn;
     this.endLine = endLine;
     this.endColumn = endColumn;
-}
+};
 
 /**
  * @param {number} line
@@ -51,7 +51,7 @@ WebInspector.TextRange = function(startLine, startColumn, endLine, endColumn)
 WebInspector.TextRange.createFromLocation = function(line, column)
 {
     return new WebInspector.TextRange(line, column, line, column);
-}
+};
 
 /**
  * @param {!Object} serializedTextRange
@@ -60,7 +60,7 @@ WebInspector.TextRange.createFromLocation = function(line, column)
 WebInspector.TextRange.fromObject = function(serializedTextRange)
 {
     return new WebInspector.TextRange(serializedTextRange.startLine, serializedTextRange.startColumn, serializedTextRange.endLine, serializedTextRange.endColumn);
-}
+};
 
 /**
  * @param {!WebInspector.TextRange} range1
@@ -70,7 +70,7 @@ WebInspector.TextRange.fromObject = function(serializedTextRange)
 WebInspector.TextRange.comparator = function(range1, range2)
 {
     return range1.compareTo(range2);
-}
+};
 
 WebInspector.TextRange.prototype = {
     /**
@@ -87,8 +87,9 @@ WebInspector.TextRange.prototype = {
      */
     immediatelyPrecedes: function(range)
     {
-        if (!range)
+        if (!range) {
             return false;
+        }
         return this.endLine === range.startLine && this.endColumn === range.startColumn;
     },
 
@@ -98,8 +99,9 @@ WebInspector.TextRange.prototype = {
      */
     immediatelyFollows: function(range)
     {
-        if (!range)
+        if (!range) {
             return false;
+        }
         return range.immediatelyPrecedes(this);
     },
 
@@ -109,8 +111,10 @@ WebInspector.TextRange.prototype = {
      */
     follows: function(range)
     {
-        return (range.endLine === this.startLine && range.endColumn <= this.startColumn)
-            || range.endLine < this.startLine;
+        return (
+            range.endLine === this.startLine &&
+            range.endColumn <= this.startColumn
+        ) || range.endLine < this.startLine;
     },
 
     /**
@@ -142,10 +146,12 @@ WebInspector.TextRange.prototype = {
      */
     normalize: function()
     {
-        if (this.startLine > this.endLine || (this.startLine === this.endLine && this.startColumn > this.endColumn))
+        if (this.startLine > this.endLine || (this.startLine === this.endLine && this.startColumn > this.endColumn)) {
             return new WebInspector.TextRange(this.endLine, this.endColumn, this.startLine, this.startColumn);
-        else
+        }
+        else {
             return this.clone();
+        }
     },
 
     /**
@@ -175,14 +181,18 @@ WebInspector.TextRange.prototype = {
      */
     compareTo: function(other)
     {
-        if (this.startLine > other.startLine)
+        if (this.startLine > other.startLine) {
             return 1;
-        if (this.startLine < other.startLine)
+        }
+        if (this.startLine < other.startLine) {
             return -1;
-        if (this.startColumn > other.startColumn)
+        }
+        if (this.startColumn > other.startColumn) {
             return 1;
-        if (this.startColumn < other.startColumn)
+        }
+        if (this.startColumn < other.startColumn) {
             return -1;
+        }
         return 0;
     },
 
@@ -215,16 +225,19 @@ WebInspector.TextRange.prototype = {
         console.assert(originalRange.startLine === editedRange.startLine);
         console.assert(originalRange.startColumn === editedRange.startColumn);
         var rebase = this.clone();
-        if (!this.follows(originalRange))
+        if (!this.follows(originalRange)) {
             return rebase;
+        }
         var lineDelta = editedRange.endLine - originalRange.endLine;
         var columnDelta = editedRange.endColumn - originalRange.endColumn;
         rebase.startLine += lineDelta;
         rebase.endLine += lineDelta;
-        if (rebase.startLine === editedRange.endLine)
+        if (rebase.startLine === editedRange.endLine) {
             rebase.startColumn += columnDelta;
-        if (rebase.endLine === editedRange.endLine)
+        }
+        if (rebase.endLine === editedRange.endLine) {
             rebase.endColumn += columnDelta;
+        }
         return rebase;
     },
 
@@ -235,7 +248,7 @@ WebInspector.TextRange.prototype = {
     {
         return JSON.stringify(this);
     }
-}
+};
 
 /**
  * @constructor
@@ -246,4 +259,4 @@ WebInspector.SourceRange = function(offset, length)
 {
     this.offset = offset;
     this.length = length;
-}
+};

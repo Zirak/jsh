@@ -34,9 +34,11 @@
  */
 WebInspector.resourceForURL = function(url)
 {
+    // zirak
+    /*jshint -W027*/
     return null;
     return WebInspector.resourceTreeModel.resourceForURL(url);
-}
+};
 
 /**
  * @param {function(!WebInspector.Resource)} callback
@@ -44,7 +46,7 @@ WebInspector.resourceForURL = function(url)
 WebInspector.forAllResources = function(callback)
 {
      WebInspector.resourceTreeModel.forAllResources(callback);
-}
+};
 
 /**
  * @param {string} url
@@ -52,35 +54,41 @@ WebInspector.forAllResources = function(callback)
  */
 WebInspector.displayNameForURL = function(url)
 {
-    if (!url)
+    if (!url) {
         return "";
+    }
 
     var resource = WebInspector.resourceForURL(url);
-    if (resource)
+    if (resource) {
         return resource.displayName;
+    }
 
     var uiSourceCode = WebInspector.workspace.uiSourceCodeForURL(url);
-    if (uiSourceCode)
+    if (uiSourceCode) {
         return uiSourceCode.displayName();
+    }
 
-    if (!WebInspector.resourceTreeModel.inspectedPageURL())
+    if (!WebInspector.resourceTreeModel.inspectedPageURL()) {
         return url.trimURL("");
+    }
 
     var parsedURL = WebInspector.resourceTreeModel.inspectedPageURL().asParsedURL();
     var lastPathComponent = parsedURL ? parsedURL.lastPathComponent : parsedURL;
     var index = WebInspector.resourceTreeModel.inspectedPageURL().indexOf(lastPathComponent);
     if (index !== -1 && index + lastPathComponent.length === WebInspector.resourceTreeModel.inspectedPageURL().length) {
         var baseURL = WebInspector.resourceTreeModel.inspectedPageURL().substring(0, index);
-        if (url.startsWith(baseURL))
+        if (url.startsWith(baseURL)) {
             return url.substring(index);
+        }
     }
 
-    if (!parsedURL)
+    if (!parsedURL) {
         return url;
+    }
 
     var displayName = url.trimURL(parsedURL.host);
     return displayName === "/" ? parsedURL.host + "/" : displayName;
-}
+};
 
 /**
  * @param {string} string
@@ -95,8 +103,9 @@ WebInspector.linkifyStringAsFragmentWithCustomLinkifier = function(string, linki
 
     while (string) {
         var linkString = linkStringRegEx.exec(string);
-        if (!linkString)
+        if (!linkString) {
             break;
+        }
 
         linkString = linkString[0];
         var linkIndex = string.indexOf(linkString);
@@ -124,11 +133,12 @@ WebInspector.linkifyStringAsFragmentWithCustomLinkifier = function(string, linki
         string = string.substring(linkIndex + linkString.length, string.length);
     }
 
-    if (string)
+    if (string) {
         container.appendChild(document.createTextNode(string));
+    }
 
     return container;
-}
+};
 
 /**
  * @param {string} string
@@ -150,15 +160,16 @@ WebInspector.linkifyStringAsFragment = function(string)
         var urlNode = WebInspector.linkifyURLAsNode(url, title, undefined, isExternal);
         if (typeof lineNumber !== "undefined") {
             urlNode.lineNumber = lineNumber;
-            if (typeof columnNumber !== "undefined")
+            if (typeof columnNumber !== "undefined") {
                 urlNode.columnNumber = columnNumber;
+            }
         }
 
         return urlNode;
     }
 
     return WebInspector.linkifyStringAsFragmentWithCustomLinkifier(string, linkifier);
-}
+};
 
 /**
  * @param {string} url
@@ -170,26 +181,31 @@ WebInspector.linkifyStringAsFragment = function(string)
  */
 WebInspector.linkifyURLAsNode = function(url, linkText, classes, isExternal, tooltipText)
 {
-    if (!linkText)
+    if (!linkText) {
         linkText = url;
+    }
     classes = (classes ? classes + " " : "");
     classes += isExternal ? "webkit-html-external-link" : "webkit-html-resource-link";
 
     var a = document.createElement("a");
     var href = sanitizeHref(url);
-    if (href !== null)
+    if (href !== null) {
         a.href = href;
+    }
     a.className = classes;
-    if (typeof tooltipText === "undefined")
+    if (typeof tooltipText === "undefined") {
         a.title = url;
-    else if (typeof tooltipText !== "string" || tooltipText.length)
+    }
+    else if (typeof tooltipText !== "string" || tooltipText.length) {
         a.title = tooltipText;
+    }
     a.textContent = linkText.trimMiddle(WebInspector.Linkifier.MaxLengthForDisplayedURLs);
-    if (isExternal)
+    if (isExternal) {
         a.setAttribute("target", "_blank");
+    }
 
     return a;
-}
+};
 
 /**
  * @param {string} url
@@ -199,10 +215,11 @@ WebInspector.linkifyURLAsNode = function(url, linkText, classes, isExternal, too
 WebInspector.formatLinkText = function(url, lineNumber)
 {
     var text = url ? WebInspector.displayNameForURL(url) : WebInspector.UIString("(program)");
-    if (typeof lineNumber === "number")
+    if (typeof lineNumber === "number") {
         text += ":" + (lineNumber + 1);
+    }
     return text;
-}
+};
 
 /**
  * @param {string} url
@@ -217,7 +234,7 @@ WebInspector.linkifyResourceAsNode = function(url, lineNumber, classes, tooltipT
     var anchor = WebInspector.linkifyURLAsNode(url, linkText, classes, false, tooltipText);
     anchor.lineNumber = lineNumber;
     return anchor;
-}
+};
 
 /**
  * @param {!WebInspector.NetworkRequest} request
@@ -228,7 +245,7 @@ WebInspector.linkifyRequestAsNode = function(request)
     var anchor = WebInspector.linkifyURLAsNode(request.url);
     anchor.requestId = request.requestId;
     return anchor;
-}
+};
 
 /**
  * @param {?string} content
@@ -238,9 +255,10 @@ WebInspector.linkifyRequestAsNode = function(request)
  */
 WebInspector.contentAsDataURL = function(content, mimeType, contentEncoded)
 {
-    const maxDataUrlSize = 1024 * 1024;
-    if (content === null || content.length > maxDataUrlSize)
+    var maxDataUrlSize = 1024 * 1024;
+    if (content === null || content.length > maxDataUrlSize) {
         return null;
+    }
 
     return "data:" + mimeType + (contentEncoded ? ";base64," : ",") + content;
-}
+};

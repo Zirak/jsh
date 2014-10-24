@@ -37,4 +37,4 @@
 WebInspector.UIString = function(string, vararg)
 {
     return String.vsprintf(string, Array.prototype.slice.call(arguments, 1));
-}
+};

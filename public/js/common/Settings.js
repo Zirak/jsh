@@ -97,7 +97,7 @@ WebInspector.Settings = function()
 
     // zirak
     this.useDarkTheme = this.createSetting("useDarkTheme", false);
-}
+};
 
 WebInspector.Settings.prototype = {
     /**
@@ -107,8 +107,9 @@ WebInspector.Settings.prototype = {
      */
     createSetting: function(key, defaultValue)
     {
-        if (!this._registry[key])
+        if (!this._registry[key]) {
             this._registry[key] = new WebInspector.Setting(key, defaultValue, this._eventSupport, window.localStorage);
+        }
         return this._registry[key];
     },
 
@@ -120,11 +121,12 @@ WebInspector.Settings.prototype = {
      */
     createRegExpSetting: function(key, defaultValue, regexFlags)
     {
-        if (!this._registry[key])
+        if (!this._registry[key]) {
             this._registry[key] = new WebInspector.RegExpSetting(key, defaultValue, this._eventSupport, window.localStorage, regexFlags);
+        }
         return this._registry[key];
     }
-}
+};
 
 /**
  * @constructor
@@ -140,7 +142,7 @@ WebInspector.Setting = function(name, defaultValue, eventSupport, storage)
     this._defaultValue = defaultValue;
     this._eventSupport = eventSupport;
     this._storage = storage;
-}
+};
 
 WebInspector.Setting.prototype = {
     /**
@@ -171,8 +173,9 @@ WebInspector.Setting.prototype = {
      */
     get: function()
     {
-        if (typeof this._value !== "undefined")
+        if (typeof this._value !== "undefined") {
             return this._value;
+        }
 
         this._value = this._defaultValue;
         if (this._storage && this._name in this._storage) {
@@ -200,7 +203,7 @@ WebInspector.Setting.prototype = {
         }
         this._eventSupport.dispatchEventToListeners(this._name, value);
     }
-}
+};
 
 /**
  * @constructor
@@ -215,7 +218,7 @@ WebInspector.RegExpSetting = function(name, defaultValue, eventSupport, storage,
 {
     WebInspector.Setting.call(this, name, [defaultValue], eventSupport, storage);
     this._regexFlags = regexFlags;
-}
+};
 
 WebInspector.RegExpSetting.prototype = {
     /**
@@ -233,8 +236,9 @@ WebInspector.RegExpSetting.prototype = {
     getAsArray: function()
     {
         var value = WebInspector.Setting.prototype.get.call(this);
-        if (typeof value === "string") // Backward compatibility.
+        if (typeof value === "string") { // Backward compatibility.
             value = [value];
+        }
         value.remove("");
         return value;
     },
@@ -263,20 +267,22 @@ WebInspector.RegExpSetting.prototype = {
      */
     asRegExp: function()
     {
-        if (typeof this._regex !== "undefined")
+        if (typeof this._regex !== "undefined") {
             return this._regex;
+        }
         this._regex = null;
         try {
             var pattern = this.get();
-            if (pattern)
+            if (pattern) {
                 this._regex = new RegExp(pattern, this._regexFlags || "");
+            }
         } catch (e) {
         }
         return this._regex;
     },
 
     __proto__: WebInspector.Setting.prototype
-}
+};
 
 /**
  * @constructor
@@ -308,7 +314,7 @@ WebInspector.ExperimentsSettings = function(experimentsEnabled)
     this.workersInMainWindow = this._createExperiment("workersInMainWindow", "Workers in main window", true);
 
     this._cleanUpSetting();
-}
+};
 
 WebInspector.ExperimentsSettings.prototype = {
     /**
@@ -346,11 +352,13 @@ WebInspector.ExperimentsSettings.prototype = {
      */
     isEnabled: function(experimentName)
     {
-        if (this._enabledForTest[experimentName])
+        if (this._enabledForTest[experimentName]) {
             return true;
+        }
 
-        if (!this.experimentsEnabled)
+        if (!this.experimentsEnabled) {
             return false;
+        }
 
         var experimentsSetting = this._setting.get();
         return experimentsSetting[experimentName];
@@ -381,12 +389,13 @@ WebInspector.ExperimentsSettings.prototype = {
         var cleanedUpExperimentSetting = {};
         for (var i = 0; i < this._experiments.length; ++i) {
             var experimentName = this._experiments[i].name;
-            if (experimentsSetting[experimentName])
+            if (experimentsSetting[experimentName]) {
                 cleanedUpExperimentSetting[experimentName] = true;
+            }
         }
         this._setting.set(cleanedUpExperimentSetting);
     }
-}
+};
 
 /**
  * @constructor
@@ -401,7 +410,7 @@ WebInspector.Experiment = function(experimentsSettings, name, title, hidden)
     this._title = title;
     this._hidden = hidden;
     this._experimentsSettings = experimentsSettings;
-}
+};
 
 WebInspector.Experiment.prototype = {
     /**
@@ -448,14 +457,14 @@ WebInspector.Experiment.prototype = {
     {
         this._experimentsSettings._enableForTest(this._name);
     }
-}
+};
 
 /**
  * @constructor
  */
 WebInspector.VersionController = function()
 {
-}
+};
 
 WebInspector.VersionController.currentVersion = 8;
 
@@ -466,8 +475,9 @@ WebInspector.VersionController.prototype = {
         var currentVersion = WebInspector.VersionController.currentVersion;
         var oldVersion = versionSetting.get();
         var methodsToRun = this._methodsToRunToUpdateVersion(oldVersion, currentVersion);
-        for (var i = 0; i < methodsToRun.length; ++i)
+        for (var i = 0; i < methodsToRun.length; ++i) {
             this[methodsToRun[i]].call(this);
+        }
         versionSetting.set(currentVersion);
     },
 
@@ -478,8 +488,9 @@ WebInspector.VersionController.prototype = {
     _methodsToRunToUpdateVersion: function(oldVersion, currentVersion)
     {
         var result = [];
-        for (var i = oldVersion; i < currentVersion; ++i)
+        for (var i = oldVersion; i < currentVersion; ++i) {
             result.push("_updateVersionFrom" + i + "To" + (i + 1));
+        }
         return result;
     },
 
@@ -498,8 +509,9 @@ WebInspector.VersionController.prototype = {
     {
         var fileSystemMappingSetting = WebInspector.settings.createSetting("fileSystemMapping", {});
         fileSystemMappingSetting.set({});
-        if (window.localStorage)
-            delete window.localStorage["fileMappingEntries"];
+        if (window.localStorage) {
+            delete window.localStorage.fileMappingEntries;
+        }
     },
 
     _updateVersionFrom3To4: function()
@@ -510,8 +522,9 @@ WebInspector.VersionController.prototype = {
 
     _updateVersionFrom4To5: function()
     {
-        if (!window.localStorage)
+        if (!window.localStorage) {
             return;
+        }
         var settingNames = {
             "FileSystemViewSidebarWidth": "fileSystemViewSplitViewState",
             "canvasProfileViewReplaySplitLocation": "canvasProfileViewReplaySplitViewState",
@@ -555,15 +568,17 @@ WebInspector.VersionController.prototype = {
                 delete window.localStorage[oldNameH];
             }
             var newSetting = WebInspector.settings.createSetting(newName, {});
-            if (newValue)
+            if (newValue) {
                 newSetting.set(newValue);
+            }
         }
     },
 
     _updateVersionFrom5To6: function()
     {
-        if (!window.localStorage)
+        if (!window.localStorage) {
             return;
+        }
 
         var settingNames = {
             "debuggerSidebarHidden": "sourcesPanelSplitViewState",
@@ -576,7 +591,7 @@ WebInspector.VersionController.prototype = {
 
             var oldSetting = WebInspector.settings.createSetting(oldName, undefined).get();
             var invert = "WebInspector.Drawer.showOnLoad" === oldName;
-            var hidden = !!oldSetting !== invert;
+            var hidden = Boolean(oldSetting) !== invert;
             delete window.localStorage[oldName];
             var showMode = hidden ? "OnlyMain" : "Both";
 
@@ -592,8 +607,9 @@ WebInspector.VersionController.prototype = {
 
     _updateVersionFrom6To7: function()
     {
-        if (!window.localStorage)
+        if (!window.localStorage) {
             return;
+        }
 
         var settingNames = {
             "sourcesPanelNavigatorSplitViewState": "sourcesPanelNavigatorSplitViewState",
@@ -605,17 +621,21 @@ WebInspector.VersionController.prototype = {
         };
 
         for (var name in settingNames) {
-            if (!(name in window.localStorage))
+            if (!(name in window.localStorage)) {
                 continue;
+            }
             var setting = WebInspector.settings.createSetting(name, undefined);
             var value = setting.get();
-            if (!value)
+            if (!value) {
                 continue;
+            }
             // Zero out saved percentage sizes, and they will be restored to defaults.
-            if (value.vertical && value.vertical.size && value.vertical.size < 1)
+            if (value.vertical && value.vertical.size && value.vertical.size < 1) {
                 value.vertical.size = 0;
-            if (value.horizontal && value.horizontal.size && value.horizontal.size < 1)
+            }
+            if (value.horizontal && value.horizontal.size && value.horizontal.size < 1) {
                 value.horizontal.size = 0;
+            }
             setting.set(value);
         }
     },
@@ -623,12 +643,14 @@ WebInspector.VersionController.prototype = {
     _updateVersionFrom7To8: function()
     {
         var settingName = "deviceMetrics";
-        if (!window.localStorage || !(settingName in window.localStorage))
+        if (!window.localStorage || !(settingName in window.localStorage)) {
             return;
+        }
         var setting = WebInspector.settings.createSetting(settingName, undefined);
         var value = setting.get();
-        if (!value)
+        if (!value) {
             return;
+        }
 
         var components = value.split("x");
         if (components.length >= 3) {
@@ -652,20 +674,21 @@ WebInspector.VersionController.prototype = {
     {
         // If there are too many breakpoints in a storage, it is likely due to a recent bug that caused
         // periodical breakpoints duplication leading to inspector slowness.
-        if (breakpointsSetting.get().length > maxBreakpointsCount)
+        if (breakpointsSetting.get().length > maxBreakpointsCount) {
             breakpointsSetting.set([]);
+        }
     }
-}
+};
 
 /**
  * @type {!WebInspector.Settings}
  */
-WebInspector.settings;
+WebInspector.settings = WebInspector.settings;
 
 /**
  * @type {!WebInspector.ExperimentsSettings}
  */
-WebInspector.experimentsSettings;
+WebInspector.experimentsSettings = WebInspector.experimentsSettings;
 
 // These methods are added for backwards compatibility with Devtools CodeSchool extension.
 // DO NOT REMOVE
@@ -680,7 +703,7 @@ WebInspector.PauseOnExceptionStateSetting = function()
     this._name = "pauseOnExceptionStateString";
     this._eventSupport = new WebInspector.Object();
     this._value = this._calculateValue();
-}
+};
 
 WebInspector.PauseOnExceptionStateSetting.prototype = {
     /**
@@ -714,8 +737,9 @@ WebInspector.PauseOnExceptionStateSetting.prototype = {
      */
     _calculateValue: function()
     {
-        if (!WebInspector.settings.pauseOnExceptionEnabled.get())
+        if (!WebInspector.settings.pauseOnExceptionEnabled.get()) {
             return "none";
+        }
         // The correct code here would be
         //     return WebInspector.settings.pauseOnCaughtException.get() ? "all" : "uncaught";
         // But the CodeSchool DevTools relies on the fact that we used to enable pausing on ALL extensions by default, so we trick it here.
@@ -735,9 +759,10 @@ WebInspector.PauseOnExceptionStateSetting.prototype = {
     _fireChangedIfNeeded: function()
     {
         var newValue = this._calculateValue();
-        if (newValue === this._value)
+        if (newValue === this._value) {
             return;
+        }
         this._value = newValue;
         this._eventSupport.dispatchEventToListeners(this._name, this._value);
     }
-}
+};

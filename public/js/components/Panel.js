@@ -39,7 +39,7 @@ WebInspector.Panel = function(name)
     this._panelName = name;
 
     this._shortcuts = /** !Object.<number, function(Event=):boolean> */ ({});
-}
+};
 
 // Should by in sync with style declarations.
 WebInspector.Panel.counterRightMargin = 25;
@@ -106,23 +106,27 @@ WebInspector.Panel.prototype = {
         }
 
         var searchableView = this.searchableView();
-        if (!searchableView)
+        if (!searchableView) {
             return;
+        }
 
         function handleSearchShortcuts(shortcuts, handler)
         {
             for (var i = 0; i < shortcuts.length; ++i) {
-                if (shortcuts[i].key !== shortcutKey)
+                if (shortcuts[i].key !== shortcutKey) {
                     continue;
+                }
                 return handler.call(searchableView);
             }
             return false;
         }
 
-        if (handleSearchShortcuts(WebInspector.SearchableView.findShortcuts(), searchableView.handleFindShortcut))
+        if (handleSearchShortcuts(WebInspector.SearchableView.findShortcuts(), searchableView.handleFindShortcut)) {
             event.handled = true;
-        else if (handleSearchShortcuts(WebInspector.SearchableView.cancelSearchShortcuts(), searchableView.handleCancelSearchShortcut))
+        }
+        else if (handleSearchShortcuts(WebInspector.SearchableView.cancelSearchShortcuts(), searchableView.handleCancelSearchShortcut)) {
             event.handled = true;
+        }
     },
 
     /**
@@ -131,12 +135,13 @@ WebInspector.Panel.prototype = {
      */
     registerShortcuts: function(keys, handler)
     {
-        for (var i = 0; i < keys.length; ++i)
+        for (var i = 0; i < keys.length; ++i) {
             this._shortcuts[keys[i].key] = handler;
+        }
     },
 
     __proto__: WebInspector.VBox.prototype
-}
+};
 
 /**
  * @extends {WebInspector.Panel}
@@ -159,7 +164,7 @@ WebInspector.PanelWithSidebarTree = function(name, defaultWidth)
     this._sidebarElement.classList.add("sidebar");
     var sidebarTreeElement = this._sidebarElement.createChild("ol", "sidebar-tree");
     this.sidebarTree = new TreeOutline(sidebarTreeElement);
-}
+};
 
 WebInspector.PanelWithSidebarTree.prototype = {
     /**
@@ -187,14 +192,14 @@ WebInspector.PanelWithSidebarTree.prototype = {
     },
 
     __proto__: WebInspector.Panel.prototype
-}
+};
 
 /**
  * @interface
  */
 WebInspector.PanelDescriptor = function()
 {
-}
+};
 
 WebInspector.PanelDescriptor.prototype = {
     /**
@@ -211,7 +216,7 @@ WebInspector.PanelDescriptor.prototype = {
      * @return {!WebInspector.Panel}
      */
     panel: function() {}
-}
+};
 
 /**
  * @constructor
@@ -220,10 +225,10 @@ WebInspector.PanelDescriptor.prototype = {
  */
 WebInspector.ModuleManagerExtensionPanelDescriptor = function(extension)
 {
-    this._name = extension.descriptor()["name"];
-    this._title = WebInspector.UIString(extension.descriptor()["title"]);
+    this._name = extension.descriptor().name;
+    this._title = WebInspector.UIString(extension.descriptor().title);
     this._extension = extension;
-}
+};
 
 WebInspector.ModuleManagerExtensionPanelDescriptor.prototype = {
     /**
@@ -249,4 +254,4 @@ WebInspector.ModuleManagerExtensionPanelDescriptor.prototype = {
     {
         return /** @type {!WebInspector.Panel} */ (this._extension.instance());
     }
-}
+};

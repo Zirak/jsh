@@ -56,7 +56,7 @@ WebInspector.Section = function(title, subtitle)
     this.title = title;
     this.subtitle = subtitle;
     this._expanded = false;
-}
+};
 
 WebInspector.Section.prototype = {
     get title()
@@ -66,15 +66,17 @@ WebInspector.Section.prototype = {
 
     set title(x)
     {
-        if (this._title === x)
+        if (this._title === x) {
             return;
+        }
         this._title = x;
 
         if (x instanceof Node) {
             this.titleElement.removeChildren();
             this.titleElement.appendChild(x);
-        } else
-          this.titleElement.textContent = x;
+        } else {
+            this.titleElement.textContent = x;
+        }
     },
 
     get subtitle()
@@ -84,8 +86,9 @@ WebInspector.Section.prototype = {
 
     set subtitle(x)
     {
-        if (this._subtitle === x)
+        if (this._subtitle === x) {
             return;
+        }
         this._subtitle = x;
         this.subtitleElement.textContent = x;
     },
@@ -96,8 +99,9 @@ WebInspector.Section.prototype = {
         var child = this.subtitleElement.querySelector("[data-uncopyable]");
         if (child) {
             var linkData = child.getAttribute("data-uncopyable");
-            if (linkData)
+            if (linkData) {
                 result += linkData;
+            }
         }
         return result;
     },
@@ -109,10 +113,12 @@ WebInspector.Section.prototype = {
 
     set expanded(x)
     {
-        if (x)
+        if (x) {
             this.expand();
-        else
+        }
+        else {
             this.collapse();
+        }
     },
 
     get populated()
@@ -137,13 +143,15 @@ WebInspector.Section.prototype = {
     get firstSibling()
     {
         var parent = this.element.parentElement;
-        if (!parent)
+        if (!parent) {
             return null;
+        }
 
         var childElement = parent.firstChild;
         while (childElement) {
-            if (childElement._section)
+            if (childElement._section) {
                 return childElement._section;
+            }
             childElement = childElement.nextSibling;
         }
 
@@ -153,13 +161,15 @@ WebInspector.Section.prototype = {
     get lastSibling()
     {
         var parent = this.element.parentElement;
-        if (!parent)
+        if (!parent) {
             return null;
+        }
 
         var childElement = parent.lastChild;
         while (childElement) {
-            if (childElement._section)
+            if (childElement._section) {
                 return childElement._section;
+            }
             childElement = childElement.previousSibling;
         }
 
@@ -188,8 +198,9 @@ WebInspector.Section.prototype = {
 
     expand: function()
     {
-        if (this._expanded)
+        if (this._expanded) {
             return;
+        }
         this._expanded = true;
         this.element.classList.add("expanded");
 
@@ -201,8 +212,9 @@ WebInspector.Section.prototype = {
 
     collapse: function()
     {
-        if (!this._expanded)
+        if (!this._expanded) {
             return;
+        }
         this._expanded = false;
         this.element.classList.remove("expanded");
     },
@@ -217,4 +229,4 @@ WebInspector.Section.prototype = {
         this.toggleExpanded();
         event.consume();
     }
-}
+};

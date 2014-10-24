@@ -33,7 +33,7 @@
  */
 WebInspector.SuggestBoxDelegate = function()
 {
-}
+};
 
 WebInspector.SuggestBoxDelegate.prototype = {
     /**
@@ -46,7 +46,7 @@ WebInspector.SuggestBoxDelegate.prototype = {
      * acceptSuggestion will be always called after call to applySuggestion with isIntermediateSuggestion being equal to false.
      */
     acceptSuggestion: function() { },
-}
+};
 
 /**
  * @constructor
@@ -64,7 +64,7 @@ WebInspector.SuggestBox = function(suggestBoxDelegate, maxItemsHeight)
     this._maybeHideBound = this._maybeHide.bind(this);
     this._element = document.createElementWithClass("div", "suggest-box");
     this._element.addEventListener("mousedown", this._onBoxMouseDown.bind(this), true);
-}
+};
 
 WebInspector.SuggestBox.prototype = {
     /**
@@ -89,8 +89,9 @@ WebInspector.SuggestBox.prototype = {
     _updateBoxPosition: function(anchorBox)
     {
         console.assert(this._overlay);
-        if (this._lastAnchorBox && this._lastAnchorBox.equals(anchorBox))
+        if (this._lastAnchorBox && this._lastAnchorBox.equals(anchorBox)) {
             return;
+        }
         this._lastAnchorBox = anchorBox;
 
         // Position relative to main DevTools element.
@@ -102,7 +103,7 @@ WebInspector.SuggestBox.prototype = {
         var underHeight = totalHeight - anchorBox.y - anchorBox.height;
 
         var rowHeight = 17;
-        const spacer = 6;
+        var spacer = 6;
 
         var maxHeight = this._maxItemsHeight ? this._maxItemsHeight * rowHeight : Math.max(underHeight, aboveHeight) - spacer;
         var under = underHeight >= aboveHeight;
@@ -134,14 +135,16 @@ WebInspector.SuggestBox.prototype = {
 
     _maybeHide: function()
     {
-        if (!this._hideTimeoutId)
+        if (!this._hideTimeoutId) {
             this._hideTimeoutId = window.setTimeout(this.hide.bind(this), 0);
+        }
     },
 
     _show: function()
     {
-        if (this.visible())
+        if (this.visible()) {
             return;
+        }
         this._overlay = new WebInspector.SuggestBox.Overlay();
         this._bodyElement.addEventListener("mousedown", this._maybeHideBound, true);
 
@@ -154,8 +157,9 @@ WebInspector.SuggestBox.prototype = {
 
     hide: function()
     {
-        if (!this.visible())
+        if (!this.visible()) {
             return;
+        }
 
         this._bodyElement.removeEventListener("mousedown", this._maybeHideBound, true);
         this._element.remove();
@@ -176,12 +180,14 @@ WebInspector.SuggestBox.prototype = {
      */
     _applySuggestion: function(isIntermediateSuggestion)
     {
-        if (!this.visible() || !this._selectedElement)
+        if (!this.visible() || !this._selectedElement) {
             return false;
+        }
 
         var suggestion = this._selectedElement.textContent;
-        if (!suggestion)
+        if (!suggestion) {
             return false;
+        }
 
         this._suggestBoxDelegate.applySuggestion(suggestion, isIntermediateSuggestion);
         return true;
@@ -194,8 +200,9 @@ WebInspector.SuggestBox.prototype = {
     {
         var result = this._applySuggestion();
         this.hide();
-        if (!result)
+        if (!result) {
             return false;
+        }
 
         this._suggestBoxDelegate.acceptSuggestion();
 
@@ -209,18 +216,22 @@ WebInspector.SuggestBox.prototype = {
      */
     _selectClosest: function(shift, isCircular)
     {
-        if (!this._length)
+        if (!this._length) {
             return false;
+        }
 
-        if (this._selectedIndex === -1 && shift < 0)
+        if (this._selectedIndex === -1 && shift < 0) {
             shift += 1;
+        }
 
         var index = this._selectedIndex + shift;
 
-        if (isCircular)
+        if (isCircular) {
             index = (this._length + index) % this._length;
-        else
+        }
+        else {
             index = Number.constrain(index, 0, this._length - 1);
+        }
 
         this._selectItem(index, true);
         this._applySuggestion(true);
@@ -279,18 +290,21 @@ WebInspector.SuggestBox.prototype = {
      */
     _selectItem: function(index, scrollIntoView)
     {
-        if (this._selectedElement)
+        if (this._selectedElement) {
             this._selectedElement.classList.remove("selected");
+        }
 
         this._selectedIndex = index;
-        if (index < 0)
+        if (index < 0) {
             return;
+        }
 
         this._selectedElement = this._element.children[index];
         this._selectedElement.classList.add("selected");
 
-        if (scrollIntoView)
+        if (scrollIntoView) {
             this._selectedElement.scrollIntoViewIfNeeded(false);
+        }
     },
 
     /**
@@ -300,11 +314,13 @@ WebInspector.SuggestBox.prototype = {
      */
     _canShowBox: function(completions, canShowForSingleItem, userEnteredText)
     {
-        if (!completions || !completions.length)
+        if (!completions || !completions.length) {
             return false;
+        }
 
-        if (completions.length > 1)
+        if (completions.length > 1) {
             return true;
+        }
 
         // Do not show a single suggestion if it is the same as user-entered prefix, even if allowed to show single-item suggest boxes.
         return canShowForSingleItem && completions[0] !== userEnteredText;
@@ -312,10 +328,12 @@ WebInspector.SuggestBox.prototype = {
 
     _ensureRowCountPerViewport: function()
     {
-        if (this._rowCountPerViewport)
+        if (this._rowCountPerViewport) {
             return;
-        if (!this._element.firstChild)
+        }
+        if (!this._element.firstChild) {
             return;
+        }
 
         this._rowCountPerViewport = Math.floor(this._element.offsetHeight / this._element.firstChild.offsetHeight);
     },
@@ -335,8 +353,9 @@ WebInspector.SuggestBox.prototype = {
             this._updateBoxPosition(anchorBox);
             this._selectItem(selectedIndex, selectedIndex > 0);
             delete this._rowCountPerViewport;
-        } else
+        } else {
             this.hide();
+        }
     },
 
     /**
@@ -406,7 +425,7 @@ WebInspector.SuggestBox.prototype = {
         // to commit the input or handle it otherwise.
         return hasSelectedItem;
     }
-}
+};
 
 /**
  * @constructor
@@ -416,7 +435,7 @@ WebInspector.SuggestBox.Overlay = function()
     this.element = document.createElementWithClass("div", "suggest-box-overlay");
     this._resize();
     document.body.appendChild(this.element);
-}
+};
 
 WebInspector.SuggestBox.Overlay.prototype = {
     _resize: function()
@@ -434,4 +453,4 @@ WebInspector.SuggestBox.Overlay.prototype = {
     {
         this.element.remove();
     }
-}
+};

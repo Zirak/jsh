@@ -60,11 +60,13 @@ function TreeOutline(listNode, nonFocusable)
 
 TreeOutline.prototype.setFocusable = function(focusable)
 {
-    if (focusable)
+    if (focusable) {
         this._childrenListNode.setAttribute("tabIndex", 0);
-    else
+    }
+    else {
         this._childrenListNode.removeAttribute("tabIndex");
-}
+    }
+};
 
 /**
  * @param {!TreeElement} child
@@ -72,12 +74,14 @@ TreeOutline.prototype.setFocusable = function(focusable)
 TreeOutline.prototype.appendChild = function(child)
 {
     var insertionIndex;
-    if (this.treeOutline.comparator)
+    if (this.treeOutline.comparator) {
         insertionIndex = insertionIndexForObjectInListSortedByFunction(child, this.children, this.treeOutline.comparator);
-    else
+    }
+    else {
         insertionIndex = this.children.length;
+    }
     this.insertChild(child, insertionIndex);
-}
+};
 
 /**
  * @param {!TreeElement} child
@@ -85,18 +89,21 @@ TreeOutline.prototype.appendChild = function(child)
  */
 TreeOutline.prototype.insertBeforeChild = function(child, beforeChild)
 {
-    if (!child)
+    if (!child) {
         throw("child can't be undefined or null");
+    }
 
-    if (!beforeChild)
+    if (!beforeChild) {
         throw("beforeChild can't be undefined or null");
+    }
 
     var childIndex = this.children.indexOf(beforeChild);
-    if (childIndex === -1)
+    if (childIndex === -1) {
         throw("beforeChild not found in this node's children");
+    }
 
     this.insertChild(child, childIndex);
-}
+};
 
 /**
  * @param {!TreeElement} child
@@ -104,8 +111,9 @@ TreeOutline.prototype.insertBeforeChild = function(child, beforeChild)
  */
 TreeOutline.prototype.insertChild = function(child, index)
 {
-    if (!child)
+    if (!child) {
         throw("child can't be undefined or null");
+    }
 
     var previousChild = (index > 0 ? this.children[index - 1] : null);
     if (previousChild) {
@@ -136,45 +144,53 @@ TreeOutline.prototype.insertChild = function(child, index)
         current = current.traverseNextTreeElement(false, child, true);
     }
 
-    if (child.hasChildren && typeof(child.treeOutline._expandedStateMap.get(child.representedObject)) !== "undefined")
+    if (child.hasChildren && typeof(child.treeOutline._expandedStateMap.get(child.representedObject)) !== "undefined") {
         child.expanded = child.treeOutline._expandedStateMap.get(child.representedObject);
+    }
 
     if (!this._childrenListNode) {
         this._childrenListNode = this.treeOutline._childrenListNode.ownerDocument.createElement("ol");
         this._childrenListNode.parentTreeElement = this;
         this._childrenListNode.classList.add("children");
-        if (this.hidden)
+        if (this.hidden) {
             this._childrenListNode.classList.add("hidden");
+        }
     }
 
     child._attach();
-}
+};
 
 /**
  * @param {number} childIndex
  */
 TreeOutline.prototype.removeChildAtIndex = function(childIndex)
 {
-    if (childIndex < 0 || childIndex >= this.children.length)
+    if (childIndex < 0 || childIndex >= this.children.length) {
         throw("childIndex out of range");
+    }
 
     var child = this.children[childIndex];
     this.children.splice(childIndex, 1);
 
     var parent = child.parent;
     if (child.deselect()) {
-        if (child.previousSibling)
+        if (child.previousSibling) {
             child.previousSibling.select();
-        else if (child.nextSibling)
+        }
+        else if (child.nextSibling) {
             child.nextSibling.select();
-        else
+        }
+        else {
             parent.select();
+        }
     }
 
-    if (child.previousSibling)
+    if (child.previousSibling) {
         child.previousSibling.nextSibling = child.nextSibling;
-    if (child.nextSibling)
+    }
+    if (child.nextSibling) {
         child.nextSibling.previousSibling = child.previousSibling;
+    }
 
     if (child.treeOutline) {
         child.treeOutline._forgetTreeElement(child);
@@ -186,22 +202,24 @@ TreeOutline.prototype.removeChildAtIndex = function(childIndex)
     child.parent = null;
     child.nextSibling = null;
     child.previousSibling = null;
-}
+};
 
 /**
  * @param {!TreeElement} child
  */
 TreeOutline.prototype.removeChild = function(child)
 {
-    if (!child)
+    if (!child) {
         throw("child can't be undefined or null");
+    }
 
     var childIndex = this.children.indexOf(child);
-    if (childIndex === -1)
+    if (childIndex === -1) {
         throw("child not found in this node's children");
+    }
 
     this.removeChildAtIndex.call(this, childIndex);
-}
+};
 
 TreeOutline.prototype.removeChildren = function()
 {
@@ -222,24 +240,26 @@ TreeOutline.prototype.removeChildren = function()
     }
 
     this.children = [];
-}
+};
 
 /**
  * @param {!TreeElement} element
  */
 TreeOutline.prototype._rememberTreeElement = function(element)
 {
-    if (!this._treeElementsMap.get(element.representedObject))
+    if (!this._treeElementsMap.get(element.representedObject)) {
         this._treeElementsMap.put(element.representedObject, []);
+    }
 
     // check if the element is already known
     var elements = this._treeElementsMap.get(element.representedObject);
-    if (elements.indexOf(element) !== -1)
+    if (elements.indexOf(element) !== -1) {
         return;
+    }
 
     // add the element
     elements.push(element);
-}
+};
 
 /**
  * @param {!TreeElement} element
@@ -249,10 +269,11 @@ TreeOutline.prototype._forgetTreeElement = function(element)
     if (this._treeElementsMap.get(element.representedObject)) {
         var elements = this._treeElementsMap.get(element.representedObject);
         elements.remove(element, true);
-        if (!elements.length)
+        if (!elements.length) {
             this._treeElementsMap.remove(element.representedObject);
+        }
     }
-}
+};
 
 /**
  * @param {!TreeElement} parentElement
@@ -264,7 +285,7 @@ TreeOutline.prototype._forgetChildrenRecursive = function(parentElement)
         this._forgetTreeElement(child);
         child = child.traverseNextTreeElement(false, parentElement, true);
     }
-}
+};
 
 /**
  * @param {?Object} representedObject
@@ -272,14 +293,16 @@ TreeOutline.prototype._forgetChildrenRecursive = function(parentElement)
  */
 TreeOutline.prototype.getCachedTreeElement = function(representedObject)
 {
-    if (!representedObject)
+    if (!representedObject) {
         return null;
+    }
 
     var elements = this._treeElementsMap.get(representedObject);
-    if (elements && elements.length)
+    if (elements && elements.length) {
         return elements[0];
+    }
     return null;
-}
+};
 
 /**
  * @param {?Object} representedObject
@@ -288,33 +311,38 @@ TreeOutline.prototype.getCachedTreeElement = function(representedObject)
  */
 TreeOutline.prototype.findTreeElement = function(representedObject, getParent)
 {
-    if (!representedObject)
+    if (!representedObject) {
         return null;
+    }
 
     var cachedElement = this.getCachedTreeElement(representedObject);
-    if (cachedElement)
+    if (cachedElement) {
         return cachedElement;
+    }
 
     // Walk up the parent pointers from the desired representedObject
     var ancestors = [];
     for (var currentObject = getParent(representedObject); currentObject;  currentObject = getParent(currentObject)) {
         ancestors.push(currentObject);
-        if (this.getCachedTreeElement(currentObject))  // stop climbing as soon as we hit
+        if (this.getCachedTreeElement(currentObject)) {  // stop climbing as soon as we hit
             break;
+        }
     }
 
-    if (!currentObject)
+    if (!currentObject) {
         return null;
+    }
 
     // Walk down to populate each ancestor's children, to fill in the tree and the cache.
     for (var i = ancestors.length - 1; i >= 0; --i) {
         var treeElement = this.getCachedTreeElement(ancestors[i]);
-        if (treeElement)
+        if (treeElement) {
             treeElement.onpopulate();  // fill the cache with the children of treeElement
+        }
     }
 
     return this.getCachedTreeElement(representedObject);
-}
+};
 
 /**
  * @param {number} x
@@ -324,51 +352,61 @@ TreeOutline.prototype.findTreeElement = function(representedObject, getParent)
 TreeOutline.prototype.treeElementFromPoint = function(x, y)
 {
     var node = this._childrenListNode.ownerDocument.elementFromPoint(x, y);
-    if (!node)
+    if (!node) {
         return null;
+    }
 
     var listNode = node.enclosingNodeOrSelfWithNodeNameInArray(["ol", "li"]);
-    if (listNode)
+    if (listNode) {
         return listNode.parentTreeElement || listNode.treeElement;
+    }
     return null;
-}
+};
 
 TreeOutline.prototype._treeKeyDown = function(event)
 {
-    if (event.target !== this._childrenListNode)
+    if (event.target !== this._childrenListNode) {
         return;
+    }
 
-    if (!this.selectedTreeElement || event.shiftKey || event.metaKey || event.ctrlKey)
+    if (!this.selectedTreeElement || event.shiftKey || event.metaKey || event.ctrlKey) {
         return;
+    }
 
     var handled = false;
     var nextSelectedElement;
     if (event.keyIdentifier === "Up" && !event.altKey) {
         nextSelectedElement = this.selectedTreeElement.traversePreviousTreeElement(true);
-        while (nextSelectedElement && !nextSelectedElement.selectable)
+        while (nextSelectedElement && !nextSelectedElement.selectable) {
             nextSelectedElement = nextSelectedElement.traversePreviousTreeElement(!this.expandTreeElementsWhenArrowing);
+        }
         handled = nextSelectedElement ? true : false;
     } else if (event.keyIdentifier === "Down" && !event.altKey) {
         nextSelectedElement = this.selectedTreeElement.traverseNextTreeElement(true);
-        while (nextSelectedElement && !nextSelectedElement.selectable)
+        while (nextSelectedElement && !nextSelectedElement.selectable) {
             nextSelectedElement = nextSelectedElement.traverseNextTreeElement(!this.expandTreeElementsWhenArrowing);
+        }
         handled = nextSelectedElement ? true : false;
     } else if (event.keyIdentifier === "Left") {
         if (this.selectedTreeElement.expanded) {
-            if (event.altKey)
+            if (event.altKey) {
                 this.selectedTreeElement.collapseRecursively();
-            else
+            }
+            else {
                 this.selectedTreeElement.collapse();
+            }
             handled = true;
         } else if (this.selectedTreeElement.parent && !this.selectedTreeElement.parent.root) {
             handled = true;
             if (this.selectedTreeElement.parent.selectable) {
                 nextSelectedElement = this.selectedTreeElement.parent;
-                while (nextSelectedElement && !nextSelectedElement.selectable)
+                while (nextSelectedElement && !nextSelectedElement.selectable) {
                     nextSelectedElement = nextSelectedElement.parent;
+                }
                 handled = nextSelectedElement ? true : false;
-            } else if (this.selectedTreeElement.parent)
+            } else if (this.selectedTreeElement.parent) {
                 this.selectedTreeElement.parent.collapse();
+            }
         }
     } else if (event.keyIdentifier === "Right") {
         if (!this.selectedTreeElement.revealed()) {
@@ -378,41 +416,48 @@ TreeOutline.prototype._treeKeyDown = function(event)
             handled = true;
             if (this.selectedTreeElement.expanded) {
                 nextSelectedElement = this.selectedTreeElement.children[0];
-                while (nextSelectedElement && !nextSelectedElement.selectable)
+                while (nextSelectedElement && !nextSelectedElement.selectable) {
                     nextSelectedElement = nextSelectedElement.nextSibling;
+                }
                 handled = nextSelectedElement ? true : false;
             } else {
-                if (event.altKey)
+                if (event.altKey) {
                     this.selectedTreeElement.expandRecursively();
-                else
+                }
+                else {
                     this.selectedTreeElement.expand();
+                }
             }
         }
-    } else if (event.keyCode === 8 /* Backspace */ || event.keyCode === 46 /* Delete */)
+    } else if (event.keyCode === 8 /* Backspace */ || event.keyCode === 46 /* Delete */) {
         handled = this.selectedTreeElement.ondelete();
-    else if (isEnterKey(event))
+    }
+    else if (isEnterKey(event)) {
         handled = this.selectedTreeElement.onenter();
-    else if (event.keyCode === WebInspector.KeyboardShortcut.Keys.Space.code)
+    }
+    else if (event.keyCode === WebInspector.KeyboardShortcut.Keys.Space.code) {
         handled = this.selectedTreeElement.onspace();
+    }
 
     if (nextSelectedElement) {
         nextSelectedElement.reveal();
         nextSelectedElement.select(false, true);
     }
 
-    if (handled)
+    if (handled) {
         event.consume(true);
-}
+    }
+};
 
 TreeOutline.prototype.expand = function()
 {
     // this is the root, do nothing
-}
+};
 
 TreeOutline.prototype.collapse = function()
 {
     // this is the root, do nothing
-}
+};
 
 /**
  * @return {boolean}
@@ -420,17 +465,17 @@ TreeOutline.prototype.collapse = function()
 TreeOutline.prototype.revealed = function()
 {
     return true;
-}
+};
 
 TreeOutline.prototype.reveal = function()
 {
     // this is the root, do nothing
-}
+};
 
 TreeOutline.prototype.select = function()
 {
     // this is the root, do nothing
-}
+};
 
 /**
  * @param {boolean=} omitFocus
@@ -438,7 +483,7 @@ TreeOutline.prototype.select = function()
 TreeOutline.prototype.revealAndSelect = function(omitFocus)
 {
     // this is the root, do nothing
-}
+};
 
 /**
  * @constructor
@@ -469,8 +514,9 @@ TreeElement.prototype = {
     arrowToggleWidth: 10,
 
     get selectable() {
-        if (this._hidden)
+        if (this._hidden) {
             return false;
+        }
         return this._selectable;
     },
 
@@ -501,8 +547,9 @@ TreeElement.prototype = {
 
     set tooltip(x) {
         this._tooltip = x;
-        if (this._listItemNode)
+        if (this._listItemNode) {
             this._listItemNode.title = x ? x : "";
+        }
     },
 
     get hasChildren() {
@@ -510,16 +557,19 @@ TreeElement.prototype = {
     },
 
     set hasChildren(x) {
-        if (this._hasChildren === x)
+        if (this._hasChildren === x) {
             return;
+        }
 
         this._hasChildren = x;
 
-        if (!this._listItemNode)
+        if (!this._listItemNode) {
             return;
+        }
 
-        if (x)
+        if (x) {
             this._listItemNode.classList.add("parent");
+        }
         else {
             this._listItemNode.classList.remove("parent");
             this.collapse();
@@ -531,21 +581,26 @@ TreeElement.prototype = {
     },
 
     set hidden(x) {
-        if (this._hidden === x)
+        if (this._hidden === x) {
             return;
+        }
 
         this._hidden = x;
 
         if (x) {
-            if (this._listItemNode)
+            if (this._listItemNode) {
                 this._listItemNode.classList.add("hidden");
-            if (this._childrenListNode)
+            }
+            if (this._childrenListNode) {
                 this._childrenListNode.classList.add("hidden");
+            }
         } else {
-            if (this._listItemNode)
+            if (this._listItemNode) {
                 this._listItemNode.classList.remove("hidden");
-            if (this._childrenListNode)
+            }
+            if (this._childrenListNode) {
                 this._childrenListNode.classList.remove("hidden");
+            }
         }
     },
 
@@ -555,24 +610,28 @@ TreeElement.prototype = {
 
     set shouldRefreshChildren(x) {
         this._shouldRefreshChildren = x;
-        if (x && this.expanded)
+        if (x && this.expanded) {
             this.expand();
+        }
     },
 
     _setListItemNodeContent: function()
     {
-        if (!this._listItemNode)
+        if (!this._listItemNode) {
             return;
+        }
 
-        if (typeof this._title === "string")
+        if (typeof this._title === "string") {
             this._listItemNode.textContent = this._title;
+        }
         else {
             this._listItemNode.removeChildren();
-            if (this._title)
+            if (this._title) {
                 this._listItemNode.appendChild(this._title);
+            }
         }
     }
-}
+};
 
 TreeElement.prototype.appendChild = TreeOutline.prototype.appendChild;
 TreeElement.prototype.insertChild = TreeOutline.prototype.insertChild;
@@ -584,22 +643,27 @@ TreeElement.prototype.removeChildren = TreeOutline.prototype.removeChildren;
 TreeElement.prototype._attach = function()
 {
     if (!this._listItemNode || this.parent._shouldRefreshChildren) {
-        if (this._listItemNode && this._listItemNode.parentNode)
+        if (this._listItemNode && this._listItemNode.parentNode) {
             this._listItemNode.parentNode.removeChild(this._listItemNode);
+        }
 
         this._listItemNode = this.treeOutline._childrenListNode.ownerDocument.createElement("li");
         this._listItemNode.treeElement = this;
         this._setListItemNodeContent();
         this._listItemNode.title = this._tooltip ? this._tooltip : "";
 
-        if (this.hidden)
+        if (this.hidden) {
             this._listItemNode.classList.add("hidden");
-        if (this.hasChildren)
+        }
+        if (this.hasChildren) {
             this._listItemNode.classList.add("parent");
-        if (this.expanded)
+        }
+        if (this.expanded) {
             this._listItemNode.classList.add("expanded");
-        if (this.selected)
+        }
+        if (this.selected) {
             this._listItemNode.classList.add("selected");
+        }
 
         this._listItemNode.addEventListener("mousedown", TreeElement.treeElementMouseDown, false);
         this._listItemNode.addEventListener("selectstart", TreeElement.treeElementSelectStart, false);
@@ -610,167 +674,200 @@ TreeElement.prototype._attach = function()
     }
 
     var nextSibling = null;
-    if (this.nextSibling && this.nextSibling._listItemNode && this.nextSibling._listItemNode.parentNode === this.parent._childrenListNode)
+    if (this.nextSibling && this.nextSibling._listItemNode && this.nextSibling._listItemNode.parentNode === this.parent._childrenListNode) {
         nextSibling = this.nextSibling._listItemNode;
+    }
     this.parent._childrenListNode.insertBefore(this._listItemNode, nextSibling);
-    if (this._childrenListNode)
+    if (this._childrenListNode) {
         this.parent._childrenListNode.insertBefore(this._childrenListNode, this._listItemNode.nextSibling);
-    if (this.selected)
+    }
+    if (this.selected) {
         this.select();
-    if (this.expanded)
+    }
+    if (this.expanded) {
         this.expand();
-}
+    }
+};
 
 TreeElement.prototype._detach = function()
 {
-    if (this._listItemNode && this._listItemNode.parentNode)
+    if (this._listItemNode && this._listItemNode.parentNode) {
         this._listItemNode.parentNode.removeChild(this._listItemNode);
-    if (this._childrenListNode && this._childrenListNode.parentNode)
+    }
+    if (this._childrenListNode && this._childrenListNode.parentNode) {
         this._childrenListNode.parentNode.removeChild(this._childrenListNode);
-}
+    }
+};
 
 TreeElement.treeElementMouseDown = function(event)
 {
     var element = event.currentTarget;
-    if (!element)
+    if (!element) {
         return;
+    }
     delete element._selectionStarted;
 
-    if (!element.treeElement || !element.treeElement.selectable)
+    if (!element.treeElement || !element.treeElement.selectable) {
         return;
+    }
 
-    if (element.treeElement.isEventWithinDisclosureTriangle(event))
+    if (element.treeElement.isEventWithinDisclosureTriangle(event)) {
         return;
+    }
 
     element.treeElement.selectOnMouseDown(event);
-}
+};
 
 TreeElement.treeElementSelectStart = function(event)
 {
     var element = event.currentTarget;
-    if (!element)
+    if (!element) {
         return;
+    }
     element._selectionStarted = true;
-}
+};
 
 TreeElement.treeElementToggled = function(event)
 {
     var element = event.currentTarget;
-    if (!element)
+    if (!element) {
         return;
+    }
     if (element._selectionStarted) {
-        delete element._selectionStarted
+        delete element._selectionStarted;
         var selection = window.getSelection();
-        if (selection && !selection.isCollapsed && element.isSelfOrAncestor(selection.anchorNode) && element.isSelfOrAncestor(selection.focusNode))
+        if (selection && !selection.isCollapsed && element.isSelfOrAncestor(selection.anchorNode) && element.isSelfOrAncestor(selection.focusNode)) {
             return;
+        }
     }
 
-    if (!element.treeElement)
+    if (!element.treeElement) {
         return;
+    }
 
     var toggleOnClick = element.treeElement.toggleOnClick && !element.treeElement.selectable;
     var isInTriangle = element.treeElement.isEventWithinDisclosureTriangle(event);
-    if (!toggleOnClick && !isInTriangle)
+    if (!toggleOnClick && !isInTriangle) {
         return;
+    }
 
-    if (event.target && event.target.enclosingNodeOrSelfWithNodeName("a"))
+    if (event.target && event.target.enclosingNodeOrSelfWithNodeName("a")) {
         return;
+    }
 
     if (element.treeElement.expanded) {
-        if (event.altKey)
+        if (event.altKey) {
             element.treeElement.collapseRecursively();
-        else
+        }
+        else {
             element.treeElement.collapse();
+        }
     } else {
-        if (event.altKey)
+        if (event.altKey) {
             element.treeElement.expandRecursively();
-        else
+        }
+        else {
             element.treeElement.expand();
+        }
     }
     event.consume();
-}
+};
 
 TreeElement.treeElementDoubleClicked = function(event)
 {
     var element = event.currentTarget;
-    if (!element || !element.treeElement)
+    if (!element || !element.treeElement) {
         return;
+    }
 
     var handled = element.treeElement.ondblclick.call(element.treeElement, event);
-    if (handled)
+    if (handled) {
         return;
-    if (element.treeElement.hasChildren && !element.treeElement.expanded)
+    }
+    if (element.treeElement.hasChildren && !element.treeElement.expanded) {
         element.treeElement.expand();
-}
+    }
+};
 
 TreeElement.prototype.collapse = function()
 {
-    if (this._listItemNode)
+    if (this._listItemNode) {
         this._listItemNode.classList.remove("expanded");
-    if (this._childrenListNode)
+    }
+    if (this._childrenListNode) {
         this._childrenListNode.classList.remove("expanded");
+    }
 
     this.expanded = false;
 
-    if (this.treeOutline)
+    if (this.treeOutline) {
         this.treeOutline._expandedStateMap.put(this.representedObject, false);
+    }
 
     this.oncollapse();
-}
+};
 
 TreeElement.prototype.collapseRecursively = function()
 {
     var item = this;
     while (item) {
-        if (item.expanded)
+        if (item.expanded) {
             item.collapse();
+        }
         item = item.traverseNextTreeElement(false, this, true);
     }
-}
+};
 
 TreeElement.prototype.expand = function()
 {
-    if (!this.hasChildren || (this.expanded && !this._shouldRefreshChildren && this._childrenListNode))
+    if (!this.hasChildren || (this.expanded && !this._shouldRefreshChildren && this._childrenListNode)) {
         return;
+    }
 
     // Set this before onpopulate. Since onpopulate can add elements, this makes
     // sure the expanded flag is true before calling those functions. This prevents the possibility
     // of an infinite loop if onpopulate were to call expand.
 
     this.expanded = true;
-    if (this.treeOutline)
+    if (this.treeOutline) {
         this.treeOutline._expandedStateMap.put(this.representedObject, true);
+    }
 
     if (this.treeOutline && (!this._childrenListNode || this._shouldRefreshChildren)) {
-        if (this._childrenListNode && this._childrenListNode.parentNode)
+        if (this._childrenListNode && this._childrenListNode.parentNode) {
             this._childrenListNode.parentNode.removeChild(this._childrenListNode);
+        }
 
         this._childrenListNode = this.treeOutline._childrenListNode.ownerDocument.createElement("ol");
         this._childrenListNode.parentTreeElement = this;
         this._childrenListNode.classList.add("children");
 
-        if (this.hidden)
+        if (this.hidden) {
             this._childrenListNode.classList.add("hidden");
+        }
 
         this.onpopulate();
 
-        for (var i = 0; i < this.children.length; ++i)
+        for (var i = 0; i < this.children.length; ++i) {
             this.children[i]._attach();
+        }
 
         delete this._shouldRefreshChildren;
     }
 
     if (this._listItemNode) {
         this._listItemNode.classList.add("expanded");
-        if (this._childrenListNode && this._childrenListNode.parentNode != this._listItemNode.parentNode)
+        if (this._childrenListNode && this._childrenListNode.parentNode != this._listItemNode.parentNode) {
             this.parent._childrenListNode.insertBefore(this._childrenListNode, this._listItemNode.nextSibling);
+        }
     }
 
-    if (this._childrenListNode)
+    if (this._childrenListNode) {
         this._childrenListNode.classList.add("expanded");
+    }
 
     this.onexpand();
-}
+};
 
 TreeElement.prototype.expandRecursively = function(maxDepth)
 {
@@ -781,46 +878,51 @@ TreeElement.prototype.expandRecursively = function(maxDepth)
     // The Inspector uses TreeOutlines to represents object properties, so recursive expansion
     // in some case can be infinite, since JavaScript objects can hold circular references.
     // So default to a recursion cap of 3 levels, since that gives fairly good results.
-    if (isNaN(maxDepth))
+    if (isNaN(maxDepth)) {
         maxDepth = 3;
+    }
 
     while (item) {
-        if (depth < maxDepth)
+        if (depth < maxDepth) {
             item.expand();
+        }
         item = item.traverseNextTreeElement(false, this, (depth >= maxDepth), info);
         depth += info.depthChange;
     }
-}
+};
 
 /**
  * @param {?TreeElement} ancestor
  * @return {boolean}
  */
 TreeElement.prototype.hasAncestor = function(ancestor) {
-    if (!ancestor)
+    if (!ancestor) {
         return false;
+    }
 
     var currentNode = this.parent;
     while (currentNode) {
-        if (ancestor === currentNode)
+        if (ancestor === currentNode) {
             return true;
+        }
         currentNode = currentNode.parent;
     }
 
     return false;
-}
+};
 
 TreeElement.prototype.reveal = function()
 {
     var currentAncestor = this.parent;
     while (currentAncestor && !currentAncestor.root) {
-        if (!currentAncestor.expanded)
+        if (!currentAncestor.expanded) {
             currentAncestor.expand();
+        }
         currentAncestor = currentAncestor.parent;
     }
 
     this.onreveal();
-}
+};
 
 /**
  * @return {boolean}
@@ -829,19 +931,21 @@ TreeElement.prototype.revealed = function()
 {
     var currentAncestor = this.parent;
     while (currentAncestor && !currentAncestor.root) {
-        if (!currentAncestor.expanded)
+        if (!currentAncestor.expanded) {
             return false;
+        }
         currentAncestor = currentAncestor.parent;
     }
 
     return true;
-}
+};
 
 TreeElement.prototype.selectOnMouseDown = function(event)
 {
-    if (this.select(false, true))
+    if (this.select(false, true)) {
         event.consume(true);
-}
+    }
+};
 
 /**
  * @param {boolean=} omitFocus
@@ -850,26 +954,31 @@ TreeElement.prototype.selectOnMouseDown = function(event)
  */
 TreeElement.prototype.select = function(omitFocus, selectedByUser)
 {
-    if (!this.treeOutline || !this.selectable || this.selected)
+    if (!this.treeOutline || !this.selectable || this.selected) {
         return false;
+    }
 
-    if (this.treeOutline.selectedTreeElement)
+    if (this.treeOutline.selectedTreeElement) {
         this.treeOutline.selectedTreeElement.deselect();
+    }
 
     this.selected = true;
 
-    if (!omitFocus)
+    if (!omitFocus) {
         this.treeOutline._childrenListNode.focus();
+    }
 
     // Focusing on another node may detach "this" from tree.
-    if (!this.treeOutline)
+    if (!this.treeOutline) {
         return false;
+    }
     this.treeOutline.selectedTreeElement = this;
-    if (this._listItemNode)
+    if (this._listItemNode) {
         this._listItemNode.classList.add("selected");
+    }
 
     return this.onselect(selectedByUser);
-}
+};
 
 /**
  * @param {boolean=} omitFocus
@@ -878,7 +987,7 @@ TreeElement.prototype.revealAndSelect = function(omitFocus)
 {
     this.reveal();
     this.select(omitFocus);
-}
+};
 
 /**
  * @param {boolean=} supressOnDeselect
@@ -886,53 +995,55 @@ TreeElement.prototype.revealAndSelect = function(omitFocus)
  */
 TreeElement.prototype.deselect = function(supressOnDeselect)
 {
-    if (!this.treeOutline || this.treeOutline.selectedTreeElement !== this || !this.selected)
+    if (!this.treeOutline || this.treeOutline.selectedTreeElement !== this || !this.selected) {
         return false;
+    }
 
     this.selected = false;
     this.treeOutline.selectedTreeElement = null;
-    if (this._listItemNode)
+    if (this._listItemNode) {
         this._listItemNode.classList.remove("selected");
+    }
     return true;
-}
+};
 
 // Overridden by subclasses.
-TreeElement.prototype.onpopulate = function() { }
+TreeElement.prototype.onpopulate = function() { };
 
 /**
  * @return {boolean}
  */
-TreeElement.prototype.onenter = function() { return false; }
+TreeElement.prototype.onenter = function() { return false; };
 
 /**
  * @return {boolean}
  */
-TreeElement.prototype.ondelete = function() { return false; }
+TreeElement.prototype.ondelete = function() { return false; };
 
 /**
  * @return {boolean}
  */
-TreeElement.prototype.onspace = function() { return false; }
+TreeElement.prototype.onspace = function() { return false; };
 
-TreeElement.prototype.onattach = function() { }
+TreeElement.prototype.onattach = function() { };
 
-TreeElement.prototype.onexpand = function() { }
+TreeElement.prototype.onexpand = function() { };
 
-TreeElement.prototype.oncollapse = function() { }
+TreeElement.prototype.oncollapse = function() { };
 
 /**
  * @param {!MouseEvent} e
  * @return {boolean}
  */
-TreeElement.prototype.ondblclick = function(e) { return false; }
+TreeElement.prototype.ondblclick = function(e) { return false; };
 
-TreeElement.prototype.onreveal = function() { }
+TreeElement.prototype.onreveal = function() { };
 
 /**
  * @param {boolean=} selectedByUser
  * @return {boolean}
  */
-TreeElement.prototype.onselect = function(selectedByUser) { return false; }
+TreeElement.prototype.onselect = function(selectedByUser) { return false; };
 
 /**
  * @param {boolean} skipUnrevealed
@@ -943,38 +1054,45 @@ TreeElement.prototype.onselect = function(selectedByUser) { return false; }
  */
 TreeElement.prototype.traverseNextTreeElement = function(skipUnrevealed, stayWithin, dontPopulate, info)
 {
-    if (!dontPopulate && this.hasChildren)
+    if (!dontPopulate && this.hasChildren) {
         this.onpopulate();
+    }
 
-    if (info)
+    if (info) {
         info.depthChange = 0;
+    }
 
     var element = skipUnrevealed ? (this.revealed() ? this.children[0] : null) : this.children[0];
     if (element && (!skipUnrevealed || (skipUnrevealed && this.expanded))) {
-        if (info)
+        if (info) {
             info.depthChange = 1;
+        }
         return element;
     }
 
-    if (this === stayWithin)
+    if (this === stayWithin) {
         return null;
+    }
 
     element = skipUnrevealed ? (this.revealed() ? this.nextSibling : null) : this.nextSibling;
-    if (element)
+    if (element) {
         return element;
+    }
 
     element = this;
     while (element && !element.root && !(skipUnrevealed ? (element.revealed() ? element.nextSibling : null) : element.nextSibling) && element.parent !== stayWithin) {
-        if (info)
+        if (info) {
             info.depthChange -= 1;
+        }
         element = element.parent;
     }
 
-    if (!element)
+    if (!element) {
         return null;
+    }
 
     return (skipUnrevealed ? (element.revealed() ? element.nextSibling : null) : element.nextSibling);
-}
+};
 
 /**
  * @param {boolean} skipUnrevealed
@@ -984,23 +1102,27 @@ TreeElement.prototype.traverseNextTreeElement = function(skipUnrevealed, stayWit
 TreeElement.prototype.traversePreviousTreeElement = function(skipUnrevealed, dontPopulate)
 {
     var element = skipUnrevealed ? (this.revealed() ? this.previousSibling : null) : this.previousSibling;
-    if (!dontPopulate && element && element.hasChildren)
+    if (!dontPopulate && element && element.hasChildren) {
         element.onpopulate();
+    }
 
     while (element && (skipUnrevealed ? (element.revealed() && element.expanded ? element.children[element.children.length - 1] : null) : element.children[element.children.length - 1])) {
-        if (!dontPopulate && element.hasChildren)
+        if (!dontPopulate && element.hasChildren) {
             element.onpopulate();
+        }
         element = (skipUnrevealed ? (element.revealed() && element.expanded ? element.children[element.children.length - 1] : null) : element.children[element.children.length - 1]);
     }
 
-    if (element)
+    if (element) {
         return element;
+    }
 
-    if (!this.parent || this.parent.root)
+    if (!this.parent || this.parent.root) {
         return null;
+    }
 
     return this.parent;
-}
+};
 
 /**
  * @return {boolean}
@@ -1012,4 +1134,4 @@ TreeElement.prototype.isEventWithinDisclosureTriangle = function(event)
     var computedLeftPadding = paddingLeftValue ? paddingLeftValue.getFloatValue(CSSPrimitiveValue.CSS_PX) : 0;
     var left = this._listItemNode.totalOffsetLeft() + computedLeftPadding;
     return event.pageX >= left && event.pageX <= left + this.arrowToggleWidth && this.hasChildren;
-}
+};

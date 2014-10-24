@@ -10,14 +10,14 @@ WebInspector.Console = function()
 {
     /** @type {!Array.<!WebInspector.Console.Message>} */
     this._messages = [];
-}
+};
 
 /**
  * @enum {string}
  */
 WebInspector.Console.Events = {
     MessageAdded: "messageAdded"
-}
+};
 
 /**
  * @enum {string}
@@ -26,7 +26,7 @@ WebInspector.Console.MessageLevel = {
     Log: "log",
     Warning: "warning",
     Error: "error"
-}
+};
 
 /**
  * @constructor
@@ -41,18 +41,18 @@ WebInspector.Console.Message = function(text, level, timestamp, show)
     this.level = level;
     this.timestamp = (typeof timestamp === "number") ? timestamp : Date.now();
     this.show = show;
-}
+};
 
 /**
  * @interface
  */
 WebInspector.Console.UIDelegate = function()
 {
-}
+};
 
 WebInspector.Console.UIDelegate.prototype = {
     showConsole: function() { }
-}
+};
 
 WebInspector.Console.prototype = {
     /**
@@ -109,11 +109,12 @@ WebInspector.Console.prototype = {
 
     show: function()
     {
-        if (this._uiDelegate)
+        if (this._uiDelegate) {
             this._uiDelegate.showConsole();
+        }
     },
 
     __proto__: WebInspector.Object.prototype
-}
+};
 
 WebInspector.console = new WebInspector.Console();

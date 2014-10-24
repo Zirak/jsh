@@ -1,0 +1,7 @@
+{
+    "curly" : true,
+    "evil" : true,
+    "immed" : true,
+    "multistr" : true,
+    "proto" : true
+}

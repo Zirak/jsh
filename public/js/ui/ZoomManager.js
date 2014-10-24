@@ -29,8 +29,9 @@ WebInspector.ZoomManager.prototype = {
     {
         var oldZoomFactor = this._zoomFactor;
         this._zoomFactor = InspectorFrontendHost.zoomFactor();
-        if (oldZoomFactor !== this._zoomFactor)
+        if (oldZoomFactor !== this._zoomFactor) {
             this.dispatchEventToListeners(WebInspector.ZoomManager.Events.ZoomChanged, {from: oldZoomFactor, to: this._zoomFactor});
+        }
     },
 
     __proto__: WebInspector.Object.prototype
@@ -39,4 +40,4 @@ WebInspector.ZoomManager.prototype = {
 /**
  * @type {!WebInspector.ZoomManager}
  */
-WebInspector.zoomManager;
+WebInspector.zoomManager = WebInspector.zoomManager;

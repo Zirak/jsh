@@ -12,12 +12,12 @@ WebInspector.DropDownMenu = function()
     this.element.addEventListener("mousedown", this._onBeforeMouseDown.bind(this), true);
     this.element.addEventListener("mousedown", consumeEvent, false);
     this.element.addEventListener("change", this._onChange.bind(this), false);
-}
+};
 
 WebInspector.DropDownMenu.Events = {
     BeforeShow: "BeforeShow",
     ItemSelected: "ItemSelected"
-}
+};
 
 WebInspector.DropDownMenu.prototype = {
     _onBeforeMouseDown: function()
@@ -65,4 +65,4 @@ WebInspector.DropDownMenu.prototype = {
     },
 
     __proto__: WebInspector.Object.prototype
-}
+};

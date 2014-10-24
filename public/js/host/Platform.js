@@ -36,29 +36,31 @@ WebInspector.platform = function()
         WebInspector._platform = 'linux'; /*InspectorFrontendHost.platform();*/
     }
     return WebInspector._platform;
-}
+};
 
 /**
  * @return {boolean}
  */
 WebInspector.isMac = function()
 {
-    if (typeof WebInspector._isMac === "undefined")
+    if (typeof WebInspector._isMac === "undefined") {
         WebInspector._isMac = WebInspector.platform() === "mac";
+    }
 
     return WebInspector._isMac;
-}
+};
 
 /**
  * @return {boolean}
  */
 WebInspector.isWin = function()
 {
-    if (typeof WebInspector._isWin === "undefined")
+    if (typeof WebInspector._isWin === "undefined") {
         WebInspector._isWin = WebInspector.platform() === "windows";
+    }
 
     return WebInspector._isWin;
-}
+};
 
 WebInspector.PlatformFlavor = {
     WindowsVista: "windows-vista",
@@ -66,7 +68,7 @@ WebInspector.PlatformFlavor = {
     MacLeopard: "mac-leopard",
     MacSnowLeopard: "mac-snowleopard",
     MacLion: "mac-lion"
-}
+};
 
 /**
  * @return {string}
@@ -75,17 +77,20 @@ WebInspector.platformFlavor = function()
 {
     function detectFlavor()
     {
-        const userAgent = navigator.userAgent;
+        var userAgent = navigator.userAgent,
+            match;
 
         if (WebInspector.platform() === "windows") {
-            var match = userAgent.match(/Windows NT (\d+)\.(?:\d+)/);
-            if (match && match[1] >= 6)
+            match = userAgent.match(/Windows NT (\d+)\.(?:\d+)/);
+            if (match && match[1] >= 6) {
                 return WebInspector.PlatformFlavor.WindowsVista;
+            }
             return null;
         } else if (WebInspector.platform() === "mac") {
-            var match = userAgent.match(/Mac OS X\s*(?:(\d+)_(\d+))?/);
-            if (!match || match[1] != 10)
+            match = userAgent.match(/Mac OS X\s*(?:(\d+)_(\d+))?/);
+            if (!match || match[1] != 10) {
                 return WebInspector.PlatformFlavor.MacSnowLeopard;
+            }
             switch (Number(match[2])) {
                 case 4:
                     return WebInspector.PlatformFlavor.MacTiger;
@@ -95,6 +100,7 @@ WebInspector.platformFlavor = function()
                     return WebInspector.PlatformFlavor.MacSnowLeopard;
                 case 7:
                     return WebInspector.PlatformFlavor.MacLion;
+                /*jshint -W086*/
                 case 8: // Matches the default version
                 case 9: // Matches the default version
                 default:
@@ -103,30 +109,33 @@ WebInspector.platformFlavor = function()
         }
     }
 
-    if (!WebInspector._platformFlavor)
+    if (!WebInspector._platformFlavor) {
         WebInspector._platformFlavor = detectFlavor();
+    }
 
     return WebInspector._platformFlavor;
-}
+};
 
 /**
  * @return {string}
  */
 WebInspector.port = function()
 {
-    if (!WebInspector._port)
+    if (!WebInspector._port) {
         WebInspector._port = InspectorFrontendHost.port();
+    }
 
     return WebInspector._port;
-}
+};
 
 /**
  * @return {string}
  */
 WebInspector.fontFamily = function()
 {
-    if (WebInspector._fontFamily)
+    if (WebInspector._fontFamily) {
         return WebInspector._fontFamily;
+    }
     switch (WebInspector.platform()) {
     case "linux":
         WebInspector._fontFamily = "Ubuntu, Arial, sans-serif";
@@ -139,15 +148,16 @@ WebInspector.fontFamily = function()
         break;
     }
     return WebInspector._fontFamily;
-}
+};
 
 /**
  * @return {string}
  */
 WebInspector.monospaceFontFamily = function()
 {
-    if (WebInspector._monospaceFontFamily)
+    if (WebInspector._monospaceFontFamily) {
         return WebInspector._monospaceFontFamily;
+    }
     switch (WebInspector.platform()) {
     case "linux":
         WebInspector._monospaceFontFamily = "dejavu sans mono, monospace";
@@ -160,7 +170,7 @@ WebInspector.monospaceFontFamily = function()
         break;
     }
     return WebInspector._monospaceFontFamily;
-}
+};
 
 /**
  * @return {boolean}
@@ -168,4 +178,4 @@ WebInspector.monospaceFontFamily = function()
 WebInspector.isWorkerFrontend = function()
 {
     return !!WebInspector.queryParam("dedicatedWorkerId") || !!WebInspector.queryParam("isSharedWorker");
-}
+};

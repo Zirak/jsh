@@ -13,14 +13,15 @@ WebInspector.Throttler = function(timeout)
     this._asSoonAsPossible = false;
     /** @type {?function(!WebInspector.Throttler.FinishCallback)} */
     this._process = null;
-}
+};
 
 WebInspector.Throttler.prototype = {
     _processCompleted: function()
     {
         this._isRunningProcess = false;
-        if (this._process)
+        if (this._process) {
             this._innerSchedule(false);
+        }
     },
 
     _onTimeout: function()
@@ -54,12 +55,15 @@ WebInspector.Throttler.prototype = {
      */
     _innerSchedule: function(force)
     {
-        if (this._isRunningProcess)
+        if (this._isRunningProcess) {
             return;
-        if (this._processTimeout && !force)
+        }
+        if (this._processTimeout && !force) {
             return;
-        if (this._processTimeout)
+        }
+        if (this._processTimeout) {
             this._clearTimeout(this._processTimeout);
+        }
 
         var timeout = this._asSoonAsPossible ? 0 : this._timeout;
         this._processTimeout = this._setTimeout(this._onTimeout.bind(this), timeout);
@@ -82,7 +86,7 @@ WebInspector.Throttler.prototype = {
     {
         return setTimeout(operation, timeout);
     }
-}
+};
 
 /** @typedef {function()} */
-WebInspector.Throttler.FinishCallback;
+WebInspector.Throttler.FinishCallback = WebInspector.Throttler.FinishCallback;

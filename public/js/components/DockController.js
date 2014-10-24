@@ -44,14 +44,14 @@ WebInspector.DockController = function(canDock)
 
     WebInspector.settings.currentDockState = WebInspector.settings.createSetting("currentDockState", "");
     WebInspector.settings.lastDockState = WebInspector.settings.createSetting("lastDockState", "");
-}
+};
 
 WebInspector.DockController.State = {
     DockedToBottom: "bottom",
     DockedToRight: "right",
     DockedToLeft: "left",
     Undocked: "undocked"
-}
+};
 
 // Use BeforeDockSideChanged to do something before all the UI bits are updated,
 // DockSideChanged to update UI, and AfterDockSideChanged to perform actions
@@ -60,13 +60,14 @@ WebInspector.DockController.Events = {
     BeforeDockSideChanged: "BeforeDockSideChanged",
     DockSideChanged: "DockSideChanged",
     AfterDockSideChanged: "AfterDockSideChanged"
-}
+};
 
 WebInspector.DockController.prototype = {
     initialize: function()
     {
-        if (!this._canDock)
+        if (!this._canDock) {
             return;
+        }
 
         this._states = [WebInspector.DockController.State.DockedToBottom, WebInspector.DockController.State.Undocked, WebInspector.DockController.State.DockedToRight];
         this._titles = [WebInspector.UIString("Dock to main window."), WebInspector.UIString("Undock into separate window."), WebInspector.UIString("Dock to main window.")];
@@ -108,8 +109,9 @@ WebInspector.DockController.prototype = {
      */
     _dockSideChanged: function(dockSide)
     {
-        if (this._dockSide === dockSide)
+        if (this._dockSide === dockSide) {
             return;
+        }
 
         var eventData = { from: this._dockSide, to: dockSide };
         this.dispatchEventToListeners(WebInspector.DockController.Events.BeforeDockSideChanged, eventData);
@@ -160,7 +162,7 @@ WebInspector.DockController.prototype = {
     },
 
     __proto__: WebInspector.Object.prototype
-}
+};
 
 /**
  * @constructor
@@ -168,7 +170,7 @@ WebInspector.DockController.prototype = {
  */
 WebInspector.DockController.ButtonProvider = function()
 {
-}
+};
 
 WebInspector.DockController.ButtonProvider.prototype = {
     /**
@@ -176,8 +178,9 @@ WebInspector.DockController.ButtonProvider.prototype = {
      */
     button: function()
     {
-        if (!WebInspector.dockController.canDock())
+        if (!WebInspector.dockController.canDock()) {
             return null;
+        }
 
         if (!this._dockToggleButton) {
             this._dockToggleButton = new WebInspector.StatusBarStatesSettingButton(
@@ -191,9 +194,9 @@ WebInspector.DockController.ButtonProvider.prototype = {
         }
         return this._dockToggleButton;
     }
-}
+};
 
 /**
  * @type {!WebInspector.DockController}
  */
-WebInspector.dockController;
+WebInspector.dockController = WebInspector.dockController;

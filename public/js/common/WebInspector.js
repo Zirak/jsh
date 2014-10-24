@@ -6,11 +6,11 @@
 
 self.WebInspector = {
     _queryParamsObject: {}
-}
+};
 
 WebInspector.Events = {
     InspectorLoaded: "InspectorLoaded"
-}
+};
 
 /**
  * @param {string} name
@@ -19,13 +19,14 @@ WebInspector.Events = {
 WebInspector.queryParam = function(name)
 {
     return WebInspector._queryParamsObject.hasOwnProperty(name) ? WebInspector._queryParamsObject[name] : null;
-}
+};
 
 {(function parseQueryParameters()
 {
     var queryParams = location.search;
-    if (!queryParams)
+    if (!queryParams) {
         return;
+    }
     var params = queryParams.substring(1).split("&");
     for (var i = 0; i < params.length; ++i) {
         var pair = params[i].split("=");
@@ -37,8 +38,9 @@ WebInspector.queryParam = function(name)
     if (settingsParam) {
         try {
             var settings = JSON.parse(window.decodeURI(settingsParam));
-            for (var key in settings)
+            for (var key in settings) {
                 window.localStorage[key] = settings[key];
+            }
         } catch(e) {
             // Ignore malformed settings.
         }

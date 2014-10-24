@@ -33,7 +33,7 @@
  */
 WebInspector.LinkifierFormatter = function()
 {
-}
+};
 
 WebInspector.LinkifierFormatter.prototype = {
     /**
@@ -41,7 +41,7 @@ WebInspector.LinkifierFormatter.prototype = {
      * @param {!WebInspector.UILocation} uiLocation
      */
     formatLiveAnchor: function(anchor, uiLocation) { }
-}
+};
 
 /**
  * @constructor
@@ -53,7 +53,7 @@ WebInspector.Linkifier = function(formatter)
     this._formatter = formatter || new WebInspector.Linkifier.DefaultFormatter(WebInspector.Linkifier.MaxLengthForDisplayedURLs);
     this._liveLocationsByTarget = new Map();
     WebInspector.targetManager.observeTargets(this);
-}
+};
 
 /**
  * @param {!WebInspector.Linkifier.LinkHandler} handler
@@ -61,7 +61,7 @@ WebInspector.Linkifier = function(formatter)
 WebInspector.Linkifier.setLinkHandler = function(handler)
 {
     WebInspector.Linkifier._linkHandler = handler;
-}
+};
 
 /**
  * @param {string} url
@@ -70,10 +70,11 @@ WebInspector.Linkifier.setLinkHandler = function(handler)
  */
 WebInspector.Linkifier.handleLink = function(url, lineNumber)
 {
-    if (!WebInspector.Linkifier._linkHandler)
+    if (!WebInspector.Linkifier._linkHandler) {
         return false;
-    return WebInspector.Linkifier._linkHandler.handleLink(url, lineNumber)
-}
+    }
+    return WebInspector.Linkifier._linkHandler.handleLink(url, lineNumber);
+};
 
 /**
  * @param {!Object} revealable
@@ -102,14 +103,15 @@ WebInspector.Linkifier.linkifyUsingRevealer = function(revealable, text, fallbac
     {
         event.stopImmediatePropagation();
         event.preventDefault();
-        if (fallbackHref && WebInspector.Linkifier.handleLink(fallbackHref, fallbackLineNumber))
+        if (fallbackHref && WebInspector.Linkifier.handleLink(fallbackHref, fallbackLineNumber)) {
             return;
+        }
 
         WebInspector.Revealer.reveal(this);
     }
     a.addEventListener("click", clickHandler.bind(revealable), false);
     return a;
-}
+};
 
 WebInspector.Linkifier.prototype = {
     /**
@@ -153,8 +155,9 @@ WebInspector.Linkifier.prototype = {
     {
         var rawLocation = target ? target.debuggerModel.createRawLocationByScriptId(scriptId, sourceURL, lineNumber, columnNumber || 0) : null;
         var fallbackAnchor = WebInspector.linkifyResourceAsNode(sourceURL, lineNumber, classes);
-        if (!rawLocation)
+        if (!rawLocation) {
             return fallbackAnchor;
+        }
 
         var anchor = this.linkifyRawLocation(rawLocation, classes);
         anchor.__fallbackAnchor = fallbackAnchor;
@@ -173,8 +176,9 @@ WebInspector.Linkifier.prototype = {
     linkifyLocation: function(target, sourceURL, lineNumber, columnNumber, classes)
     {
         var rawLocation = target.debuggerModel.createRawLocationByURL(sourceURL, lineNumber, columnNumber || 0);
-        if (!rawLocation)
+        if (!rawLocation) {
             return WebInspector.linkifyResourceAsNode(sourceURL, lineNumber, classes);
+        }
         return this.linkifyRawLocation(rawLocation, classes);
     },
 
@@ -187,8 +191,9 @@ WebInspector.Linkifier.prototype = {
     {
         // FIXME: this check should not be here.
         var script = rawLocation.target().debuggerModel.scriptForId(rawLocation.scriptId);
-        if (!script)
+        if (!script) {
             return null;
+        }
         var anchor = this._createAnchor(classes);
         var liveLocation = rawLocation.createLiveLocation(this._updateAnchor.bind(this, anchor));
         this._liveLocationsByTarget.get(rawLocation.target()).push({anchor: anchor, location: liveLocation});
@@ -205,8 +210,9 @@ WebInspector.Linkifier.prototype = {
     {
         var anchor = this._createAnchor(classes);
         var liveLocation = rawLocation.createLiveLocation(styleSheetId, this._updateAnchor.bind(this, anchor));
-        if (!liveLocation)
+        if (!liveLocation) {
             return null;
+        }
         this._liveLocationsByTarget.get(rawLocation.target()).push({anchor: anchor, location: liveLocation});
         return anchor;
     },
@@ -225,12 +231,14 @@ WebInspector.Linkifier.prototype = {
          */
         function clickHandler(event)
         {
-            if (!anchor.__uiLocation)
+            if (!anchor.__uiLocation) {
                 return;
+            }
             event.stopImmediatePropagation();
             event.preventDefault();
-            if (WebInspector.Linkifier.handleLink(anchor.__uiLocation.uiSourceCode.url, anchor.__uiLocation.lineNumber))
+            if (WebInspector.Linkifier.handleLink(anchor.__uiLocation.uiSourceCode.url, anchor.__uiLocation.lineNumber)) {
                 return;
+            }
             WebInspector.Revealer.reveal(anchor.__uiLocation);
         }
         anchor.addEventListener("click", clickHandler, false);
@@ -256,7 +264,7 @@ WebInspector.Linkifier.prototype = {
         anchor.__uiLocation = uiLocation;
         this._formatter.formatLiveAnchor(anchor, uiLocation);
     }
-}
+};
 
 /**
  * @constructor
@@ -266,7 +274,7 @@ WebInspector.Linkifier.prototype = {
 WebInspector.Linkifier.DefaultFormatter = function(maxLength)
 {
     this._maxLength = maxLength;
-}
+};
 
 WebInspector.Linkifier.DefaultFormatter.prototype = {
     /**
@@ -276,16 +284,18 @@ WebInspector.Linkifier.DefaultFormatter.prototype = {
     formatLiveAnchor: function(anchor, uiLocation)
     {
         var text = uiLocation.linkText();
-        if (this._maxLength)
+        if (this._maxLength) {
             text = text.trimMiddle(this._maxLength);
+        }
         anchor.textContent = text;
 
         var titleText = uiLocation.uiSourceCode.originURL();
-        if (typeof uiLocation.lineNumber === "number")
+        if (typeof uiLocation.lineNumber === "number") {
             titleText += ":" + (uiLocation.lineNumber + 1);
+        }
         anchor.title = titleText;
     }
-}
+};
 
 /**
  * @constructor
@@ -294,7 +304,7 @@ WebInspector.Linkifier.DefaultFormatter.prototype = {
 WebInspector.Linkifier.DefaultCSSFormatter = function()
 {
     WebInspector.Linkifier.DefaultFormatter.call(this, WebInspector.Linkifier.DefaultCSSFormatter.MaxLengthForDisplayedURLs);
-}
+};
 
 WebInspector.Linkifier.DefaultCSSFormatter.MaxLengthForDisplayedURLs = 30;
 
@@ -311,7 +321,7 @@ WebInspector.Linkifier.DefaultCSSFormatter.prototype = {
         anchor.textContent = "";
     },
     __proto__: WebInspector.Linkifier.DefaultFormatter.prototype
-}
+};
 
 /**
  * The maximum number of characters to display in a URL.
@@ -325,7 +335,7 @@ WebInspector.Linkifier.MaxLengthForDisplayedURLs = 150;
  */
 WebInspector.Linkifier.LinkHandler = function()
 {
-}
+};
 
 WebInspector.Linkifier.LinkHandler.prototype = {
     /**
@@ -334,7 +344,7 @@ WebInspector.Linkifier.LinkHandler.prototype = {
      * @return {boolean}
      */
     handleLink: function(url, lineNumber) {}
-}
+};
 
 /**
  * @param {!WebInspector.Target} target
@@ -346,8 +356,9 @@ WebInspector.Linkifier.LinkHandler.prototype = {
 WebInspector.Linkifier.liveLocationText = function(target, scriptId, lineNumber, columnNumber)
 {
     var script = target.debuggerModel.scriptForId(scriptId);
-    if (!script)
+    if (!script) {
         return "";
+    }
     var uiLocation = script.rawLocationToUILocation(lineNumber, columnNumber);
     return uiLocation.linkText();
-}
+};

@@ -103,7 +103,7 @@ WebInspector.InspectorView = function()
 
     this._panels = {};
     // Used by tests.
-    WebInspector["panels"] = this._panels;
+    WebInspector.panels = this._panels;
 
     this._history = [];
     this._historyIterator = -1;
@@ -123,7 +123,7 @@ WebInspector.InspectorView = function()
 
 WebInspector.InspectorView.Events = {
     DeviceCountChanged: "DeviceCountChanged"
-}
+};
 
 WebInspector.InspectorView.prototype = {
     _loadPanelDesciptors: function()
@@ -167,8 +167,9 @@ WebInspector.InspectorView.prototype = {
         var panelName = panelDescriptor.name();
         this._panelDescriptors[panelName] = panelDescriptor;
         this._tabbedPane.appendTab(panelName, panelDescriptor.title(), new WebInspector.View());
-        if (this._lastActivePanelSetting.get() === panelName)
+        if (this._lastActivePanelSetting.get() === panelName) {
             this._tabbedPane.selectTab(panelName);
+        }
     },
 
     /**
@@ -188,11 +189,13 @@ WebInspector.InspectorView.prototype = {
     {
         var panelDescriptor = this._panelDescriptors[panelName];
         var panelOrder = this._tabbedPane.allTabs();
-        if (!panelDescriptor && panelOrder.length)
+        if (!panelDescriptor && panelOrder.length) {
             panelDescriptor = this._panelDescriptors[panelOrder[0]];
+        }
         var panel = panelDescriptor ? panelDescriptor.panel() : null;
-        if (panel)
+        if (panel) {
             this._panels[panelName] = panel;
+        }
         return panel;
     },
 
@@ -203,8 +206,9 @@ WebInspector.InspectorView.prototype = {
     {
         this._currentPanelLocked = locked;
         this._tabbedPane.setCurrentTabLocked(locked);
-        for (var i = 0; i < this._toolbarItems.length; ++i)
+        for (var i = 0; i < this._toolbarItems.length; ++i) {
             this._toolbarItems[i].setEnabled(!locked);
+        }
     },
 
     /**
@@ -213,12 +217,14 @@ WebInspector.InspectorView.prototype = {
      */
     showPanel: function(panelName)
     {
-        if (this._currentPanelLocked)
+        if (this._currentPanelLocked) {
             return this._currentPanel === this._panels[panelName] ? this._currentPanel : null;
+        }
 
         var panel = this.panel(panelName);
-        if (panel)
+        if (panel) {
             this.setCurrentPanel(panel);
+        }
         return panel;
     },
 
@@ -266,8 +272,9 @@ WebInspector.InspectorView.prototype = {
     _tabSelected: function()
     {
         var panelName = this._tabbedPane.selectedTabId;
-        if (!panelName)
+        if (!panelName) {
             return;
+        }
         var panel = this._panelDescriptors[this._tabbedPane.selectedTabId].panel();
         this._panels[panelName] = panel;
         this._tabbedPane.changeTabView(panelName, panel);
@@ -284,10 +291,12 @@ WebInspector.InspectorView.prototype = {
      */
     setCurrentPanel: function(x)
     {
-        if (this._currentPanelLocked)
+        if (this._currentPanelLocked) {
             return;
-        if (this._currentPanel === x)
+        }
+        if (this._currentPanel === x) {
             return;
+        }
 
         this._tabbedPane.changeTabView(x.name, x);
         this._tabbedPane.selectTab(x.name);
@@ -330,6 +339,7 @@ WebInspector.InspectorView.prototype = {
      */
     showViewInDrawer: function(id, immediate)
     {
+        /*jshint -W027*/
         return;
         this._drawer.showView(id, immediate);
     },
@@ -359,31 +369,36 @@ WebInspector.InspectorView.prototype = {
     {
         // BUG 104250: Windows 7 posts a WM_CHAR message upon the Ctrl+']' keypress.
         // Any charCode < 32 is not going to be a valid keypress.
-        if (event.charCode < 32 && WebInspector.isWin())
+        if (event.charCode < 32 && WebInspector.isWin()) {
             return;
+        }
         clearTimeout(this._keyDownTimer);
         delete this._keyDownTimer;
     },
 
     _keyDown: function(event)
     {
-        if (!WebInspector.KeyboardShortcut.eventHasCtrlOrMeta(event))
+        if (!WebInspector.KeyboardShortcut.eventHasCtrlOrMeta(event)) {
             return;
+        }
 
         var keyboardEvent = /** @type {!KeyboardEvent} */ (event);
         // Ctrl/Cmd + 1-9 should show corresponding panel.
         var panelShortcutEnabled = WebInspector.settings.shortcutPanelSwitch.get();
         if (panelShortcutEnabled && !event.shiftKey && !event.altKey) {
             var panelIndex = -1;
-            if (event.keyCode > 0x30 && event.keyCode < 0x3A)
+            if (event.keyCode > 0x30 && event.keyCode < 0x3A) {
                 panelIndex = event.keyCode - 0x31;
-            else if (event.keyCode > 0x60 && event.keyCode < 0x6A && keyboardEvent.location === KeyboardEvent.DOM_KEY_LOCATION_NUMPAD)
+            }
+            else if (event.keyCode > 0x60 && event.keyCode < 0x6A && keyboardEvent.location === KeyboardEvent.DOM_KEY_LOCATION_NUMPAD) {
                 panelIndex = event.keyCode - 0x61;
+            }
             if (panelIndex !== -1) {
                 var panelName = this._tabbedPane.allTabs()[panelIndex];
                 if (panelName) {
-                    if (!WebInspector.Dialog.currentInstance() && !this._currentPanelLocked)
+                    if (!WebInspector.Dialog.currentInstance() && !this._currentPanelLocked) {
                         this.showPanel(panelName);
+                    }
                     event.consume(true);
                 }
                 return;
@@ -403,29 +418,35 @@ WebInspector.InspectorView.prototype = {
 
     _keyDownInternal: function(event)
     {
-        if (this._currentPanelLocked)
+        if (this._currentPanelLocked) {
             return;
+        }
 
         var direction = 0;
 
-        if (this._openBracketIdentifiers[event.keyIdentifier])
+        if (this._openBracketIdentifiers[event.keyIdentifier]) {
             direction = -1;
+        }
 
-        if (this._closeBracketIdentifiers[event.keyIdentifier])
+        if (this._closeBracketIdentifiers[event.keyIdentifier]) {
             direction = 1;
+        }
 
-        if (!direction)
+        if (!direction) {
             return;
+        }
 
         if (!event.shiftKey && !event.altKey) {
-            if (!WebInspector.Dialog.currentInstance())
+            if (!WebInspector.Dialog.currentInstance()) {
                 this._changePanelInDirection(direction);
+            }
             event.consume(true);
             return;
         }
 
-        if (event.altKey && this._moveInHistory(direction))
-            event.consume(true)
+        if (event.altKey && this._moveInHistory(direction)) {
+            event.consume(true);
+        }
     },
 
     _changePanelInDirection: function(direction)
@@ -439,13 +460,15 @@ WebInspector.InspectorView.prototype = {
     _moveInHistory: function(move)
     {
         var newIndex = this._historyIterator + move;
-        if (newIndex >= this._history.length || newIndex < 0)
+        if (newIndex >= this._history.length || newIndex < 0) {
             return false;
+        }
 
         this._inHistory = true;
         this._historyIterator = newIndex;
-        if (!WebInspector.Dialog.currentInstance())
+        if (!WebInspector.Dialog.currentInstance()) {
             this.setCurrentPanel(this._panels[this._history[this._historyIterator]]);
+        }
         delete this._inHistory;
 
         return true;
@@ -453,12 +476,14 @@ WebInspector.InspectorView.prototype = {
 
     _pushToHistory: function(panelName)
     {
-        if (this._inHistory)
+        if (this._inHistory) {
             return;
+        }
 
         this._history.splice(this._historyIterator + 1, this._history.length - this._historyIterator - 1);
-        if (!this._history.length || this._history[this._history.length - 1] !== panelName)
+        if (!this._history.length || this._history[this._history.length - 1] !== panelName) {
             this._history.push(panelName);
+        }
         this._historyIterator = this._history.length - 1;
     },
 
@@ -477,8 +502,9 @@ WebInspector.InspectorView.prototype = {
 
     _createImagedCounterElementIfNeeded: function(parent, count, id, styleName)
     {
-        if (!count)
+        if (!count) {
             return;
+        }
 
         var imageElement = parent.createChild("div", styleName);
         var counterElement = parent.createChild("span");
@@ -492,8 +518,9 @@ WebInspector.InspectorView.prototype = {
      */
     setErrorAndWarningCounts: function(errors, warnings)
     {
-        if (this._errors === errors && this._warnings === warnings)
+        if (this._errors === errors && this._warnings === warnings) {
             return;
+        }
         this._errors = errors;
         this._warnings = warnings;
         this._errorWarningCountElement.classList.toggle("hidden", !errors && !warnings);
@@ -515,8 +542,9 @@ WebInspector.InspectorView.prototype = {
     _onDeviceCountUpdated: function(event)
     {
         var count = /** @type {number} */ (event.data);
-        if (count === this.deviceCount_)
+        if (count === this.deviceCount_) {
             return;
+        }
         this.deviceCount_ = count;
         this._remoteDeviceCountElement.classList.toggle("hidden", !count);
         this._remoteDeviceCountElement.removeChildren();
@@ -545,7 +573,7 @@ WebInspector.InspectorView.prototype = {
 /**
  * @type {!WebInspector.InspectorView}
  */
-WebInspector.inspectorView;
+WebInspector.inspectorView = WebInspector.inspectorView;
 
 /**
  * @constructor
@@ -553,7 +581,7 @@ WebInspector.inspectorView;
  */
 WebInspector.InspectorView.DrawerToggleActionDelegate = function()
 {
-}
+};
 
 WebInspector.InspectorView.DrawerToggleActionDelegate.prototype = {
     /**
@@ -568,7 +596,7 @@ WebInspector.InspectorView.DrawerToggleActionDelegate.prototype = {
         WebInspector.inspectorView.showDrawer();
         return true;
     }
-}
+};
 
 /**
  * @constructor
@@ -594,10 +622,12 @@ WebInspector.RootView.prototype = {
     _onScroll: function()
     {
         // If we didn't have enough space at the start, we may have wrong scroll offsets.
-        if (document.body.scrollTop !== 0)
+        if (document.body.scrollTop !== 0) {
             document.body.scrollTop = 0;
-        if (document.body.scrollLeft !== 0)
+        }
+        if (document.body.scrollLeft !== 0) {
             document.body.scrollLeft = 0;
+        }
     },
 
     doResize: function()
@@ -609,10 +639,12 @@ WebInspector.RootView.prototype = {
         var bottom = Math.min(0, window.innerHeight - size.height / zoom);
         this.element.style.bottom = bottom + "px";
 
-        if (window.innerWidth < size.width || window.innerHeight < size.height)
+        if (window.innerWidth < size.width || window.innerHeight < size.height) {
             window.addEventListener("scroll", this._onScrollBound, false);
-        else
+        }
+        else {
             window.removeEventListener("scroll", this._onScrollBound, false);
+        }
 
         WebInspector.VBox.prototype.doResize.call(this);
         this._onScroll();
