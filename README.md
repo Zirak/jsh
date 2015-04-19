@@ -22,7 +22,7 @@ http://jsh.zirak.me . It could take a bit to load.
 
 ## What is this?
 As the introduction above says, this is Chrome's dev tools javascript console in
-a regular web page. To see how it was done, see the [How stuff works](#How stuff works)
+a regular web page. To see how it was done, see the [How stuff works](#how-stuff-works)
 section below.
 
 Write some javascript, invite your friends, write some javascript on your
