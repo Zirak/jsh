@@ -54,6 +54,20 @@ What you'd expect of Chrome dev tools' excellent console:
 * [ ] Settings (?)
 * [ ] Better editing (tab button support)
 
+## Running
+A bit unfortunately, this is meant to run on Google App Engine, so to run you'll
+need to [download the SDK for Python](https://cloud.google.com/appengine/downloads).
+
+Unzip/install/whatever, and run:
+
+```sh
+$ python2.7 path/to/google_appengine/dev_appserver.py path/to/jsh
+```
+
+(if 2.7 is already your Python version you can omit that first part.)
+
+Pay a visit to localhost:8080 and have fun.
+
 ## How stuff works
 The best way to learn how the dev tools works is by looking at the source and
 playing around with it. The sources here are taken freshly squeezed from
