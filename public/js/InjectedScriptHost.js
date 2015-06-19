@@ -41,6 +41,10 @@ var InjectedScriptHost = {
         var exposedType = ({}).toString.call(obj).slice(8, -1);
         var verbatim = ['String', 'Array', 'Boolean', 'Number', 'Date', 'RegExp'];
 
+        if (typeof Symbol !== 'undefined') {
+            verbatim.push('Symbol');
+        }
+
         if (verbatim.indexOf(exposedType) > -1) {
             return exposedType.toLowerCase();
         }
